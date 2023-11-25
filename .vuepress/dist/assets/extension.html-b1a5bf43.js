@@ -1,0 +1,1 @@
+import{_ as e,o as t,c as o,a as s}from"./app-6d77216b.js";const n={},c=s("p",null,"This is theme-reco.",-1),_=[c];function r(a,i){return t(),o("div",null,_)}const d=e(n,[["render",r],["__file","extension.html.vue"]]);export{d as default};

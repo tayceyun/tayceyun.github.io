@@ -1,0 +1,10 @@
+.search-box {
+  width: 200px;
+  :is(input) {
+    width: 100%;
+  }
+}
+
+.page-catalog-container {
+  width: 22rem !important;
+}
