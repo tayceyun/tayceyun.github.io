@@ -47,7 +47,14 @@ module.exports = {
       //   }
     ],
     sidebar: {
-      '/blog/work/': ['', ['plate', '细究touch事件'], 'work']
+      '/blog/work/': [
+        '',
+        {
+          title: 'PUMA Internal Sales',
+          collapsable: false,
+          children: [['/blog/work/puma/mini', '小程序']]
+        }
+      ]
     },
     sidebarDepth: 3
   },
