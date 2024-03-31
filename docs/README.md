@@ -1,5 +1,4 @@
 ---
 home: true
-heroImage: /orange.jpg
+heroImage: /images/orange.jpg
 ---
-

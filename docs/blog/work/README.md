@@ -10,9 +10,13 @@ _微信原生开发_ + _vant weapp 组件库_
 
 【win10 移动端】赛默飞 Frankie 酶标仪
 
-_electron_ + _vue3_ + _echart_ + _element plus_ + _tailwind css_
+_electron_ + _vue3_ + _Typescript_ + _echart_ + _element plus_ + _tailwind css_
 
 #### [3.Coach ASIA NLS Project](/blog/work/NLS.md)
+
+【Web 端】Coach
+
+_vue3_ + _Typescript_ + _ant design_ + _Windi css_
 
 #### [4.Roche Regulatory Intelligence Project](/blog/work/roche.md)
 
