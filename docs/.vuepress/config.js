@@ -2,58 +2,59 @@ module.exports = {
   title: "tayce's library", // 网站标题
   description: '移动的图书馆', // 网站描述
   head: [
-    ['link', { rel: 'icon', href: '/logo.jpg' }] // meta
+    ['link', { rel: 'icon', href: '/images/logo.jpg' }], // meta
+    ['link', { rel: 'stylesheet', href: '/styles/index.css' }] // 样式
   ],
   themeConfig: {
-    logo: '/logo.jpg',
     nav: [
-      // target: '_blank'/_self； link: ''：外链
       { text: 'Home', link: '/' },
       {
-        text: 'Work record',
-        link: '/blog/work/'
-      },
-      {
-        text: 'Framework',
+        text: 'Technology',
         items: [
-          { text: 'vue', link: '/blog/framework/' }
-          //   { text: 'react', link: '/language/english/' },
-          //   { text: 'electron', link: '/language/english/' },
-          //   { text: 'native wx', link: '/language/english/' }
+          {
+            text: 'basis',
+            items: [
+              { text: 'html', link: '/blog/basis/html/' },
+              { text: 'css', link: '/blog/basis/css/' },
+              { text: 'javascript', link: '/blog/basis/js' }
+            ]
+          },
+          {
+            text: 'framework',
+            items: [
+              { text: 'vue', link: '/blog/framework/vue/' },
+              { text: 'react', link: '/blog/framework/react/' },
+              { text: 'electron', link: '/blog/framework/electron/' },
+              { text: 'native wx', link: '/blog/framework/native-wx/' }
+            ]
+          },
+          {
+            text: 'others',
+            items: [
+              { text: 'typescript', link: '/blog/others/ts/' },
+              { text: 'node', link: '/blog/others/node/' },
+              { text: 'webpack', link: '/blog/others/webpack/' },
+              { text: 'git', link: '/blog/others/git/' },
+              { text: 'algorithm', link: '/blog/others/algorithm/' }
+            ]
+          }
         ]
       }
       //   {
-      //     text: 'Category-Tech',
-      //     items: [
-      //       {
-      //         text: 'basis'
-      //         // items: [
-      //         //   { text: 'html', link: '/language/english/' },
-      //         //   { text: 'css', link: '/language/english/' },
-      //         //   { text: 'javascript', link: '/language/english/' }
-      //         // ]
-      //       }
-      //       //   {
-      //       //     text: 'others'
-      //       //     // items: [
-      //       //     //   { text: 'typescript', link: '/language/english/' },
-      //       //     //   { text: 'node', link: '/language/english/' },
-      //       //     //   { text: 'webpack', link: '/language/english/' },
-      //       //     //   { text: 'git', link: '/language/english/' }
-      //       //     //   { text: 'algorithm', link: '/language/english/' }
-      //       //     // ]
-      //       //   }
-      //     ]
+      //     text: 'Work',
+      //     link: '/blog/work/'
       //   }
     ],
     sidebar: {
       '/blog/work/': [
-        '',
-        {
-          title: 'PUMA Internal Sales',
-          collapsable: false,
-          children: [['/blog/work/puma/mini', '小程序']]
-        }
+        ['', '项目经历'],
+        ['/blog/work/internal-sales', 'Internal Sales Project'],
+        ['/blog/work/frankie', 'Frankie Project'],
+        ['/blog/work/NLS', 'ASIA NLS Project'],
+        ['/blog/work/roche', 'Regulatory Intelligence Project'],
+        ['/blog/work/ticket', 'ticket 项目'],
+        ['/blog/work/expense', '内部费用管理项目'],
+        ['/blog/work/expense', '消费者bg']
       ]
     },
     sidebarDepth: 3

@@ -1,3 +1,8 @@
 .theme-default-content:not(.custom) {
   padding: 2rem 1.5rem !important;
 }
+
+.home .footer {
+  padding: 1rem !important;
+  border-top: unset !important;
+}
