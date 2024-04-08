@@ -284,6 +284,35 @@ let v2: string = f(); // 不报错
 let v3: boolean = f(); // 不报错
 ```
 
+### 只读数组 const 断言
+
+声明只读数组
+
+`const arr:readonly number[] = [0, 1];`
+
+TypeScript 提供了两个专门的泛型，用来生成只读数组的类型
+
+```typescript
+const a1: ReadonlyArray<number> = [0, 1];
+
+const a2: Readonly<number[]> = [0, 1];
+```
+
+使用 const 断言 生成只读数组
+
+```typescript
+const arr = [0, 1] as const;
+
+arr[0] = [2]; // 报错
+```
+
+readonly 关键字不能与数组的泛型写法一起使用
+
+```typescript
+// 报错
+const arr: readonly Array<number> = [0, 1];
+```
+
 ### tuple 类型（元组）
 
 元组数据解构中可以存放不同的数据类型，取出的 item 有明确的类型
@@ -305,7 +334,7 @@ function useState(initial: number): [number, (newVal: number) => void] {
 const [stateValue, setValue] = useState(111);
 ```
 
-元组成员的类型可添加问号后缀（`?`），表示该成员可选（问号只能用于元组的尾部成员）
+元组成员的类型可添加问号后缀（`?`），表示该成员可选（**问号只能用于元组的尾部成员**）
 
 `let a:[number, number?] = [1];`
 
@@ -340,7 +369,7 @@ type t = Readonly<[number, string]>;
 - 联合类型中的每一个类型被称为联合成员(union's members)
   `let myVar: string | number;`
 
-  #### 类型别名
+### 类型别名
 
 ```typescript
 type BasicLength = number | string;
@@ -379,6 +408,20 @@ let b:string = 'hello';
 
 b = a; // 正确
 a = b; // 报错
+```
+
+如果**一个变量要套用另一个函数类型**，可以使用 typeof 运算符
+
+扩展：任何需要类型的地方，都可以使用`typeof`运算符从一个值获取类型
+
+```typescript
+function add(x: number, y: number) {
+  return x + y;
+}
+
+const myAdd: typeof add = function (x, y) {
+  return x + y;
+};
 ```
 
 ### interface(接口)
@@ -808,6 +851,8 @@ function foo(...arr: (number | string)[]) {
 ```
 
 #### 函数重载
+
+有些函数可以接受不同类型或不同个数的参数，并且根据参数的不同，会有不同的函数行为。这种根据参数类型不同，执行不同逻辑的行为，称为函数重载（function overload）。
 
 ```typescript
 // 可以编写不同的重载签名来表示函数可以以不同方式调用
@@ -1481,6 +1526,367 @@ const mapPerson: NewPerson = {
 };
 ```
 
+#### 映射修饰符--示例
+
+添加 / 移除 可选属性
+
+```typescript
+// 添加可选属性
+type Optional<Type> = {
+  [Prop in keyof Type]+?: Type[Prop];
+};
+
+// 移除可选属性
+type Concrete<Type> = {
+  [Prop in keyof Type]-?: Type[Prop];
+};
+```
+
+添加 / 移除只读属性
+
+```typescript
+// 添加 readonly
+type CreateImmutable<Type> = {
+  +readonly [Prop in keyof Type]: Type[Prop];
+};
+
+// 移除 readonly
+type CreateMutable<Type> = {
+  -readonly [Prop in keyof Type]: Type[Prop];
+};
+```
+
+同时增删?和 readonly 这两个修饰符
+
+```typescript
+// 增加
+type MyObj<T> = {
+  +readonly [P in keyof T]+?: T[P];
+};
+
+// 移除
+type MyObj<T> = {
+  -readonly [P in keyof T]-?: T[P];
+};
+```
+
+#### 键名重映射
+
+```typescript
+type A = {
+  foo: number;
+  bar: number;
+};
+
+type B = {
+  [p in keyof A as `${p}ID`]: number;
+};
+
+// 等同于
+type B = {
+  fooID: number;
+  barID: number;
+};
+```
+
+复杂示例
+
+```typescript
+interface Person {
+  name: string;
+  age: number;
+  location: string;
+}
+
+type Getters<T> = {
+  [P in keyof T as `get${Capitalize<string & P>}`]: () => T[P];
+};
+
+type LazyPerson = Getters<Person>;
+// 等同于
+type LazyPerson = {
+  getName: () => string;
+  getAge: () => number;
+  getLocation: () => string;
+};
+```
+
+解释：
+
+1.get：为键名添加的前缀。
+
+2.`Capitalize<T>`：一个原生的工具泛型，用来将 T 的首字母变成大写。
+
+3.`string & P`：一个交叉类型，其中的 P 是 keyof 运算符返回的键名联合类型`string|number|symbol`，但是 `Capitalize<T>`只能接受字符串作为类型参数，因此 string & P 只返回 P 的字符串属性名。
+
+键名重映射过滤特定属性
+
+```typescript
+type User = {
+  name: string;`
+  age: number;
+};
+
+type Filter<T> = {
+  [K in keyof T as T[K] extends string ? K : never]: string;
+};
+
+type FilteredUser = Filter<User>; // { name: string }
+```
+
+联合类型映射
+
+```typescript
+// 原始键名的映射是E in Events，这里的Events是两个对象组成的联合类型S|C。
+// 所以，E是一个对象，然后再通过键名重映射，得到字符串键名E['kind']。
+type S = {
+  kind: 'square';
+  x: number;
+  y: number;
+};
+
+type C = {
+  kind: 'circle';
+  radius: number;
+};
+
+type MyEvents<Events extends { kind: string }> = {
+  [E in Events as E['kind']]: (event: E) => void;
+};
+
+type Config = MyEvents<S | C>;
+// 等同于
+type Config = {
+  square: (event: S) => void;
+  circle: (event: C) => void;
+};
+```
+
+### 类型运算符
+
+- keyof
+- in
+- 方括号运算符
+- extends...?
+- infer
+- is
+
+#### keyof 运算符
+
+JavaScript 对象的键名只有三种类型，所以对于任意对象的键名的联合类型就是 string|number|symbol（keyof 返回的类型）
+
+```
+// string | number | symbol
+type KeyT = keyof any;
+```
+
+如果只需要其中一种类型，可采用交叉类型写法
+
+`type Capital<T extends string> = Capitalize<T>;`
+
+如果对象属性名采用索引形式，keyof 会返回属性名的索引类型
+
+```typescript
+// 示例一
+interface T {
+  [prop: number]: number;
+}
+
+// number
+type KeyT = keyof T;
+
+// 示例二
+interface T {
+  [prop: string]: number;
+}
+
+// string|number
+type KeyT = keyof T;
+```
+
+如果 keyof 运算符用于数组或元组类型,keyof 会返回数组的所有键名，包括数字键名和继承的键名
+
+```typescript
+type Result = keyof ['a', 'b', 'c'];
+// 返回 number | "0" | "1" | "2"
+// | "length" | "pop" | "push" | ···
+```
+
+对于联合类型，keyof 返回成员共有的键名
+
+```typescript
+type A = { a: string; z: boolean };
+type B = { b: string; z: boolean };
+
+// 返回 'z'
+type KeyT = keyof (A | B);
+```
+
+对于交叉类型，keyof 返回所有键名
+
+```typescript
+type A = { a: string; x: boolean };
+type B = { b: string; y: number };
+
+// 返回 'a' | 'x' | 'b' | 'y'
+type KeyT = keyof (A & B);
+
+// 相当于
+keyof (A & B) ≡ keyof A | keyof B
+```
+
+取出键值组成的联合类型
+
+```typescript
+type MyObj = {
+  foo: number;
+  bar: string;
+};
+
+type Keys = keyof MyObj;
+
+type Values = MyObj[Keys]; // number|string
+```
+
+keyof 可用于属性映射，即将一个类型的所有属性逐一映射成其他值
+
+```typescript
+type NewProps<Obj> = {
+  [Prop in keyof Obj]: boolean;
+};
+
+// 用法
+type MyObj = { foo: number };
+
+// 等于 { foo: boolean; }
+type NewObj = NewProps<MyObj>;
+```
+
+#### in 运算符
+
+in 运算符用来确定对象是否包含某个属性名。in 运算符的左侧是一个字符串，表示属性名，右侧是一个对象，它的返回值是一个布尔值。
+
+```typescript
+type U = 'a' | 'b' | 'c';
+
+type Foo = {
+  [Prop in U]: number;
+};
+// 等同于
+type Foo = {
+  a: number;
+  b: number;
+  c: number;
+};
+```
+
+#### 方括号运算符
+
+用于取出对象的键值类型，比如 T[K]会返回对象 T 的属性 K 的类型
+
+```typescript
+type Person = {
+  age: number;
+  name: string;
+  alive: boolean;
+};
+
+// Age 的类型是 number
+type Age = Person['age'];
+
+type Person = {
+  age: number;
+  name: string;
+  alive: boolean;
+};
+
+// number|string
+type T = Person['age' | 'name'];
+
+// number|string|boolean
+type A = Person[keyof Person];
+```
+
+#### extends...?
+
+```typescript
+interface Animal {
+  live(): void;
+}
+interface Dog extends Animal {
+  woof(): void;
+}
+
+// number
+type T1 = Dog extends Animal ? number : string;
+
+// string
+type T2 = RegExp extends Animal ? number : string;
+
+// 判断联合类型
+(A|B) extends U ? X : Y
+// 等同于
+(A extends U ? X : Y) |
+(B extends U ? X : Y)
+
+// 联合类型不被条件运算符展开
+// string[]|number[]
+type T = ToArray<string|number>;
+
+// 示例二
+type ToArray<Type> =
+  [Type] extends [any] ? Type[] : never;
+
+// (string | number)[]
+type T = ToArray<string|number>;
+```
+
+#### infer
+
+```typescript
+// infer Item表示Item参数是ts自己推断出来的
+// Flatten<Type>则表示Type这个类型参数是外部传入的
+// Type extends Array<infer Item>则表示，如果参数Type是一个数组，那么就将该数组的成员类型推断为Item，即Item是从Type推断出来的。
+
+type Flatten<Type> = Type extends Array<infer Item> ? Item : Type;
+
+// 示例
+// string
+type Str = Flatten<string[]>;
+
+// number
+type Num = Flatten<number>;
+
+// 解释：
+// 第一个例子Flatten<string[]>传入的类型参数是string[]，可以推断出Item的类型是string，所以返回的是string。
+// 第二个例子Flatten<number>传入的类型参数是number，它不是数组，所以直接返回自身
+```
+
+#### is
+
+```typescript
+function isFish(pet: Fish | Bird): pet is Fish {
+  return (pet as Fish).swim !== undefined;
+}
+```
+
+is 运算符的特殊用法，就是用在类（class）的内部，描述类的方法的返回值
+
+```typescript
+// isStudent()方法的返回值类型，取决于该方法内部的this是否为Student对象。如果是的，就返回布尔值true，否则返回false。
+class Teacher {
+  isStudent(): this is Student {
+    return false;
+  }
+}
+
+class Student {
+  isStudent(): this is Student {
+    return true;
+  }
+}
+```
+
 ### ts 模块化
 
 ts 中主要使用的模块化方案是 es module
@@ -1599,3 +2005,7 @@ price.format(12);
 
 ![](/images/ts-img/config.png)
 ![](/images/ts-img/config使用.png)
+
+### 内置工具
+
+参考[内置工具](https://wangdoc.com/typescript/utility#recordkeys-type)
