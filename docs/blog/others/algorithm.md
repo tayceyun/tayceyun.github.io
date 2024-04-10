@@ -538,6 +538,7 @@ function deleteNode(node: ListNode | null): void {
 个数/容量=装填因子
 
 当装填因子大于特定值，会进行扩容
+
 ![](/images/algorithm/装填因子.png)
 
 ### 链地址法
@@ -753,3 +754,573 @@ console.log(deleteInd);
 ```
 
 ## 树结构
+
+### 数组、链表、哈希表的优缺点
+
+![](/images/algorithm/优缺点.png)
+![](/images/algorithm/优缺点2.png)
+![](/images/algorithm/优缺点3.png)
+
+### 树结构的基本情况
+
+![](/images/algorithm/树基本情况.png)
+
+### 树的术语
+
+![](/images/algorithm/树2.png)
+
+### 二叉树
+
+#### 概念
+
+二叉树可以为空（没有节点），若不为空，则它是由根节点和称为其左子树 TL（tree left）和右子树 TR（tree right）的两个不相交的二叉树组成，树中每个节点最多只能有两个子节点。
+
+#### 二叉树的五种形态
+
+![](/images/algorithm/五种形态.png)
+
+#### 重要特性
+
+![](/images/algorithm/重要特性.png)
+
+#### 完美二叉树
+
+![](/images/algorithm/完美二叉树.png)
+
+#### 完全二叉树
+
+![](/images/algorithm/完全二叉树.png)
+
+#### 二叉树的存储
+
+![](/images/algorithm/二叉树存储.png)
+
+#### 二叉搜索树
+
+二叉搜索树的好处：
+
+- 查找所需的最大次数等于二叉搜索树的深度
+- 插入节点时，也利用类似的方法，一层层比较大小，找到新节点合适的位置
+
+![](/images/algorithm/二叉搜索树.png)
+
+#### 二叉树常用操作
+
+![](/images/algorithm/遍历.png)
+
+#### 遍历二叉树
+
+先序/中序/后序:取决于访问根（root）节点的时机
+
+先序遍历（preorder traverse）
+
+- 在所有的树结构中，优先访问根节点
+- 之后开始访问左子树
+- 之后开始访问右子树
+
+![](/images/algorithm/先序遍历.png)
+
+中序遍历（in order traverse）-- 在二叉搜索树中，按值从小到大排序
+
+- 先访问左子树
+- 访问根结点
+- 访问右子树
+
+![](/images/algorithm/中序遍历.png)
+
+后序遍历（post order traverse）
+
+- 先访问左子树
+- 访问右子树
+- 访问根结点
+
+![](/images/algorithm/后序遍历.png)
+
+层序遍历（level order traverse）逐层遍历
+
+![](/images/algorithm/层序遍历.png)
+
+**代码实现**
+
+```typescript
+class INode<T> {
+  value: T;
+  constructor(value: T) {
+    this.value = value;
+  }
+}
+
+class TreeNode<T> extends INode<T> {
+  left: TreeNode<T> | null = null;
+  right: TreeNode<T> | null = null;
+  parent: TreeNode<T> | null = null;
+
+  get isLeft(): boolean {
+    // this.parent.left是否等于当前节点
+    return !!(this.parent && this.parent.left === this);
+  }
+  get isRight(): boolean {
+    // this.parent.right是否等于当前节点
+    return !!(this.parent && this.parent.right === this);
+  }
+}
+
+class BSTree<T = number> {
+  root: TreeNode<T> | null = null;
+
+  printTree(root: TreeNode<T> | null) {
+    btPrint(root);
+  }
+
+  // insert--插入数据
+  insert(value: T) {
+    // 根据传入value创建node（Treenode）节点
+    const newNode = new TreeNode(value);
+
+    // 判断当前是否已有根节点
+    if (!this.root) {
+      this.root = newNode;
+    } else {
+      this.insertNode(this.root, newNode);
+    }
+  }
+
+  // 插入
+  private insertNode(root: TreeNode<T>, newNode: TreeNode<T>) {
+    if (newNode.value < root.value) {
+      // 在左边寻找空白位置
+      if (root.left === null) {
+        root.left = newNode;
+      } else {
+        this.insertNode(root.left, newNode);
+      }
+    } else {
+      // 在右边寻找空白位置
+      if (root.right === null) {
+        root.right = newNode;
+      } else {
+        this.insertNode(root.right, newNode);
+      }
+    }
+  }
+
+  // 遍历
+  // ①先序遍历
+  preorderTraverse() {
+    this.preorderTraverseNode(this.root);
+  }
+  // 使用递归
+  private preorderTraverseNode(node?: TreeNode<T> | null) {
+    if (node) {
+      console.log(node);
+      this.preorderTraverseNode(node.left);
+      this.preorderTraverseNode(node.right);
+    }
+  }
+  // 非递归
+  preorderTraverseStack() {
+    let stack: TreeNode<T>[] = [];
+    let current: TreeNode<T> | null = this.root;
+
+    while (current !== null || stack.length !== 0) {
+      while (current !== null) {
+        console.log(current.value);
+        stack.push(current);
+        current = current.left;
+      }
+      current = stack.pop()!;
+      current = current.right;
+    }
+  }
+
+  // ②中序遍历
+  inorderTraverse() {
+    this.inorderTraverseNode(this.root);
+  }
+  private inorderTraverseNode(node?: TreeNode<T> | null) {
+    if (node) {
+      this.inorderTraverseNode(node.left);
+      console.log(node);
+      this.inorderTraverseNode(node.right);
+    }
+  }
+  // 非递归
+  inorderTraverseStack() {
+    let stack: TreeNode<T>[] = [];
+    let current: TreeNode<T> | null = this.root;
+
+    while (current !== null || stack.length !== 0) {
+      while (current !== null) {
+        stack.push(current);
+        current = current.left;
+      }
+      current = stack.pop()!;
+      console.log(current.value);
+      current = current.right;
+    }
+  }
+
+  // ③后序遍历
+  postorderTraverse() {
+    this.postorderTraverseNode(this.root);
+  }
+  private postorderTraverseNode(node?: TreeNode<T> | null) {
+    if (node) {
+      this.postorderTraverseNode(node.left);
+      this.postorderTraverseNode(node.right);
+      console.log(node);
+    }
+  }
+  // 非递归
+  postorderTraverseStack() {
+    let stack: TreeNode<T>[] = [];
+    let current: TreeNode<T> | null = this.root;
+    let lastVisitedNode: TreeNode<T> | null = null;
+
+    while (current !== null || stack.length !== 0) {
+      while (current !== null) {
+        stack.push(current);
+        current = current.left;
+      }
+      current = stack[stack.length - 1];
+      if (current.right !== null || current.right === lastVisitedNode) {
+        console.log(current.value);
+        lastVisitedNode = current;
+        stack.pop();
+        current = null;
+      } else {
+        current = current.right;
+      }
+    }
+  }
+
+  // ④层序遍历
+  // --访问队列中的出队元素，并且访问
+  // --将出队的左子节点和右子节点分别加入队列
+  levelOrderTraverse() {
+    if (!this.root) return;
+    //   创建队列结构
+    let queue: TreeNode<T>[] = [];
+    //   第一个节点（根节点）
+    queue.push(this.root);
+
+    //   遍历队列中所有的节点（依次出队）
+    while (queue.length) {
+      // 访问节点的过程
+      const current = queue.shift()!;
+      console.log(current.value);
+      // 将左子节点放入到队列中
+      if (current?.left) {
+        queue.push(current?.left);
+      }
+      // 将右子节点放入到队列中
+      if (current?.right) {
+        queue.push(current?.right);
+      }
+    }
+  }
+
+  // 获取最值
+  // ①最大值
+  getMaxValue(): T | null {
+    let current = this.root;
+    while (current && current.right) {
+      current = current.right;
+    }
+    return current?.value ?? null;
+  }
+
+  // ②最小值
+  getMinValue(): T | null {
+    let current = this.root;
+    while (current && current.left) {
+      current = current.left;
+    }
+    return current?.value ?? null;
+  }
+
+  // 搜索特定值
+  // 判断拿到的节点是否是搜索的节点
+  // 如果不是：搜索节点比当前节点大，从右边找/搜索节点比当前节点小，从左边找
+  search(value: T): boolean {
+    return !!this.searchNode(value);
+  }
+  searchNode(value: T): TreeNode<T> | null {
+    let current = this.root;
+    let parent: TreeNode<T> | null = null;
+    while (current) {
+      if (current.value === value) return current;
+      parent = current;
+      if (current.value < value) {
+        current = current.right;
+      } else {
+        current = current.left;
+      }
+      // 保存父节点的值
+      if (current) {
+        current.parent = parent;
+      }
+    }
+    return null;
+  }
+  // 递归写法
+  searchVal(node: TreeNode<T> | null, value: T): boolean {
+    if (node === null) return false;
+    if (node.value > value) {
+      return this.searchVal(node.left, value);
+    } else if (node.value < value) {
+      return this.searchVal(node.right, value);
+    } else return true;
+  }
+
+  // 删除
+  // 三种情况：1.节点不存在 2.该节点是叶节点 3.该节点有一个子节点 4.该节点有两个子节点
+  remove(value: T): boolean {
+    let replaceNode: TreeNode<T> | null = null;
+    const current = this.searchNode(value);
+    // 情况1：节点不存在
+    if (!current) return false;
+
+    // 情况2：叶子节点
+    if (current.left === null && current.right === null) {
+      replaceNode = null;
+    }
+    // 情况3：只有一个子节点
+    // 左子节点
+    else if (current.right === null) {
+      replaceNode = current.left;
+    }
+    // 右子节点
+    else if (current.left === null) {
+      replaceNode = current.right;
+    }
+    // 有两个子节点
+    // 方式一：去左边找一个比current节点小，且左子树中最大的节点（前驱节点）
+    // 方式二：去右边找一个比current节点大，且右子树中最小的节点（后继节点）
+    else {
+      if (!current) return false;
+      // 寻找后继节点
+      let curr: TreeNode<T> | null = current.right;
+      let successor: TreeNode<T> | null = null;
+      while (curr) {
+        successor = curr;
+        curr = curr.left ?? null;
+        if (curr) {
+          curr.parent = successor;
+        }
+      }
+      if (successor !== current.right) {
+        successor!.parent!.left = successor!.right;
+        successor!.right = current.right;
+      }
+      successor!.left = current.left;
+
+      replaceNode = successor;
+
+      if (current === this.root) {
+        this.root = replaceNode;
+      } else if (current.isLeft) {
+        current.parent!.left = replaceNode;
+      } else {
+        current.parent!.right = replaceNode;
+      }
+    }
+    return true;
+  }
+}
+
+const bst = new BSTree<number>();
+bst.insert(12);
+bst.insert(18);
+bst.insert(5);
+bst.insert(13);
+bst.insert(4);
+bst.insert(7);
+bst.insert(1);
+bst.insert(41);
+bst.insert(19);
+bst.printTree(bst.root);
+
+bst.remove(12);
+bst.printTree(bst.root);
+```
+
+#### 二叉搜索树的缺陷
+
+![](/images/algorithm/搜索树缺陷.png)
+
+#### 树平衡性
+
+![](/images/algorithm/树平衡性.png)
+
+## 图结构
+
+### 理解图结构
+
+![](/images/algorithm/图.png)
+
+### 图的特点
+
+![](/images/algorithm/图的特点.png)
+![](/images/algorithm/图概念.png)
+![](/images/algorithm/度和路径.png)
+
+### 邻接表
+
+![](/images/algorithm/邻接表.png)
+
+### 图的遍历
+
+![](/images/algorithm/图的遍历.png)
+
+### 广度优先搜索
+
+![](/images/algorithm/广度优先搜索.png)
+
+### 深度优先搜索
+
+![](/images/algorithm/深度优先搜索.png)
+
+### 图的实现
+
+```typescript
+class Graph<T> {
+  verteces: T[] = []; // 顶点
+  addJoinList: Map<T, T[]> = new Map(); // 邻接表（边）
+
+  // 添加顶点和边的方法
+  addVertex(vertex: T) {
+    // 将顶点添加到数组中保存
+    this.verteces.push(vertex);
+    // 创建一个邻接表中的数组
+    this.addJoinList.set(vertex, []);
+  }
+
+  addEdge(v1: T, v2: T) {
+    // 顶点之间相互添加边
+    this.addJoinList.get(v1)?.push(v2);
+    this.addJoinList.get(v2)?.push(v1);
+  }
+
+  traverse() {
+    console.log('Graph');
+    this.verteces.forEach((vertex) => {
+      const edges = this.addJoinList.get(vertex);
+      console.log(`${vertex}-->${edges?.join(' ')}`);
+    });
+  }
+
+  // 广度优先
+  bfs() {
+    // 判断是否有顶点
+    if (this.verteces.length === 0) return;
+
+    // 创建队列结构访问每一个顶点
+    let queue: T[] = [];
+    queue.push(this.verteces[0]);
+
+    // 创建Set结构，记录某一个顶点是否被访问过
+    const visited = new Set<T>();
+    visited.add(this.verteces[0]);
+
+    // 遍历队列中每一个顶点
+    while (queue.length) {
+      const vertex = queue.shift()!;
+      const neighbours = this.addJoinList.get(vertex);
+      if (!neighbours) continue;
+
+      for (const item of neighbours) {
+        if (!visited.has(item)) {
+          queue.push(item);
+          visited.add(item);
+        }
+      }
+    }
+  }
+
+  // 深度优先
+  dfs() {
+    // 判断是否有顶点
+    if (this.verteces.length === 0) return;
+
+    // 创建栈结构
+    const stack: T[] = [];
+    stack.push(this.verteces[0]);
+
+    // 创建Set结构
+    const visited = new Set<T>();
+    visited.add(this.verteces[0]);
+
+    // 从第一个顶点开始访问
+    while (stack.length) {
+      const vertex = stack.pop()!;
+      const neighbours = this.addJoinList.get(vertex);
+      if (!neighbours) continue;
+
+      for (let i = neighbours.length - 1; i >= 0; i--) {
+        if (!visited.has(neighbours[i])) {
+          stack.push(neighbours[i]);
+          visited.add(neighbours[i]);
+        }
+      }
+    }
+  }
+}
+
+const graph = new Graph();
+graph.addVertex('A');
+graph.addVertex('B');
+graph.addVertex('C');
+graph.addVertex('D');
+graph.addVertex('E');
+graph.addVertex('F');
+graph.addVertex('G');
+graph.addEdge('A', 'B');
+graph.addEdge('A', 'C');
+graph.addEdge('C', 'D');
+graph.addEdge('D', 'H');
+graph.addEdge('B', 'E');
+graph.addEdge('B', 'F');
+graph.addEdge('C', 'G');
+graph.traverse();
+```
+
+## 补充
+
+### 1.对象的值比较(类实现 valueOf 方法)
+
+默认情况下，两个对象不能比较大小，添加 valueof 方法实现值比较
+
+即使两个对象值相等，如==、===，无法用 valueof 实现相等比较
+
+```typescript
+class Person {
+  name: string;
+  age: number;
+
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+  }
+
+  // 给类添加valueOf方法,实例化对象就可以进行值比较
+  valueOf() {
+    return this.age;
+  }
+}
+
+// 定义类使用语法糖写法，与Person类效果相同
+class Product {
+  constructor(public name: string, public price: number) {}
+  valueOf() {
+    return this.price;
+  }
+}
+
+const p1 = new Person('test', 12);
+const p2 = new Person('test2', 13);
+
+console.log(p1 < p2); // true
+console.log(p2 == p3); // false
+console.log(p2 === p3); // false
+```
