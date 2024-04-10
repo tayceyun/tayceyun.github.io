@@ -1285,6 +1285,1050 @@ graph.addEdge('C', 'G');
 graph.traverse();
 ```
 
+## 循环链表
+
+### 循环链表概念
+
+![](/images/algorithm/循环链表.png)
+
+### 实现循环链表
+
+思路：
+
+![](/images/algorithm/实现循环链表.png)
+
+```typescript
+// 创建node节点类
+class Node<T> {
+  value: T;
+  next: Node<T> | null = null; // 设置默认值
+  constructor(value: T) {
+    // 创建时赋值
+    this.value = value;
+    this.next = null;
+  }
+}
+
+// 创建linkedlist类
+class ILinkedList<T> {
+  protected head: Node<T> | null = null;
+  protected size: number = 0;
+  protected tail: Node<T> | null = null; //【★新增】 尾部节点
+
+  get length() {
+    return this.size;
+  }
+
+  // 【★新增】判断是否是最后一个节点方法
+  private isTail(node: Node<T>): boolean {
+    return this.tail === node;
+  }
+
+  // 封装私有方法
+  // 根据position获取到当前的节点（不是节点的value，而是获取节点）
+  protected getNode(position: number): Node<T> | null {
+    let current = this.head;
+    let index = 0;
+    while (index++ < position && current) {
+      current = current?.next; // 后一节点
+    }
+    return current;
+  }
+
+  // 追加节点
+  append(value: T) {
+    const newNode = new Node(value);
+    if (!this.head) {
+      // 情况一：链表本身为空
+      this.head = newNode;
+    } else {
+      // 情况二：链表不为空
+      this.tail!.next = newNode; // 【★修改】
+    }
+
+    this.tail = newNode; // 【★修改】tail等于新节点
+    this.size++;
+  }
+
+  // 遍历链表
+  traverse() {
+    let current = this.head;
+    let val: Array<T> = [];
+    while (current) {
+      val.push(current.value);
+      if (this.isTail(current)) {
+        // 【★新增】 遍历到最后一个节点
+        current = null;
+      } else {
+        current = current.next;
+      }
+    }
+    // 【★新增】 如果是循环链表：链表末处加上第一个节点的值
+    if (this.head && this.tail?.next === this.head) {
+      val.push(this.head.value);
+    }
+    console.log(val.join('--'));
+  }
+
+  // 插入节点
+  insert(value: T, position: number): boolean {
+    // position范围：  0<=position<=this.size
+    if (position < 0 || position > this.size) {
+      throw new Error('position 越界');
+      return false;
+    } else {
+      const newNode = new Node(value);
+      if (position === 0) {
+        // 情况一：插入到头部
+        newNode.next = this.head;
+        this.head = newNode;
+      } else {
+        // 情况二：插入到其它位置
+        let prev: Node<T> | null = null;
+        prev = this.getNode(position - 1);
+        newNode.next = prev?.next ?? null;
+        prev!.next = newNode;
+        // 【★修改】尾部插入节点的情况
+        if (position === this.length) {
+          this.tail = newNode;
+        }
+      }
+      this.size++;
+      return true;
+    }
+  }
+
+  // 删除节点--
+  removeAt(position: number): T | null {
+    if (position < 0 || position >= this.size) {
+      throw new Error('position 越界');
+    } else {
+      let current = this.head;
+      // 情况一：删除第一个元素
+      if (position === 0) {
+        this.head = current?.next ?? null;
+        // 【★修改】只有一个元素
+        if (this.length === 1) {
+          this.tail = null;
+        }
+      } else {
+        // 情况二：删除其它位置
+        let prev: Node<T> | null = null;
+        //  --封装前代码
+        prev = this.getNode(position - 1);
+        current = prev!.next;
+        prev!.next = prev?.next?.next ?? null;
+        // 【★修改】删除最后一个节点
+        if (position === this.length - 1) {
+          this.tail = prev;
+        }
+      }
+      this.size--;
+      return current?.value ?? null;
+    }
+  }
+
+  remove(value: T): void {
+    const index = this.indexOf(value);
+    this.removeAt(index);
+  }
+
+  // 获取对应位置的元素
+  get(position: number): T | null {
+    if (position < 0 || position >= this.size) return null;
+    return this.getNode(position)?.value ?? null;
+  }
+
+  // 更新某个位置
+  update(value: T, position: number) {
+    if (position < 0 || position >= this.size) return false;
+    // 获取对应位置节点，进行更新
+    const currentNode = this.getNode(position);
+    currentNode!.value = value;
+    return true;
+  }
+
+  // 根据值获取对应位置索引
+  indexOf(value: T): number {
+    let current = this.head;
+    let index = 0;
+    while (current) {
+      if (current.value === value) {
+        return index;
+      }
+      // 【★新增】兼容循环链表
+      if (this.isTail(current)) {
+        current.next = null;
+      } else {
+        current = current.next;
+      }
+      index++;
+    }
+    return -1;
+  }
+
+  // 判断链表是否为空
+  isEmpty(): boolean {
+    return this.size === 0;
+  }
+}
+
+export default ILinkedList;
+```
+
+**实现循环链表**
+
+需要重新实现的方法：append、insert、removeAt
+
+```typescript
+// 在单向链表基础上封装循环链表
+class CircleLinkedList<T> extends ILinkedList<T> {
+  append(value: T): void {
+    // ★ 使用super继承append方法
+    super.append(value);
+    // 将尾部节点指向head
+    this.tail!.next = this.head;
+  }
+
+  insert(value: T, position: number): boolean {
+    const isSuccess = super.insert(value, position);
+    // ★ 头部和尾部插入节点，尾部节点的指向要改为指向head
+    if (isSuccess && (position === this.length - 1 || !position)) {
+      this.tail!.next = this.head;
+    }
+    return isSuccess;
+  }
+
+  removeAt(position: number): T | null {
+    const delItem = super.removeAt(position);
+    // ★ 头部和尾部删除节点，尾部节点的指向要改为指向head
+    if (delItem && this.length && (position === this.length || !position)) {
+      this.tail!.next = this.head;
+    }
+    return delItem;
+  }
+}
+
+// const cLinkedList = new CircleLinkedList<string>();
+// cLinkedList.append('qwqe');
+// cLinkedList.append('asdf');
+// cLinkedList.append('ooo');
+// cLinkedList.insert('insert到中间', 1);
+// // cLinkedList.remove('asdf');
+// // cLinkedList.removeAt(1);
+// console.log(cLinkedList.get(2));
+// cLinkedList.update('OOO', 3);
+// console.log(cLinkedList.indexOf('OOO'));
+// cLinkedList.remove('asdf');
+// console.log(cLinkedList.isEmpty());
+// console.log(cLinkedList.length);
+// cLinkedList.traverse();
+```
+
+## 双向链表
+
+### 概念
+
+![](/images/algorithm/双向链表.png)
+
+![](/images/algorithm/双向链表图.png)
+
+#### 常见方法
+
+![](/images/algorithm/双向链表方法.png)
+
+### 代码实现
+
+**双向链表的节点封装**
+
+```typescript
+export class Node<T> {
+  value: T;
+  next: Node<T> | null = null; // 设置默认值
+  constructor(value: T) {
+    //   创建时赋值
+    this.value = value;
+    this.next = null;
+  }
+}
+
+export class DoubleNode<T> extends Node<T> {
+  prev: DoubleNode<T> | null = null;
+  next: DoubleNode<T> | null = null; // ★ 重写next的类型（必须是Node类型或者Node类型的子类型）
+}
+```
+
+**代码具体实现**
+
+```typescript
+import { DoubleNode } from './interface';
+import ILinkedList from './重构linkedList';
+
+class DoubleLinkedList<T> extends ILinkedList<T> {
+  protected head: DoubleNode<T> | null = null;
+  protected tail: DoubleNode<T> | null = null;
+
+  // 尾部追加元素
+  append(value: T): void {
+    const newNode = new DoubleNode<T>(value);
+    if (!this.head) {
+      // ★ 添加的第一个节点既是首节点，也是尾节点
+      this.head = newNode;
+      this.tail = newNode;
+    } else {
+      // ★ tail指向新的末尾节点
+      // ★ 新末尾节点 prev指向前末尾节点
+      // ★ tail等于新末尾节点
+      this.tail!.next = newNode;
+      // 不能将父类对象赋值给子类类型，可以将子类类型赋值给父类类型（多态）
+      newNode.prev = this.tail;
+      this.tail = newNode;
+    }
+    this.size++;
+  }
+
+  // 头部添加元素
+  prepend(value: T): void {
+    const newNode = new DoubleNode<T>(value);
+    if (!this.head) {
+      // ★ 添加的第一个节点既是首节点，也是尾节点
+      this.head = newNode;
+      this.tail = newNode;
+    } else {
+      // ★ 新头部节点next指向原头部节点
+      // ★ head节点prev指向新头部节点
+      // ★ head等于新头部节点
+      newNode.next = this.head;
+      // head指针反向指回newNode
+      this.head.prev = newNode;
+      this.head = newNode;
+    }
+    this.size++;
+  }
+
+  // ★ 反向遍历
+  postTraverse() {
+    let current = this.tail;
+    let val: T[] = [];
+    while (current) {
+      val.push(current.value);
+      current = current.prev;
+    }
+    console.log(val.join('--'));
+  }
+
+  // 根据索引插入元素
+  insert(value: T, position: number): boolean {
+    if (position < 0 || position > this.length) return false;
+    if (position === 0) {
+      this.prepend(value);
+    } else if (position === this.length) {
+      this.append(value);
+    } else {
+      const newNode = new DoubleNode<T>(value);
+      const current = this.getNode(position) as DoubleNode<T>;
+      // ★ current前一节点next指向--newnode next / prev -- current节点prev指向
+      current.prev!.next = newNode; // ★ current前一个指针的next指向新节点
+      newNode.next = current;
+      newNode.prev = current.prev;
+      current.prev = newNode; // ★ 放到最后
+      this.size++;
+    }
+    return true;
+  }
+
+  // 根据索引删除元素
+  removeAt(position: number): T | null {
+    if (position < 0 || position >= this.length) return null;
+    let current: DoubleNode<T> | null = this.head;
+    if (position === 0) {
+      if (this.length === 1) {
+        this.head = null;
+        this.tail = null;
+      } else {
+        // head指针指向head后面的节点
+        this.head = this.head!.next;
+        // 置空head指向的新节点的prev指向
+        this.head!.prev = null;
+      }
+    } else if (position === this.length - 1) {
+      current = this.tail;
+
+      // tail指针指向tail前面的节点
+      this.tail = this.tail!.prev;
+      // 置空tail节点的next指向
+      this.tail!.next = null;
+    } else {
+      current = this.getNode(position) as DoubleNode<T>;
+      // 改变current的前后指针的指向
+      current.next!.prev = current.prev;
+      current.prev!.next = current.next;
+    }
+    this.size--;
+    return current?.value ?? null;
+  }
+}
+
+const dLinkedList = new DoubleLinkedList<string>();
+dLinkedList.append('aaa');
+dLinkedList.append('bbb');
+dLinkedList.append('ccc');
+dLinkedList.append('ddd');
+dLinkedList.prepend('1');
+dLinkedList.insert('insert', 2);
+dLinkedList.removeAt(0);
+dLinkedList.removeAt(5);
+dLinkedList.removeAt(2);
+console.log(dLinkedList.get(2));
+dLinkedList.update('修改', 1);
+console.log(dLinkedList.indexOf('ddd'));
+dLinkedList.remove('ddd');
+dLinkedList.traverse();
+// dLinkedList.postTraverse();
+```
+
+## 堆结构（Heap）
+
+### 概念
+
+![](/images/algorithm/堆.png)
+![](/images/algorithm/堆图.png)
+
+### 堆结构优势
+
+![](/images/algorithm/堆优势.png)
+
+**堆结构通常用来解决 Top K 问题（在一组数据中，找出最前面的 K 个最大/ 最小的元素）**
+
+### 堆结构常见属性
+
+![](/images/algorithm/堆属性1.png)
+![](/images/algorithm/堆属性2.png)
+![](/images/algorithm/堆属性3.png)
+
+### 封装堆结构
+
+```typescript
+export default class Heap<T> {
+  // 属性
+  protected data: T[] = []; // 泛型数组：存储堆中元素
+  protected length: number = 0; // 当前堆中元素的数量
+  protected isMax: boolean;
+
+  constructor(arr: T[] = [], isMax = true) {
+    this.isMax = isMax;
+    if (arr.length === 0) return;
+    this.buildHeap(arr);
+  }
+
+  // 私有工具方法--交换i 和 j位置
+  private swap(i: number, j: number) {
+    const temp = this.data[i];
+    this.data[i] = this.data[j];
+    this.data[j] = temp;
+  }
+
+  // 插入元素--每次插入元素后，需要对堆重构，以维护最大堆的性质
+  // 将新元素（67）直接添加到数组的最后位置
+  // 检测是否符合最大堆的特性
+  // 将新插入的元素，进行上滤操作
+  // --①循环 将新元素和父元素比较: 新元素索引：data.length-1  父元素索引：Math.floor((index - 1) / 2)
+  // 情况1：新元素<父元素，break
+  // 情况2：新元素>=父元素,调用swap交换位置，索引更新为父元素索引
+  // index<0时，循环结束
+
+  insert(value: T) {
+    this.data.push(value);
+    this.length++;
+    // 最后位置的元素上滤操作
+    this.heapifyUp();
+  }
+
+  // 上滤
+  private heapifyUp() {
+    let index = this.length - 1; // 新元素
+    while (index > 0) {
+      let parentIndex = Math.floor((index - 1) / 2); // 父元素
+      if (this.data[index] < this.data[parentIndex]) {
+        break;
+      } else {
+        this.swap(index, parentIndex);
+        index = parentIndex;
+      }
+    }
+  }
+
+  // 去除（提取）元素
+  //  让一个元素不符合最大堆即可（数组中最后一个元素提到首位（完全二叉树的最后一个元素））
+  // 下滤操作：将该元素进行下滤--循环操作
+  // ①index=0
+  // ②左子节点的索引：2*index+1
+  // ③右子节点的索引：2*index+2
+  // ④比较左右子节点，找到较大值
+  // --如果较大值<index元素，break
+  // --如果较大值>index元素,交换较大与index位置，更新index值
+  // 循环结束条件：左子节点索引（2*index+1）<length
+  extract(): T | undefined {
+    if (this.length === 0) return undefined;
+    if (this.length === 1) {
+      this.length--;
+      return this.data.shift();
+    }
+
+    const topValue = this.data[0];
+    this.data[0] = this.data.pop()!;
+    this.length--;
+
+    // 下滤操作
+    this.heapifyDown(0);
+
+    return topValue;
+  }
+
+  // 下滤
+  private heapifyDown(start: number) {
+    let index = start;
+    while (2 * index + 1 < this.length) {
+      let leftChildInd = 2 * index + 1;
+      let rightChildInd = 2 * index + 2;
+      let largerIndex = leftChildInd;
+      //   比较左右子节点，找到较大值
+      if (
+        rightChildInd < this.length &&
+        this.data[leftChildInd] < this.data[rightChildInd]
+      ) {
+        largerIndex = rightChildInd;
+      }
+      // 如果较大值<index元素，break
+      if (this.data[index] > this.data[largerIndex]) break;
+      // 交换位置
+      this.swap(index, largerIndex);
+      index = largerIndex;
+    }
+  }
+
+  // 返回最大 / 最小值
+  peek(): T | undefined {
+    return this.data[0];
+  }
+
+  size() {
+    return this.length;
+  }
+
+  isEmpty() {
+    return this.length === 0;
+  }
+
+  buildHeap(arr: T[]) {
+    this.data = arr;
+    this.length = arr.length;
+
+    // 从第一个非叶子节点,进行下滤操作
+    const start = Math.floor(this.length / 2 - 1);
+    for (let i = start; i >= 0; i--) {
+      this.heapifyDown(i);
+    }
+  }
+}
+
+// const arr = [9, 11, 20, 56, 23, 45];
+// const heap = new Heap<number>(arr);
+
+// console.log(heap);
+
+// heap.buildHeap(arr);
+// console.log(arr); // [ 56, 23, 45, 11, 9, 20 ]
+
+// for (const item of arr) {
+//   heap.insert(item);
+// }
+
+// console.log(heap.data);
+// console.log(heap.extract());
+// console.log(heap.data);
+```
+
+### 原地建堆（in-place heap construction）
+
+指建立堆的过程中，不使用额外的内存空间，直接在原有数组上进行操作
+
+从第一个非叶子节点开始,进行**下滤**操作
+
+```typescript
+buildHeap(arr: T[]) {
+    this.data = arr;
+    this.length = arr.length;
+
+    // 从第一个非叶子节点,进行下滤操作
+    const start = Math.floor((this.length / 2 ) - 1 );
+    for (let i = start; i >= 0; i--) {
+      this.heapifyDown(i);
+    }
+  }
+
+const arr = [9, 11, 20, 56, 23, 45];
+const heap = new Heap<number>();
+
+// heap.buildHeap(arr);
+// console.log(arr); // [ 56, 23, 45, 11, 9, 20 ]
+
+```
+
+### 实现最小堆：修改 上滤 / 下滤 方法
+
+```typescript
+// 上滤
+  private heapifyUp() {
+    let index = this.length - 1; // 新元素
+    while (index > 0) {
+      let parentIndex = Math.floor((index - 1) / 2); // 父元素
+      if (this.data[index] >= this.data[parentIndex]) {
+        break;
+      } else {
+        this.swap(index, parentIndex);
+        index = parentIndex;
+      }
+    }
+  }
+
+  // 下滤
+  private heapifyDown(start: number) {
+    let index = start;
+    while (2 * index + 1 < this.length) {
+      let leftChildInd = 2 * index + 1;
+      let rightChildInd = 2 * index + 2;
+      let largerIndex = leftChildInd;
+      //   比较左右子节点，找到较大值
+      if (
+        rightChildInd < this.length &&
+        this.data[leftChildInd] >= this.data[rightChildInd]
+      ) {
+        largerIndex = rightChildInd;
+      }
+      // 如果较大值<index元素，break
+      if (this.data[index] <= this.data[largerIndex]) break;
+      // 交换位置
+      this.swap(index, largerIndex);
+      index = largerIndex;
+    }
+  }
+```
+
+## 双端队列（Deque）
+
+双端队列在单向队列的基础上解除了一部分限制：允许在队列的两端添加（入队）和删除（出队）元素
+
+### 实现双端队列
+
+```typescript
+import ArrayQueue from './Queue';
+
+class ArrayDeque<T> extends ArrayQueue<T> {
+  // 头部追加元素
+  addFront(value: T) {
+    this.data.unshift(value);
+  }
+
+  // 尾部删除元素
+  removeBack(): T | undefined {
+    return this.data.pop();
+  }
+}
+
+const deque = new ArrayDeque<string>();
+deque.enqueue('aaa');
+deque.enqueue('bbb');
+deque.enqueue('vvv');
+deque.enqueue('ggg');
+deque.enqueue('hhh');
+
+while (!deque.isEmpty()) {
+  console.log(deque.removeBack());
+}
+```
+
+## 优先级队列(Priority Queue)
+
+- 是一种比普通队列更加高效的数据结构
+- 每次出队的元素是具有最高优先级的，可理解位元素按关键字进行排序
+- 优先级队列可以用数组、链表等数据结构实现，堆是最常用的实现方式
+
+### 实现优先级队列
+
+- 方法一：创建优先级节点，保存在堆结构中
+
+```typescript
+import Heap from './封装堆结构';
+
+class PriorityNode<T> {
+  constructor(public value: T, public priority: number) {}
+
+  valueOf() {
+    return this.priority;
+  }
+}
+
+class PriorityQueue<T> {
+  private heap: Heap<PriorityNode<T>> = new Heap();
+
+  enqueue(value: T, priority: number) {
+    const newNode = new PriorityNode(value, priority);
+    this.heap.insert(newNode);
+  }
+
+  // 取出最大值
+  dequeue(): T | undefined {
+    return this.heap.extract()?.value;
+  }
+
+  peek(): T | undefined {
+    return this.heap.peek()?.value;
+  }
+
+  isEmpty() {
+    return this.heap.isEmpty();
+  }
+
+  size() {
+    return this.heap.size();
+  }
+}
+
+const pQueue = new PriorityQueue<string>();
+pQueue.enqueue('qq', 12);
+pQueue.enqueue('ee', 32);
+pQueue.enqueue('gg', 78);
+pQueue.enqueue('hh', 1);
+
+while (!pQueue.isEmpty()) {
+  console.log(pQueue.dequeue());
+}
+```
+
+- 方法二：不创建节点
+
+```typescript
+class PriorityQueue<T> {
+  private heap: Heap<T> = new Heap();
+
+  enqueue(value: T) {
+    this.heap.insert(value);
+  }
+
+  // 取出最大值
+  dequeue(): T | undefined {
+    return this.heap.extract();
+  }
+
+  peek(): T | undefined {
+    return this.heap.peek();
+  }
+
+  isEmpty() {
+    return this.heap.isEmpty();
+  }
+
+  size() {
+    return this.heap.size();
+  }
+}
+
+class Student {
+  constructor(public name: string, public score: number) {}
+
+  valueOf() {
+    return this.score;
+  }
+}
+
+const pQueue = new PriorityQueue<Student>();
+pQueue.enqueue(new Student('qq', 12));
+pQueue.enqueue(new Student('ee', 32));
+pQueue.enqueue(new Student('gg', 78));
+pQueue.enqueue(new Student('hh', 1));
+
+console.log(pQueue.peek());
+
+while (!pQueue.isEmpty()) {
+  console.log(pQueue.dequeue());
+}
+```
+
+## 平衡树
+
+![](/images/algorithm/平衡树概念.png)
+![](/images/algorithm/平衡树图.png)
+
+**如何让树变得相对平衡**
+
+在随机插入或删除元素后，通过某种方式观察树是否平衡，如果不平衡通过特定的方式（例如旋转），让树保持平衡。
+
+![](/images/algorithm/平衡树应用.png)
+
+### 常见的平衡二叉搜索树
+
+![](/images/algorithm/平衡树分类.png)
+
+### AVL 树
+
+![](/images/algorithm/avl.png)
+
+#### AVL 旋转情况
+
+![](/images/algorithm/旋转.png)
+
+**封装步骤整理**
+
+![](/images/algorithm/avl封装.png)
+
+##### 左左情况
+
+![](/images/algorithm/左左.png)
+
+TODO...待补充
+
+## 排序算法
+
+### 常见排序算法
+
+- 冒泡排序
+- 选择排序
+- 插入排序
+- 归并排序
+- 快速排序
+- 堆排序
+- 希尔排序
+- 计数排序
+- 桶排序
+- 基数排序
+- 内省排序
+- 平滑排序
+
+### 排序算法标准
+
+![](/images/algorithm/排序标准.png)
+![](/images/algorithm/排序复杂度.png)
+
+### 冒泡排序（Bubble Sort）
+
+![](/images/algorithm/冒泡排序.png)
+
+#### 冒泡排序图解
+
+![](/images/algorithm/冒泡图解.png)
+
+#### 代码实现
+
+```typescript
+function bubbleSort(arr: number[]): number[] {
+  const n = arr.length;
+  for (let i = 0; i < n; i++) {
+    let swappped = false;
+
+    for (let j = 0; j < n - 1 - i; j++) {
+      if (arr[j] > arr[j + 1]) {
+        //   es6交换语法
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        swappped = true;
+      }
+    }
+    // 如果在前一轮无任何交换，就不用继续循环
+    if (!swappped) break;
+  }
+
+  return arr;
+}
+
+console.log(bubbleSort([12, 32, 1, 43, 5, 23]));
+```
+
+**时间复杂度**
+
+![](/images/algorithm/冒泡复杂度.png)
+
+### 选择排序（Selection Sort）
+
+![](/images/algorithm/选择概念.png)
+
+**堆排序是选择排序的一种优化手段**
+
+#### 思路
+
+![](/images/algorithm/选择思路.png)
+![](/images/algorithm/选择图解.png)
+
+#### 代码实现
+
+```typescript
+function selectionSort(arr: number[]): number[] {
+  const n = arr.length;
+
+  for (let i = 0; i < n; i++) {
+    let minIndex = i;
+    for (let j = 1 + i; j < n; j++) {
+      if (arr[minIndex] > arr[j]) {
+        minIndex = j;
+      }
+    }
+    if (minIndex !== i) swap(arr, minIndex, i);
+  }
+  return arr;
+}
+
+console.log(selectionSort([12, 32, 1, 43, 5, 23]));
+```
+
+**时间复杂度**
+
+![](/images/algorithm/选择复杂度.png)
+
+### 插入排序（Insertion Sort）
+
+![](/images/algorithm/插入概念.png)
+![](/images/algorithm/插入图解.png)
+
+#### 代码实现
+
+```typescript
+function insertSort(arr: number[]): number[] {
+  const n = arr.length;
+
+  for (let i = 1; i < n; i++) {
+    const newVal = arr[i];
+    let j = i - 1;
+    while (arr[j] > newVal && j >= 0) {
+      arr[j + 1] = arr[j];
+      j--;
+    }
+    arr[j + 1] = newVal;
+  }
+  return arr;
+}
+
+console.log(insertSort([12, 32, 1, 43, 5, 23]));
+```
+
+**时间复杂度**
+
+![](/images/algorithm/插入复杂度.png)
+
+### 归并排序(merge sort)
+
+![](/images/algorithm/归并1.png)
+![](/images/algorithm/归并图.png)
+
+#### 思路
+
+![](/images/algorithm/归并1.png)
+
+#### 代码实现
+
+**方式一**
+
+```typescript
+function mergeSort(arr: number[]): number[] {
+  if (arr.length <= 1) return arr;
+  // 分解成两个数组
+  const mid = Math.floor(arr.length / 2);
+
+  const leftArr = arr.slice(0, mid);
+  const rightArr = arr.slice(mid);
+
+  // 递归切割leftArr rightArr
+  const newLeftArr = mergeSort(leftArr);
+  const newRightArr = mergeSort(rightArr);
+
+  // 合并
+  // 定义双指针
+  const newArr: number[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < newLeftArr.length && j < newRightArr.length) {
+    if (newLeftArr[i] <= newRightArr[j]) {
+      newArr.push(newLeftArr[i]);
+      i++;
+    } else {
+      newArr.push(newRightArr[j]);
+      j++;
+    }
+  }
+
+  // 如果左侧循环完，还有剩余元素
+  if (i < newLeftArr.length) {
+    newArr.push(...newLeftArr.slice(i));
+  }
+
+  // 如果右侧循环完，还有剩余元素
+  if (j < newRightArr.length) {
+    newArr.push(...newRightArr.slice(j));
+  }
+
+  return newArr;
+}
+
+console.log(mergeSort([12, 2, 45, 23, 63, 76, 11, 33]));
+```
+
+**方式二**
+
+```typescript
+function mergeSort2(arr: number[]): number[] {
+  const n = arr.length;
+  mergeSortInternal(arr, 0, n - 1);
+  return arr;
+}
+
+function mergeSortInternal(arr: number[], left: number, right: number): void {
+  if (left >= right) {
+    // 如果区间只有一个元素或为空，返回
+    return;
+  }
+
+  const mid = left + Math.floor((right - left) / 2);
+  // 递归对左右两个子区间进行排序
+  mergeSortInternal(arr, left, mid);
+  mergeSortInternal(arr, mid + 1, right);
+  // 将排好序的左右两个子区间进行合并
+  merge(arr, left, mid, right);
+}
+
+// 将已排好序的左右两个子区间合并成一个有序的区间
+function merge(arr: number[], left: number, mid: number, right: number): void {
+  const temp = new Array(right - left + 1);
+  let i = left,
+    j = mid + 1,
+    k = 0;
+
+  // 比较左右两个子区间的元素，将较小的元素插入到temp中
+  while (i <= mid && j <= right) {
+    if (arr[i] <= arr[j]) {
+      temp[k++] = arr[i++];
+    } else {
+      temp[k++] = arr[j++];
+    }
+  }
+
+  while (i <= mid) {
+    temp[k++] = arr[i++];
+  }
+
+  while (j <= right) {
+    temp[k++] = arr[j++];
+  }
+
+  for (let p = 0; p < temp.length; p++) {
+    arr[left + p] = temp[p];
+  }
+}
+
+console.log(mergeSort2([12, 2, 45, 23, 63, 76, 11, 33]));
+```
+
+**时间复杂度**
+
+![](/images/algorithm/归并复杂度.png)
+
 ## 补充
 
 ### 1.对象的值比较(类实现 valueOf 方法)
@@ -1323,4 +2367,24 @@ const p2 = new Person('test2', 13);
 console.log(p1 < p2); // true
 console.log(p2 == p3); // false
 console.log(p2 === p3); // false
+```
+
+### 2.类初始变量定义与赋值的两种方式
+
+```typescript
+// 方式一
+class PriorityNode<T> {
+  priority: number;
+  value: T;
+
+  constructor(value: T, priority: number) {
+    this.value = value;
+    this.priority = priority;
+  }
+}
+
+// 方式二： 语法糖
+class PriorityNode<T> {
+  constructor(public value: T, public priority: number) {}
+}
 ```
