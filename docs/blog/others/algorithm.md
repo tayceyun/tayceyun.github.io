@@ -96,6 +96,8 @@ export default class ArrayStack<T = string> implements IStack<T> {
 }
 ```
 
+---
+
 **题一：十进制转二进制**
 
 转换二进制是计算机科学领域中经常使用的算法
@@ -214,6 +216,8 @@ class ArrayQueue<T> implements IQueue<T> {
 export default ArrayQueue;
 ```
 
+---
+
 **题一：击鼓传花算法**
 
 题目描述：n 个人编号 1,2……n。按编号逆时针站一圈，从第 1 号开始，每一次从当前的人顺时针数 m 个，被数到编号的人出局。重复上述过程，问最后剩下的人是谁
@@ -289,6 +293,8 @@ class LinkedList<T> {
 #### 常见操作
 
 ![](/images/algorithm/链表操作.png)
+
+---
 
 **题一：[设计链表](https://leetcode.cn/problems/design-linked-list/description/)**
 
@@ -2110,6 +2116,8 @@ TODO...待补充
 ![](/images/algorithm/排序标准.png)
 ![](/images/algorithm/排序复杂度.png)
 
+---
+
 ### 冒泡排序（Bubble Sort）
 
 ![](/images/algorithm/冒泡排序.png)
@@ -2147,6 +2155,8 @@ console.log(bubbleSort([12, 32, 1, 43, 5, 23]));
 
 ![](/images/algorithm/冒泡复杂度.png)
 
+---
+
 ### 选择排序（Selection Sort）
 
 ![](/images/algorithm/选择概念.png)
@@ -2183,6 +2193,8 @@ console.log(selectionSort([12, 32, 1, 43, 5, 23]));
 
 ![](/images/algorithm/选择复杂度.png)
 
+---
+
 ### 插入排序（Insertion Sort）
 
 ![](/images/algorithm/插入概念.png)
@@ -2212,6 +2224,8 @@ console.log(insertSort([12, 32, 1, 43, 5, 23]));
 **时间复杂度**
 
 ![](/images/algorithm/插入复杂度.png)
+
+---
 
 ### 归并排序(merge sort)
 
@@ -2329,6 +2343,8 @@ console.log(mergeSort2([12, 2, 45, 23, 63, 76, 11, 33]));
 
 ![](/images/algorithm/归并复杂度.png)
 
+---
+
 ### 快速排序（Quick Sort）
 
 ![](/images/algorithm/快速排序.png)
@@ -2392,6 +2408,8 @@ console.log(quickSort([12, 32, 1, 4, 62, 87, 24]));
 **时间复杂度**
 
 ![](/images/algorithm/快排复杂度.png)
+
+---
 
 ### 堆排序（Heap Sort）
 
@@ -2457,6 +2475,8 @@ console.log(heapSort([12, 32, 1, 42, 62, 78, 2]));
 **时间复杂度**
 
 ![](/images/algorithm/堆排序复杂度.png)
+
+---
 
 ### 希尔排序
 
