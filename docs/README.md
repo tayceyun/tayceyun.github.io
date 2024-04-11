@@ -30,8 +30,9 @@ heroImage: /images/orange.jpg
     <el-link href="/blog/others/ts/" type="info" :underline="false">typescript</el-link>
    <el-link href="/blog/others/node/" type="info" :underline="false">node</el-link>
    <el-link href="/blog/others/git/" type="info" :underline="false">git</el-link>
-   <el-link href="/blog/others/webpack/" type="info" :underline="false">webpack</el-link>
    <el-link href="/blog/others/algorithm/" type="info" :underline="false">algorithm</el-link>
+   <el-link href="/blog/others/webpack/" type="info" :underline="false">vite / webpack</el-link>
+
    <!-- <el-link href="/blog/others/axios/" type="info" :underline="false">axios</el-link> -->
 </el-card>
 </section>

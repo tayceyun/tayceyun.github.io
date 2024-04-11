@@ -33,7 +33,7 @@ module.exports = {
             items: [
               { text: 'typescript', link: '/blog/others/ts/' },
               { text: 'node', link: '/blog/others/node/' },
-              { text: 'webpack', link: '/blog/others/webpack/' },
+              { text: 'vite/webpack', link: '/blog/others/webpack/' },
               { text: 'git', link: '/blog/others/git/' },
               { text: 'algorithm', link: '/blog/others/algorithm/' }
             ]
