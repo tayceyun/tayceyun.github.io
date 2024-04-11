@@ -2220,7 +2220,7 @@ console.log(insertSort([12, 32, 1, 43, 5, 23]));
 
 #### 思路
 
-![](/images/algorithm/归并1.png)
+![](/images/algorithm/归并思路.png)
 
 #### 代码实现
 
@@ -2328,6 +2328,178 @@ console.log(mergeSort2([12, 2, 45, 23, 63, 76, 11, 33]));
 **时间复杂度**
 
 ![](/images/algorithm/归并复杂度.png)
+
+### 快速排序（Quick Sort）
+
+![](/images/algorithm/快速排序.png)
+
+![](/images/algorithm/快速排序图.png)
+
+#### 实现思路
+
+![](/images/algorithm/快排思路.png)
+
+#### 代码实现
+
+```typescript
+function swap(arr: number[], i: number, j: number) {
+  const temp = arr[i];
+  arr[i] = arr[j];
+  arr[j] = temp;
+}
+
+function quickSort(arr: number[]): number[] {
+  partition(0, arr.length - 1);
+
+  function partition(left: number, right: number) {
+    if (left >= right) return; // 结束条件
+
+    // 找到基准元素(pivot轴心)
+    const pivot = arr[right];
+
+    // 双指针进行交换操作
+    let i = left;
+    let j = right - 1;
+
+    while (i <= j) {
+      while (arr[i] < pivot) {
+        i++;
+      }
+
+      while (arr[j] > pivot) {
+        j--;
+      }
+
+      if (i <= j) {
+        swap(arr, i, j);
+        i++;
+        j--;
+      }
+    }
+
+    swap(arr, i, right);
+
+    partition(left, j);
+    partition(i + 1, right);
+  }
+
+  return arr;
+}
+
+console.log(quickSort([12, 32, 1, 4, 62, 87, 24]));
+```
+
+**时间复杂度**
+
+![](/images/algorithm/快排复杂度.png)
+
+### 堆排序（Heap Sort）
+
+![](/images/algorithm/堆排序.png)
+
+#### 思路分析
+
+![](/images/algorithm/堆排序思路.png)
+
+![](/images/algorithm/堆排序思路2.png)
+
+#### 代码实现
+
+```typescript
+function heapSort(arr: number[]): number[] {
+  // 获取数组的长度
+  const n = arr.length;
+  // 对arr进行原地建堆
+  // 从第一个非叶子节点进行下滤操作
+  const start = Math.floor(n / 2 - 1);
+  for (let i = start; i >= 0; i--) {
+    // 下滤操作
+    heapifyDown(arr, n, i);
+  }
+
+  // 对最大堆进行排序--将第一个值和最后一个值互换位置，再进行下滤操作（length-1）
+  for (let i = n - 1; i >= 0; i--) {
+    swap(arr, 0, i);
+    heapifyDown(arr, i, 0);
+  }
+  return arr;
+}
+
+/**
+ *
+ * @param arr 下滤操作的数组
+ * @param n 下滤操作的数组length
+ * @param index 下滤操作的index
+ */
+function heapifyDown(arr: number[], n: number, index: number) {
+  while (2 * index + 1 < n) {
+    // 获取左右子节点的索引
+    const leftChildIndex = 2 * index + 1;
+    const rightChildIndex = 2 * index + 2;
+
+    // 找出左右子节点中较大值
+    let largerIndex = leftChildIndex;
+    if (rightChildIndex < n && arr[leftChildIndex] < arr[rightChildIndex]) {
+      largerIndex = rightChildIndex;
+    }
+
+    // 比较arr[index]和arr[largerIndex]
+    if (arr[index] >= arr[largerIndex]) break;
+    // 交换位置
+    swap(arr, index, largerIndex);
+    index = largerIndex;
+  }
+}
+
+console.log(heapSort([12, 32, 1, 42, 62, 78, 2]));
+```
+
+**时间复杂度**
+
+![](/images/algorithm/堆排序复杂度.png)
+
+### 希尔排序
+
+![](/images/algorithm/希尔排序.png)
+
+![](/images/algorithm/希尔效率.png)
+
+![](/images/algorithm/希尔做法.png)
+
+#### 代码实现
+
+```typescript
+function shellSort(arr: number[]): number[] {
+  const n = arr.length;
+
+  // 选择不同的增量（步长 / 间隔）
+  let gap = Math.floor(n / 2);
+  console.log(gap);
+
+  // 循环1:不断改变步长
+  while (gap > 0) {
+    // 循环2:找到不同的队列集合进行插入排序的操作
+    // 获取到不同的gap，使用gap进行插入排序
+    for (let i = gap; i < n; i++) {
+      let j = i;
+      const num = arr[i];
+
+      // 循环3:对数列进行插入排序
+      // 使用num向前去招一个比num小的值
+      while (j > gap - 1 && num < arr[j - gap]) {
+        arr[j] = arr[j - gap];
+        j = j - gap;
+      }
+      arr[j] = num;
+    }
+    gap = Math.floor(gap / 2);
+  }
+
+  return arr;
+}
+
+console.log(shellSort([87, 2, 43, 1, 4, 56, 12, 64, 83, 76]));
+```
 
 ## 补充
 
