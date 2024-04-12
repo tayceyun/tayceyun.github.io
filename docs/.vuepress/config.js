@@ -1,6 +1,6 @@
 module.exports = {
   title: "tayce's library", // 网站标题
-  description: '移动的图书馆', // 网站描述
+  description: '移动的图书馆 - ⬇️【Quick Link】', // 网站描述
   head: [
     ['link', { rel: 'icon', href: '/images/logo.jpg' }], // meta
     ['link', { rel: 'stylesheet', href: '/styles/index.css' }] // 样式
