@@ -646,6 +646,68 @@ emits:{
 }
 ```
 
+## 非父子组件通信
+
+### provide 和 inject
+
+![](/images/vue/provide.png)
+
+App.vue
+
+```vue
+<template>
+  <header>
+    <div class="wrapper">
+      <AboutView></AboutView>
+    </div>
+  </header>
+</template>
+
+<script setup lang="ts">
+import { provide } from 'vue';
+import AboutView from './views/AboutView.vue';
+provide('name', '依赖注入');
+</script>
+```
+
+SonPage.vue
+
+```vue
+<template>
+  <div class="about">
+    <h1>This is an son page:{{ name }}</h1>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { inject } from 'vue';
+// 可以设置默认值
+const name = inject('name', 'defaultName');
+</script>
+```
+
+#### options api 中 inject
+
+inject 注入的值，用到 computed 返回的是 ref 对象，在 template 中使用不会自动解包，需要加上.value。
+
+![](/images/vue/inject.png)
+
+### 事件总线
+
+...
+
+### ref
+
+#### 获取组件实例的根元素/获取组件实例的其他根元素（多个根元素情况）
+
+![](/images/vue/ref.png)
+
+![](/images/vue/ref2.png)
+
+### $parent和$root
+
+![](/images/vue/parent.png)
+
 ## 插槽 slot
 
 ![](/images/vue/插槽.png)
@@ -760,68 +822,6 @@ emits:{
 
 如果有多个插槽，不能使用该写法。
 
-## 非父子组件通信
-
-### provide 和 inject
-
-![](/images/vue/provide.png)
-
-App.vue
-
-```vue
-<template>
-  <header>
-    <div class="wrapper">
-      <AboutView></AboutView>
-    </div>
-  </header>
-</template>
-
-<script setup lang="ts">
-import { provide } from 'vue';
-import AboutView from './views/AboutView.vue';
-provide('name', '依赖注入');
-</script>
-```
-
-SonPage.vue
-
-```vue
-<template>
-  <div class="about">
-    <h1>This is an son page:{{ name }}</h1>
-  </div>
-</template>
-
-<script setup lang="ts">
-import { inject } from 'vue';
-// 可以设置默认值
-const name = inject('name', 'defaultName');
-</script>
-```
-
-### options api 中 inject 使用变量写法
-
-inject 注入的值，用到 computed 返回的是 ref 对象，在 template 中使用不会自动解包，需要加上.value。
-
-![](/images/vue/inject.png)
-
-### 事件总线
-
-![](/images/vue/事件总线.png)
-
-### ref
-
-#### 获取组件实例的根元素/获取组件实例的其他根元素（多个根元素情况）
-
-![](/images/vue/ref.png)
-
-![](/images/vue/ref2.png)
-
-### $parent和$root
-
-![](/images/vue/parent.png)
-
 ## 动态组件
 
 引入组件
@@ -873,11 +873,11 @@ const AsyncCategory = defineAsyncComponent(() =>
 
 ![](/images/vue/mixin.png)
 
-##### 合并规则
+### 合并规则
 
 ![](/images/vue/合并规则.png)
 
-##### 全局混入
+### 全局混入
 
 main.js 文件
 
@@ -889,11 +889,13 @@ main.js 文件
 
 ![](/images/vue/options.png)
 
-##### setup 函数
+### setup 函数
 
 ![](/images/vue/setup.png)
 
-composition api 使用 hook 优势示例：可复用性高，代码更为灵活
+composition api 使用 hook 优势：可复用性高，代码更为灵活
+
+**示例**
 
 hook/useCounter.js
 
@@ -901,11 +903,9 @@ hook/useCounter.js
 
 ![](/images/vue/counter2.png)
 
-template 中的 ref 对象会被自动解包
+## composition api
 
-### composition api
-
-#### reactive
+### reactive
 
 用于定义对象或数组类型
 
@@ -913,15 +913,15 @@ template 中的 ref 对象会被自动解包
 
 ![](/images/vue/reactive.png)
 
-#### ref
+### ref
 
 ![](/images/vue/ref理解.png)
+
+template 中的 ref 对象会被自动解包
 
 模板中的解包是浅层解包（存在矛盾:使用时不需要写`.value`，函数修改时需要写`.value`）
 
 ![](/images/vue/ref理解2.png)
-
-### 其它函数补充
 
 #### 注意：
 
@@ -929,7 +929,7 @@ template 中的 ref 对象会被自动解包
 
 在 react 中，任何一个组件都应该像纯函数一样，不能修改传入的 props
 
-#### readonly
+### readonly
 
 ![](/images/vue/readonly.png)
 
@@ -1044,43 +1044,43 @@ index.vue 使用 useTitle
 
 ### definProps 和 defineEmits
 
-![](/images/vue/definprops.png)
+![](/images/vue/defineprops.png)
 
 ### defineExpose
 
 ![](/images/vue/defineexpose.png)
 
-#### 25.vue-router
+## vue-router
 
-##### 路由发展
+### 路由发展
 
 ① 后端路由阶段：将 url 传递给服务器，服务器根据地址将完整网页 html 渲染出来，再返回给浏览器进行展示。url 和网页形成了对应关系。
 
-![image-20230524114835539](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524114835539.png)
+![](/images/vue/后端路由.png)
 
 ② 前后端分离阶段：将 url 传递给服务器，服务器根据地址将仅返回页面的基本结构，页面数据由前端发送 ajax 请求来获取数据并渲染到页面上。
 
-![image-20230524114922585](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524114922585.png)
+![](/images/vue/前后分离.png)
 
 ③ 前端路由（SPA：single page application）阶段：路由与页面映射关系由前端来维护，不同路由显示不同页面。
 
-![image-20230524114952897](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524114952897.png)
+![](/images/vue/前端路由.png)
 
 url 的 hash
 
-![image-20230524115243996](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524115243996.png)
+![](/images/vue/hash.png)
 
 url 的 history
 
-![image-20230524115316447](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524115316447.png)
+![](/images/vue/history.png)
 
-##### vue-router 简介
+### vue-router 简介
 
-![image-20230524140446498](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524140446498.png)
+![](/images/vue/路由简介.png)
 
-##### router 使用步骤
+### router 使用步骤
 
-![image-20230524142042127](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524142042127.png)
+![](/images/vue/使用步骤.png)
 
 ```js
 import { createRouter, createWebHistory } from 'vue-router';
@@ -1109,19 +1109,19 @@ export default router;
 
 **路由懒加载**：使用魔法注释，可以支持对分包进行命名
 
-![image-20230524145545362](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524145545362.png)
+![](/images/vue/路由懒加载.png)
 
-##### router-link
+### router-link
 
 replace 属性设置后不会记录历史路径；
 
 active-class 可设置选中的 class 类名
 
-![image-20230524144654738](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524144654738.png)
+![](/images/vue/link.png)
 
-##### 动态路由
+### 动态路由
 
-![image-20230524150343480](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524150343480.png)
+![](/images/vue/动态路由.png)
 
 在模板中获取 id
 
@@ -1151,9 +1151,9 @@ onMounted(() => {
     }
 ```
 
-![image-20230524160729527](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230524160729527.png)
+![](/images/vue/解析.png)
 
-##### 路由跳转
+### 路由跳转
 
 ```vue
 <script setup lang="ts">
@@ -1176,17 +1176,17 @@ onMounted(() => {
 </script>
 ```
 
-##### 动态添加路由
+### 动态添加路由
 
-![image-20230525142951424](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525142951424.png)
+![](/images/vue/动态添加路由.png)
 
-##### 删除路由
+### 删除路由
 
-![image-20230525143200746](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525143200746.png)
+![](/images/vue/删除路由.png)
 
-##### 路由守卫
+### 路由守卫
 
-![image-20230525144718281](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525144718281.png)
+![](/images/vue/路由守卫.png)
 
 守卫示例：
 
@@ -1199,27 +1199,27 @@ router.beforeEach((to, from) => {
 });
 ```
 
-导航解析流程：![image-20230525151558480](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525151558480.png)
+导航解析流程：![](/images/vue/导航.png)
 
-#### 26.状态管理（vuex）
+### 状态管理（vuex）
 
-![image-20230525152912353](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525152912353.png)
+![](/images/vue/状态管理.png)
 
-##### 单一状态树
+### 单一状态树
 
-![image-20230525155401946](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525155401946.png)
+![](/images/vue/状态树.png)
 
-##### state
+### state
 
-###### mapState 映射
+#### mapState 映射
 
-![image-20230525155941468](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525155941468.png)
+![](/images/vue/状态树.png)
 
-###### 在 setup 使用 mapState 映射函数
+#### 在 setup 使用 mapState 映射函数
 
 方式一：
 
-![image-20230525160343700](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525160343700.png)
+![](/images/vue/mapstate.png)
 
 此处的 name 和 leve 解构出来的都是函数，相当于：
 
@@ -1231,7 +1231,7 @@ name() {
 
 方式二：封装 useState 来解决这个问题
 
-![image-20230525162310793](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525162310793.png)
+![](/images/vue/usestate.png)
 
 方式三：对 store.state 解构
 
@@ -1240,13 +1240,13 @@ const store = useStore();
 const { name, level } = toRefs(store.state);
 ```
 
-##### getters
+### getters
 
-###### getters 返回函数
+#### getters 返回函数
 
-![image-20230525163833978](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525163833978.png)
+![](/images/vue/getters.png)
 
-###### getters 参数
+#### getters 参数
 
 ```js
 getters:{
@@ -1257,13 +1257,13 @@ getters:{
 }
 ```
 
-###### mapGetters 映射
+#### mapGetters 映射
 
-![image-20230525164557914](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525164557914.png)
+![](/images/vue/mapgetter.png)
 
-#### mutation
+### mutation
 
-![image-20230525165843231](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525165843231.png)
+![](/images/vue/mutation.png)
 
 普通提交方式：
 
@@ -1275,25 +1275,25 @@ methods: {
 }
 ```
 
-###### mutation 常量类型（设计规范-vue 官方推荐）
+#### mutation 常量类型（设计规范-vue 官方推荐）
 
-![image-20230525170817267](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525170817267.png)
+![](/images/vue/常量.png)
 
-###### mapMutations 映射
+#### mapMutations 映射
 
-![image-20230525171147526](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525171147526.png)
+![](/images/vue/mapmutations.png)
 
-###### setup 使用 mapState 映射函数
+#### setup 使用 mapState 映射函数
 
-![image-20230525171445008](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525171445008.png)
+![](/images/vue/set-mapstate.png)
 
-###### mutation 原则
+#### mutation 原则
 
-![image-20230525172017694](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230525172017694.png)
+![](/images/vue/原则.png)
 
-##### actions
+### actions
 
-![image-20230529144821191](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529144821191.png)
+![](/images/vue/action.png)
 
 派发 action：`store.dispatch("incrementAction","参数")`
 
@@ -1306,15 +1306,15 @@ actions: {
 }
 ```
 
-###### 使用 mapActions 辅助函数
+#### 使用 mapActions 辅助函数
 
-![image-20230529145815595](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529145815595.png)
+![](/images/vue/mapAction.png)
 
-###### 在 setup 中使用 actions
+#### 在 setup 中使用 actions
 
-![image-20230529150158376](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529150158376.png)
+![](/images/vue/set-action.png)
 
-###### actions 使用的默认做法:
+#### actions 使用的默认做法:
 
 ```js
 // 自己定义函数手动调用actions的方法
@@ -1323,35 +1323,35 @@ function incrementAction() {
 }
 ```
 
-###### 手动 new Promise 处理操作
+#### 手动 new Promise 处理操作
 
-![image-20230529152421829](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529152421829.png)
+![](/images/vue/手动.png)
 
-##### modules 的使用
+#### modules 的使用
 
-![image-20230529153037376](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529153037376.png)
+![](/images/vue/modules.png)
 
 在 template 中使用模块中的数据需要采用`state.moduleA.name`的方式，但调用 mutation 和 actions 的方法时不需要根模块
 
-![image-20230529154311285](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529154311285.png)
+![](/images/vue/1.png)
 
-![image-20230529154646313](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529154646313.png)
+![](/images/vue/2.png)
 
 命名空间：`namespaced:true`
 
 修改根模块的 state
 
-![image-20230529155458664](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529155458664.png)
+![](/images/vue/3.png)
 
-#### 27.pinia
+## pinia
 
-##### pinia 和 vuex 的对比
+### pinia 和 vuex 的对比
 
 pinia 兼容 options api
 
-![image-20230529160150405](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529160150405.png)
+![](/images/vue/4.png)
 
-##### pinia 基础使用
+### pinia 基础使用
 
 main.ts
 
@@ -1456,15 +1456,15 @@ const setNewState = () => {
 </script>
 ```
 
-##### store
+### store
 
-![image-20230529162841395](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529162841395.png)
+![](/images/vue/5.png)
 
-##### state
+### state
 
-![image-20230529164306953](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529164306953.png)
+![](/images/vue/6.png)
 
-![image-20230529164621858](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529164621858.png)
+![](/images/vue/7.png)
 
 订阅（subscribe）
 
@@ -1472,7 +1472,7 @@ const setNewState = () => {
 
 `counterStore.$subscribe(callback,{detached:true})`
 
-##### getters
+### getters
 
 counter.js
 
@@ -1516,58 +1516,60 @@ const useCounter = defineStore('counter', {
 export default useCounter;
 ```
 
-##### actions
+### actions
 
 异步操作
 
-![image-20230529170803976](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529170803976.png)
+![](/images/vue/8.png)
 
 同样可以通过 new Promise 获取 actions 何时结束（同 vuex）
 
-![image-20230529170913197](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529170913197.png)
+![](/images/vue/9.png)
 
-##### 28.axios
+## axios
 
-##### axios 请求方式
+### axios 请求方式
 
-![image-20230529171753136](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529171753136.png)
+![](/images/vue/10.png)
 
-发送 request 请求 ![image-20230529172118494](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529172118494.png)
+发送 request 请求
+
+![](/images/vue/11.png)
 
 发送 get 请求
 
-![image-20230529173029662](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529173029662.png)
+![](/images/vue/12.png)
 
 发送 post 请求
 
-![image-20230529173147883](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529173147883.png)
+![](/images/vue/13.png)
 
 axios.all(本质就是 promise.all)
 
-![image-20230529174312281](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529174312281.png)
+![](/images/vue/14.png)
 
-##### 常见配置项
+### 常见配置项
 
-![image-20230529173422233](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529173422233.png)
+![](/images/vue/15.png)
 
-##### 对 axios 实例进行公共配置：
+### 对 axios 实例进行公共配置：
 
 ```js
 axios.defaults.baseUrl = BaseUrl;
 axios.defaults.timeout = 1000;
 ```
 
-##### axios 创建实例
+### axios 创建实例
 
-![image-20230529174810527](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529174810527.png)
+![](/images/vue/16.png)
 
-##### 请求和响应拦截器
+#### 请求和响应拦截器
 
-![image-20230529174858820](C:\Users\tayceyun\AppData\Roaming\Typora\typora-user-images\image-20230529174858820.png)
+![](/images/vue/17.png)
 
 在请求成功拦截时开启 loading/header/认证登录/对参数进行转化，在响应成功拦截中关闭 loading/对返回值进行统一处理。
 
-##### 基础封装 axios
+#### 基础封装 axios
 
 ```js
 import axios from 'axios';
@@ -1601,5 +1603,3 @@ class axiosRequest {
 
 export default new axiosRequest();
 ```
-
-project 细节整理
