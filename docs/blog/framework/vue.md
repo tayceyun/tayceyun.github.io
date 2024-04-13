@@ -142,7 +142,9 @@ v-memo 仅用于性能至上场景中的微小优化，应该很少需要。最�
 
 ### `v-text` 和 `v-html`
 
-- `v-text` 通过设置元素的 `textContent` 属性来实现
+- `v-text` 通过设置元素的 `textContent` 属性来实现。`textContent`和`innerText`的区别在于读取属性时，`innerText`不返回隐藏元素的文本，而`textContent`返回所有文本
+
+- `v-html` 通过设置元素的 `innerHTML` 属性来实现。`innerHTML` 属性不仅可以修改一个 DOM 节点的文本内容，还可以直接通过 HTML 片段修改 DOM 节点内部的子树
 
 - 在网站上动态渲染任意 HTML 是非常危险的，因为这非常容易造成 XSS 漏洞。请仅在内容安全可信时再使用 `v-html`，并且永远不要使用用户提供的 HTML 内容
 

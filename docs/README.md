@@ -55,7 +55,7 @@ heroImage: /images/orange.jpg
 .el-card__header span {
   font-size:24px;
   font-weight:500;
-  background: linear-gradient(to right, #69bb8b, #e9e9eb); 
+  background: linear-gradient(to right ,#63629c, #367cf5); 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -63,6 +63,12 @@ heroImage: /images/orange.jpg
 .el-card__body .el-link{
   margin-bottom:14px;
   text-align:center;
+}
+
+.el-link--inner {
+background: linear-gradient(to top ,#e8dcfc, #5c5d9c); 
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .basis .el-link {
