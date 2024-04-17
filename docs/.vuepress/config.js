@@ -8,7 +8,7 @@ module.exports = {
   themeConfig: {
     nav: [
       { text: '🏠 Home', link: '/' },
-      { text: '💬 All', link: '/blog/linklist/linklist' }
+      { text: '💬 All', link: '/blog/linklist/' }
     ],
     sidebar: {
       '/blog/work/': [
@@ -20,6 +20,22 @@ module.exports = {
         ['/blog/work/ticket', 'ticket 项目'],
         ['/blog/work/expense', '内部费用管理项目'],
         ['/blog/work/expense', '消费者bg']
+      ],
+      '/blog/linklist/': [
+        ['/blog/others/leak', '内存泄漏的排查过程'],
+        ['/blog/others/ts', 'ts'],
+        ['/blog/others/scss', 'scss / less'],
+        ['/blog/others/node', 'node'],
+        ['/blog/others/git', 'git'],
+        ['/blog/others/algorithm', '算法基础'],
+        ['/blog/others/webpack', 'vite / webpack'],
+        ['/blog/framework/vue', 'vue'],
+        ['/blog/framework/react', 'react'],
+        ['/blog/framework/native-wx', '小程序原生开发'],
+        ['/blog/framework/electron', 'electron'],
+        ['/blog/basis/html', 'html'],
+        ['/blog/basis/css', 'css'],
+        ['/blog/basis/js', 'js']
       ]
     },
     sidebarDepth: 3

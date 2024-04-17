@@ -32,10 +32,13 @@ heroImage: /images/orange.jpg
    <el-link href="/blog/others/git/" type="info" :underline="false">git</el-link>
    <el-link href="/blog/others/algorithm/" type="info" :underline="false">algorithm</el-link>
    <el-link href="/blog/others/webpack/" type="info" :underline="false">vite / webpack</el-link>
-
    <!-- <el-link href="/blog/others/axios/" type="info" :underline="false">axios</el-link> -->
 </el-card>
 </section>
+
+<el-divider></el-divider>
+💡 想要成为优秀的前端工程师，需要**通过系统地学习和总结获取知识**，**通过练习获取编程能力**，**通过工作经验来获取架构和工程能力**。
+<el-divider>🔚</el-divider>
 
 <style>
 .quick-link {
