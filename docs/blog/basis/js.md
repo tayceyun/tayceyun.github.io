@@ -21,7 +21,7 @@ js 的[**内存回收机制**](#内存回收) ➡️
 
 理解 2️⃣： 是[**执行上下文**](#执行上下文)的重要属性之一 ➡️ 执行上下文可以理解为一个对象，包含：**变量对象**、**作用域链**、[**this**](#this) ➡️ this 相关：[**call apply bind**](#改变this指向)（es6） / **箭头函数**
 
-理解 3️⃣ ：作用域链决定了变量的访问范围，**原型链**决定了对象之间的继承关系
+理解 3️⃣ ：作用域链决定了变量的访问范围，[**原型链**](#原型链)决定了对象之间的继承关系
 
 </el-card>
 
@@ -70,6 +70,8 @@ js 的[**内存回收机制**](#内存回收) ➡️
 - 线程之间可以共享进程中的数据
 - 当一个进程被关闭后，操作系统会回收进程占用的资源
 - 进程之间的内容相互隔离，使 OS 中的进程互不干扰
+
+进程是 CPU 资源分配的最小单位(是能拥有资源和独立运行的最小单位)。 线程是 CPU 调度的最小单位(是建立在进程基础上的一次程序运行单位)。
 
 <a name="线程和进程"></a>
 
@@ -396,13 +398,15 @@ for (var i = 1; i <= 5; i++) {
 
 <a name="作用域链"></a>
 
-## 作用域链
+## 作用域链 / 作用域
 
-### 概念
+### 作用域链
+
+#### 概念
 
 当访问一个变量时，代码解释器会首先在当前的作用域查找，如果没找到，就去父级作用域去查找，直到找到该变量或者不存在父级作用域中，这样的链路就是作用域链。
 
-### 理解作用域链
+#### 理解作用域链
 
 1️⃣： 是**执行上下文**的重要属性之一
 
@@ -410,9 +414,11 @@ for (var i = 1; i <= 5; i++) {
 
 3️⃣ ：作用域链决定了变量的访问范围，**原型链**决定了对象之间的继承关系
 
+<a name="执行上下文"></a>
+
 <a name="作用域"></a>
 
-## 作用域
+### 作用域
 
 作用域可以理解为变量的可访问性，总共分为三种类型，分别为:
 
@@ -430,7 +436,47 @@ for (var i = 1; i <= 5; i++) {
   - 使用 `let` 关键词定义的变量只能在块级作用域中被访问，有“暂时性死区”的特点，也就 是说这个变量在定义之前是不能被使用的
   - `if` 语句 及 `for` 语句后面 {...} 里面所包括的,也是块极作用域。
 
-<a name="执行上下文"></a>
+<a name="原型链"></a>
+
+## 原型 / 原型链
+
+简单理解原型与原型链：
+
+- 如果所有对象都有私有字段 [[prototype]]，就是对象的原型;
+- 读一个属性，如果对象本身没有，则会继续访问对象的原型，直到原型为空或者找到为止。
+
+访问/设置原型的内置函数：
+
+1️⃣`Object.create` 根据指定的原型创建新对象，原型可以是 `null`
+
+并非真的去复制一个原型对象，而是使得新对象持有一个原型的引用
+
+```js
+var cat = {
+  say() {
+    console.log('cat say');
+  }
+};
+
+var tiger = Object.create(cat, {
+  say: {
+    writable: true,
+    configurable: true,
+    enumerable: true,
+    value: function () {
+      console.log('new tiger say');
+    }
+  }
+});
+
+tiger.say(); // new tiger say
+var anotherCat = Object.create(cat);
+anotherCat.say(); // cat say
+```
+
+2️⃣`Object.getPrototypeOf`获得对象的原型
+
+3️⃣`Object.setPrototypeOf`设置对象的原型
 
 ## 执行上下文
 
@@ -820,13 +866,160 @@ console.log(max); // 16
 console.log(min); // 6
 ```
 
----
+## 继承
 
-通过`bind`实现柯里化
+### 【es5】继承
 
-### ❓ 什么是柯里化
+[es5 继承速览](https://www.jianshu.com/p/124ed22c4844)
 
-**概念**：柯里化是将接受多个参数的函数转换成一系列只接受单个参数的函数的过程。柯里化函数的返回值仍然是一个函数，该函数接受一个参数，并返回一个新的函数，直到所有参数都被处理完毕，最终返回最终结果。
+组合式继承（原型链继承 + 构造函数继承）
+
+```js
+function Parent(name) {
+  this.name = name;
+  this.friend = ['lucky'];
+}
+
+Parent.prototype.getFriend = function () {
+  console.log('friend', this.friend);
+};
+
+function Student(name) {
+  Parent.call(this, name);
+}
+
+Student.prototype = new Parent('tom');
+let stu1 = new Student('lily');
+
+console.log(stu1);
+```
+
+### 对象形式的继承
+
+#### 浅拷贝继承
+
+```js
+function normalCopy(p, c) {
+  let c = c || {};
+
+  for (let prop in p) {
+    c[prop] = p[prop];
+  }
+}
+```
+
+浅拷贝的缺点：浅拷贝对于引用类型的拷贝只是拷贝了地址，如果修改了引用类型的值，会影响到父对象中的值。
+
+#### 深拷贝继承
+
+利用递归进行深拷贝
+
+```js
+function deepCopy(p, c) {
+  let c = c || {};
+  for (let prop in p) {
+    if (typeof p[prop] === 'object') {
+      c[prop] = p[prop].constructor === Array ? [] : {};
+      deepCopy(p[prop], c[prop]);
+    } else c[prop] = p[prop];
+  }
+}
+```
+
+#### 使用`call`和`apply`继承
+
+```js
+function Parent() {
+  this.name = 'abc';
+  this.address = { home: 'home' };
+}
+function Child() {
+  Parent.call(this);
+  this.language = 'js';
+}
+
+const chi = new Child();
+console.log(chi.name); // abc
+console.log(chi.language); // js
+```
+
+#### 【es5】`Object.create()`
+
+`Object.create()`是 new 操作符的替代方案
+
+```js
+var p = { name: 'poetry' };
+var obj = Object.create(p);
+console.log(obj.name); // poetry
+```
+
+##### 实现`Object.create()`
+
+```js
+function myCreate(o) {
+  function F() {}
+  F.prototype = o;
+  o = new F();
+  return o;
+}
+
+var p = { name: 'poetry' };
+var obj = myCreate(p);
+console.log(obj.name); // poetry
+```
+
+## ❓new 的过程实现
+
+### new 操作符做了哪些事
+
+- 以构造器的 prototype 属性为原型（区分私有字段[[prototype]]），创建新对象
+
+- 将 this 和调用参数传给构造器，执行
+
+- 如果构造器返回的是对象，则返回，否则返回第一步创建的对象
+
+```js
+function myNew(constructor, ...args) {
+  // 创建一个新对象，继承构造函数的原型对象
+  let newObj = Object.create(constructor.prototype);
+  // 调用构造函数，为新对象添加属性，获取函数执行结果result
+  let result = constructor.apply(newObj, args);
+  // 如果函数执行结果的返回值类型是对象，则返回执行结果，否则返回新创建的对象
+  return typeof result === 'object' ? result : newObj;
+}
+```
+
+new 操作符的行为，客观上提供了两种方式添加属性：
+
+1️⃣ 在构造器中添加属性
+
+```js
+function c1() {
+  this.p1 = '构造器的属性';
+  this.p2 = function () {
+    console.log(this.p1);
+  };
+}
+
+var o1 = new c1();
+o1.p2(); // 构造器的属性
+```
+
+2️⃣ 在构造器的 `prototype` 属性上添加属性
+
+```js
+function c2() {}
+
+c2.prototype.p1 = '原型的属性';
+c2.prototype.p2 = function () {
+  console.log(this.p1);
+};
+
+var o2 = new c2();
+o2.p2(); // 原型的属性
+```
+
+<!-- ### 类继承 -->
 
 ## 类型
 
@@ -835,3 +1028,164 @@ console.log(min); // 6
 **基本数据类型**：基础类型存储在栈内存，被引用或拷贝时会创建一个完全相等的变量；占据空间小、大小固定，属于被频繁使用的数据，所以放入栈中存储。
 
 **引用数据类型**：引用类型存储在堆内存，存储的是地址，多个引用指向同一个地址，占据空间大、大小不固定。引用数据类型在栈中存储了指针，该指针指向堆中该实体的起始地址。当解释器寻找引用值时，会首先检索其在栈中的地址，取得地址后从堆中获得实体。
+
+### ❓ 为什么有的编程规范要求用`void 0`代替`undefined`
+
+任何变量在赋值前是 `Undefined` 类型、值为 undefined。在 JS 设计中，`undefined`不是关键字，而是变量。为避免无意篡改值，建议使用`void 0`代替`undefined`值。
+
+在实际编程时，可以将变量先赋值为`null`,`null`表示：定义了但是为空值。一般不会把变量赋值为 `undefined`，这样可以保证所有值为`undefined`的变量，都是从未赋值的自然状态。
+
+### ❓ 0.1+0.2 不等于 0.3
+
+`console.log(0.1 + 0.2 == 0.3); // false`
+
+浮点数运算的精度问题导致等式两侧的结果并不是严格相等，正确的比较方法是使用 JS 提供的最小精度值`Number.EPSILON`
+
+`console.log(Math.abs(0.1 + 0.2 - 0.3) <= Number.EPSILON); // true`
+
+### ❓ 遍历中如何取到`symbol`类型
+
+常见的对象遍历方法
+
+- `for (let xx in obj)`：【es5】遍历对象的可枚举属性，包括继承（原型上）的属性，遍历顺序不确定。
+- `for (let xx of obj)`：【es6】遍历可迭代对象(数组、字符串、Set、Map 等)，不会遍历非述职属性或原型上的属性
+- `Object.keys(obj)`：返回包含 key 的数组
+- `Object.values(obj)`：返回包含 value 的数组
+- `Object.getOwnPropertyNames()`：返回包含 key 的数组
+
+如何遍历到`Symbol`
+
+- `Object.getOwnPropertySymbols()`：返回对象中只包含 symbol 类型 key 的数组
+- `Reflect.ownKeys()` ：返回对象中所有类型 key 的数组（包含 symbol）
+
+### ❓ 递归遍历实现深拷贝（for in）
+
+```js
+function deepClone(obj) {
+  if (typeof obj !== 'object' || obj === null) return obj;
+
+  let copyObj = obj instanceof Array ? [] : {};
+
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      copyObj[obj] = deepClone(obj[key]);
+    }
+  }
+  return copyObj;
+}
+```
+
+### ❓ 为什么给对象添加的方法能用在基本类型上
+
+运算符提供了装箱操作，它会根据基础类型构造一个临时对象，使得我们能在基础类型上调用对应对象的方法。
+
+📄**理解装箱转换 & 拆箱转换**
+
+包装类与原始值转换过程叫做「装箱」和「拆箱」，装箱(boxing)是将值类型包装为对象类型，拆箱(unboxing)是将对象类型转换为类型。
+
+每一种基本类型 `Number`、`String`、`Boolean`、`Symbol` 在对象中都有对应内置的类。装箱机制会频繁产生临时对象，在一些对性能要求较高的场景下，我们应该尽量避免对基本类型做装箱转换。
+
+装箱操作的**具体步骤**为：创建该类型的实例，在实例上调用指定的方法，销毁实例。
+
+拆箱转换：在 JavaScript 标准中，规定了 `toPrimitive` 函数（es6），允许对象通过重写`toPrimitive` 函数来实现转换（优先级最高）。它是对象类型到基本类型的转换，如果没有`ToPrimitive`函数，会先后尝试调用 `valueOf` 和 `toString` 来获得拆箱后的基本类型。如果 `valueOf` 和 `toString` 都不存在，或者没有返回基本类型，则会产生类型错误 TypeError。
+
+## 类型检测
+
+### ❓`instanceof`的实现原理
+
+判断对象的原型链中是否存在类型的 prototype
+
+实现代码
+
+```js
+function myInstanceOf(instance, classOrFunc) {
+  if (typeof instance !== 'object' || instance === null) return false;
+
+  let proto = Object.getPrototypeOf(instance);
+  while (proto) {
+    if (proto === classOrFunc.prototype) return true;
+    proto = Object.getPrototypeOf(proto);
+  }
+  return false;
+}
+```
+
+## 理解 js 对象的两类属性
+
+### 第一类属性：数据属性
+
+特征如下：
+
+- `value`:就是属性的值。
+- `writable`:决定属性能否被赋值。
+- `enumerable`:决定 for in 能否枚举该属性。
+- `configurable`:决定该属性能否被删除或者改变特征值。
+
+### 第二类属性：访问器属性
+
+特征如下：
+
+- `getter`:函数或 undefined，在取属性值时被调用。
+- `setter`:函数或 undefined，在设置属性值时被调用。
+- `enumerable`:**决定 for in 能否枚举该属性**。
+- `configurable`:决定该属性能否被删除或者改变特征值。
+
+访问器属性使得属性在读和写时执行代码，它允许使用者在写和读属性时，得到完全不同的值，它可以视为一种函数的语法糖。
+
+### 查询 / 修改 对象的属性
+
+#### 查询对象的数据属性的 API
+
+`Object.getOwnPropertyDescriptor()`
+
+```js
+let o = { a: 1 };
+o.b = 2;
+console.log(Object.getOwnPropertyDescriptor(o, 'a')); // { value: 1, writable: true, enumerable: true, configurable: true }
+```
+
+#### 定义/修改 对象的属性的 API
+
+常规的定义属性：会产生数据属性
+
+```js
+let o = { a: 1 };
+o.b = 2s
+```
+
+##### 定义访问器属性/ 改变数据属性特征：`Object.defineProperty()`
+
+```js
+let o = { a: 1 };
+
+Object.defineProperty(o, 'b', {
+  value: 1,
+  writable: true,
+  enumerable: false,
+  configurable: true
+});
+
+// { value: 1, writable: true, enumerable: false, configurable: true }
+console.log(Object.getOwnPropertyDescriptor(o, 'b'));
+```
+
+##### 创建访问器属性：get 和 set 关键字
+
+```js
+let o = {
+  b: 222,
+  a: 5,
+  get b() {
+    return this.a * 2;
+  },
+  set b(n) {
+    this.a = n;
+    console.log(this.a); // 777
+  },
+  get c() {
+    return 22;
+  }
+};
+console.log(o.c); // 22
+o.b = 777;
+```
