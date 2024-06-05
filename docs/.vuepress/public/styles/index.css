@@ -1,5 +1,5 @@
 .theme-default-content:not(.custom) {
-  padding: 2rem 1.5rem !important;
+  max-width: unset !important;
 }
 
 .home .footer {

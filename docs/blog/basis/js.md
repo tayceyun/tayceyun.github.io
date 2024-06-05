@@ -10,12 +10,13 @@ tags:
 
 <el-card class="frame" shadow="always">
 [**进程**](#线程和进程) ➡️
-进程使用[**堆内存**](#内存) ➡️
+[**堆**](#内存)用于存放进程运行时动态分配的内存段 ➡️
 js 的[**内存回收机制**](#内存回收) ➡️
-可能出现[**内存泄漏**](#内存泄漏) ➡️
+[**内存泄漏**](#内存泄漏)问题 ➡️
 可能的原因：[**闭包**](#闭包)/定时器未被正确销毁等 ➡️
 闭包本质：[**作用域链**](#作用域链)的一个特殊应用 ➡️
-理解作用域链：
+
+【理解作用域链】
 
 理解 1️⃣ ：即 [**作用域**](#作用域)嵌套的结果 ➡️ 全局/函数/块级作用域（**let const**的出现）
 
@@ -29,13 +30,13 @@ js 的[**内存回收机制**](#内存回收) ➡️
 线程 ➡️
 
 1️⃣ 线程使用栈内存 ➡️
-可能出现[**栈溢出**](#栈溢出) ➡️
+[**栈溢出**](#栈溢出)问题 ➡️
 可能的原因：**递归**终止条件不正确/函数嵌套调用过深 ➡️
-递归的优化：**尾递归**
+递归优化：**尾递归**
 
 2️⃣ js 是单线程 ➡️
 
-1.**eventloop** 机制（事件循环机制）➡️ 同步/异步任务 ➡️ 异步任务分为**宏任务**/**微任务** ➡️ 微任务主要包括 **Promise.then**、**async/await** 等任务
+1.[**eventloop** 机制](#eventloop)（事件循环机制）➡️ 同步/异步任务 ➡️ 异步任务分为**宏任务**/**微任务** ➡️ 微任务主要包括 **Promise.then**、**async/await** 等任务
 
 2. js 多线程的解决方案：h5 的 **webworker**
 
@@ -139,22 +140,6 @@ JS 中有两种回收机制：**标记清除（Mark-and-Sweep）**和**引用计
 
 **4.内存分配阶段**：在垃圾收集完成后，程序可以继续进行内存分配。垃圾收集器会维护一块可用的内存空间，用于分配新对象。分配过程中，垃圾收集器会根据需要进行内存扩展或缩减，以满足程序的内存需求。
 
-#### 引用计数算法（了解）
-
-垃圾回收器会为每个对象维护一个引用计数器，记录当前对象被引用的次数。当一个对象的引用被释放时，引用计数器减一。当**引用计数器为零**时，表示该对象**不再被引用**，即为垃圾对象，垃圾回收器会立即回收并释放其占用的内存空间。
-
-引用计数算法无法处理循环引用的情况，可能会导致内存泄漏：
-
-> 举个例子：假设对象 A，包含一个指向对象 B 的引用，而对象 B 也包含一个指向对象 A 的引用。此时，由于对象 A 和 B 互相引用的次数不为 0，垃圾回收器就无法清除这两个对象，导致内存泄漏。
-
-### ❓ 标记清除算法是如何处理循环引用的？
-
-在标记阶段，垃圾回收器会将循环引用的对象标记为“可达”，并且在遍历过程中**不会重复标记**已经被标记过的对象。
-
-在清除阶段，由于循环引用的对象被标记为“可达”，因此不会被清除，从而保证了循环引用的正确处理。
-
-> 举个例子：假设对象 A，包含一个指向对象 B 的引用，而对象 B 也包含一个指向对象 A 的引用。在标记阶段，垃圾回收器会从根对象开始遍历内存中的所有对象，标记对象 A 和 B 为可达对象，并且标记它们是循环引用的对象。在清除阶段，由于对象 A 和 B 被标记为可达对象，因此不会被清除。
-
 <a name="栈溢出"></a>
 
 ### 栈溢出
@@ -174,35 +159,6 @@ JS 中有两种回收机制：**标记清除（Mark-and-Sweep）**和**引用计
 2️⃣ 避免过深的函数嵌套调用。
 
 3️⃣ 使用尾递归优化（如果引擎支持）。
-
-### ❓ 为什么尾递归可以避免栈溢出
-
-**尾递归的概念**：在函数的最后一步调用自身，而不是在调用后还有其他操作。
-
-**尾递归的优势**：尾递归可以有效地避免栈溢出的风险，因为它不需要保存每次调用的上下文，只需要保留一个栈帧即可。尾递归也可以提高递归的性能，因为它减少了函数调用的开销。
-
-**尾递归和普通递归的区别**：递归调用发生的位置不同。在普通递归中，递归函数调用在递归函数的末尾，而在尾递归中，递归函数调用是函数的最后一个操作。
-
-**注意 ⚠️**：尾递归优化只有在严格模式（strict mode）下才能生效。在非严格模式下，尾递归调用仍然会导致堆栈溢出。
-
-代码示例
-
-```js
-// 普通递归
-function fibonacci(n) {
-  if (n <= 1) {
-    return n;
-  }
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}
-// 尾递归可以被js解释器优化成循环
-function fibonacciTail(n, a = 0, b = 1) {
-  if (n === 0) {
-    return a;
-  }
-  return fibonacciTail(n - 1, b, a + b);
-}
-```
 
 <a name="内存泄漏"></a>
 
@@ -228,33 +184,13 @@ function fibonacciTail(n, a = 0, b = 1) {
 
 等等...
 
-### ❓ 如何分析内存或排查内存泄漏
-
-##### Memory(chrome devtools)
-
-![](/images/js-img/memory.png)
-
-![](/images/js-img/performance.png)
-
-注意：打开 Chrome 的无痕模式，避免 Chrome 插件影响测试内存占用情况
-
-待确认 ❕
-
-步骤：
-
-本地打包一个去掉压缩、拥有 sourcemap 及没有任何 console 的生产版本（console 会保留对象引用，阻碍销毁；去掉压缩和保留 sourcemap 有利于定位源码）
-启动本地服务器，使 cef 访问本地项目
-不断操作和记录 heap snapshots，观察 snapshots 和 timeline 情况
-最终内存从 22.5m 上升至 34.6m，conversation 实例从 443 上升至 1117，message 实例从 443 上升至 1287，而该用户实际只有 221 个会话
-不断在会话间切换，通过 timeline 看到有内存没被释放，而且生成 detached dom
-
 <a name="闭包"></a>
 
 ## 闭包
 
 ### 理解闭包
 
-闭包其实就是一个**可以访问其他函数内部变量的函数**。创建闭包的最常见的方式就是在一个函数内创建另一个函数，创建的函数可以访问到当前函数的局部变量。
+闭包其实就是一个**可以访问其他函数内部变量的函数**。创建闭包的最常见的方式就是在一个函数内创建另一个函数，创建的函数可以访问到当前函数的局部变量。**每一个子函数都会拷贝上级的作用域，形成一个作用域的链条。**
 
 ### 闭包的表现形式
 
@@ -342,60 +278,6 @@ nAdd();
 result(); // 1000
 ```
 
-### ❓5 个 6 和 1、2、3、4、5 的问题
-
-```js
-for (var i = 1; i <= 5; i++) {
-  setTimeout(function () {
-    console.log(i);
-  }, 0);
-} // 6 6 6 6 6
-```
-
-对输出结果的理解：
-
-1️⃣ `setTimeout`是宏任务，由于 js 中单线程的 event loop、机制，在主线程同步任务执行完之后才去执行宏任务，因此循环结束后`setTimeout`的回调才依次执行。
-
-2️⃣ `setTimeout`函数也是一种闭包，想上找 父级作用域链是`window`,变量 i 是`window`的全局变量，开始执行`setTimeout`之前变量 i 已经是 6，所以最后的输出都是 6
-
-❓ 如何按顺序依次输出 1、2、3、4、5 呢?
-
-方式一：立即执行函数
-
-```js
-for (var i = 1; i <= 5; i++) {
-  (function (j) {
-    setTimeout(function timer() {
-      console.log(j);
-    }, 0);
-  })(i);
-}
-```
-
-方式二：使用`let`
-
-```js
-for (let i = 1; i <= 5; i++) {
-  setTimeout(function () {
-    console.log(i);
-  }, 0);
-}
-```
-
-方式三：`setTimeout`第三个参数
-
-```js
-for (var i = 1; i <= 5; i++) {
-  setTimeout(
-    function (j) {
-      console.log(j);
-    },
-    0,
-    i
-  );
-}
-```
-
 <a name="作用域链"></a>
 
 ## 作用域链 / 作用域
@@ -433,7 +315,7 @@ for (var i = 1; i <= 5; i++) {
 
 - 块级作用域，ES6 中的 `let` 、`const` 就可以产生该作用域
 
-  - 使用 `let` 关键词定义的变量只能在块级作用域中被访问，有“暂时性死区”的特点，也就 是说这个变量在定义之前是不能被使用的
+  - 使用 `let` 关键词定义的变量只能在块级作用域中被访问，有“暂时性死区”的特点，也就是说这个变量在定义之前是不能被使用的
   - `if` 语句 及 `for` 语句后面 {...} 里面所包括的,也是块极作用域。
 
 <a name="原型链"></a>
@@ -477,6 +359,14 @@ anotherCat.say(); // cat say
 2️⃣`Object.getPrototypeOf`获得对象的原型
 
 3️⃣`Object.setPrototypeOf`设置对象的原型
+
+### 原型、`__proto__`、prototype 的关系
+
+- `__proto__` 属性是**对象独有**的，而 `prototype` 属性是**函数独有**的
+- `__proto__` 属性指向了`[[Prototype]]`这个内部属性， `__proto__`本质就是`[[Prototype]]`的一个 getter/setter 实现
+- 实例对象.`__proto__` === prototype
+- 原型.constructor === 构造函数
+- 构造函数.prototype === 原型
 
 ## 执行上下文
 
@@ -553,24 +443,6 @@ var foo = 1;
 
 `var` 会产生很多错误，所以在 es6 中引入了`let`、`const`
 
-### ❓ 为什么 `eval()`、`with()`被认为是不推荐使用的特性
-
-- `eval()`：可以执行传递给它的字符串作为 JS 代码并将结果插入到原位置。
-
-示例: `eval("x=10;y=20;document.write(x*y)");`
-
-- `with()`：允许在指定的对象作用域中执行代码块，可以省略对象名称的重复引用。
-
-示例
-
-```js
-var obj = { x: 10, y: 20 };
-
-with (obj) {
-  console.log(x + y); // 输出 30
-}
-```
-
 ### 函数调用栈(call stack)
 
 [参考文章](https://blog.csdn.net/sonicwater/article/details/112278984)
@@ -642,185 +514,6 @@ fn1();
   func.bind(thisArg, param1, param2, ...)
 ```
 
-### ❓ 如果对一个函数进行多次 `bind` ，函数的 this 会如何改变?
-
-```js
-// fn.bind().bind(a) 等于
-let fn2 = function fn1() {
-  return function () {
-    return fn.apply();
-  }.apply(a);
-};
-fn2();
-```
-
-结论：不论对函数 `bind` 了多少次， fn 中的 `this` 永远由第一次 bind 决定。
-
-### ❓`call`、`apply`、`bind` 原理
-
-### `call`
-
-先来看看`call`的基础使用
-
-```js
-function add(c, d) {
-  return this.a + this.b + c + d;
-}
-
-const obj = {
-  a: 1,
-  b: 2
-};
-
-console.log(add.call(obj, 3, 4)); // 10
-```
-
-#### call 做了什么？
-
-> 1.将函数设为对象的属性
->
-> 2.执行和删除这个函数
->
-> 3.指定 this 到函数并传入给定参数,执行函数
->
-> 4.如果不传入参数，默认指向 window
-
-如果以上文字看不懂，请看如下代码 ⬇️
-
-```js
-const o = {
-  a: 1,
-  b: 2,
-  add: function (c, d) {
-    return this.a + this.b + c + d;
-  }
-};
-```
-
-#### 实现 `call`方法
-
-```js
-Function.prototype.myCall = function (context = window, ...args) {
-  let fnKey = Symbol(); // 唯一属性名，不会出现属性名的覆盖
-  // context表示call传入的this
-  // this表示调用call的函数fn
-  context[fnKey] = this; // 将fn函数设为 context 的属性
-
-  // fn内部this指向context 相当于 context.fn()
-  const result = context[fnKey](...args);
-  delete context[fnKey]; // 清理fn
-  return result;
-};
-```
-
-### `apply`
-
-#### 实现 `apply`方法
-
-apply 第二个参数是 Array,而 call 是将一个个传入
-
-```js
-Function.prototype.myApply = function (context = window, args) {
-  if (!(args instanceof Array)) throw new Error('params must be array');
-  let fnKey = Symbol();
-  context[fnKey] = this;
-
-  const result = context[fnKey](...args);
-  delete context[fnKey];
-  return result;
-};
-```
-
-### `bind`
-
-当这个新函数被调用时，bind() 的第一个参数将作为它运行时的 this，
-之后的一序列参数将会在传递的实参前传入作为它的参数。
-
-#### `bind`基础使用
-
-```js
-function foo(c, d) {
-  this.b = 100;
-  console.log(this.a); // 1
-  console.log(this.b); // 100
-  console.log(c); // 1st
-  console.log(d); // 2nd
-}
-// 我们将foo bind到{a: 1}
-var func = foo.bind(
-  {
-    a: 1
-  },
-  '1st'
-);
-func('2nd');
-```
-
-#### `bind`的实现
-
-考虑两点：
-
-1.对于普通函数，绑定`this`指向
-
-2.对于构造函数，要保证原函数的原型对象上的属性不能丢失
-
-```js
-Function.prototype.myBind = function (context, ...args) {
-  if (typeof this !== 'function') throw new TypeError('Error');
-  // this表示调用bind的函数
-  let self = this; //  fn.bind(obj) self就是fn
-
-  // this instanceof fBound为true时，表明为构造函数：new func.bind(obj)
-  // 如果是普通函数，this默认指向window，如果为false时，将绑定函数的this指向context
-  let fBound = function (...innerArgs) {
-    return self.apply(
-      this instanceof fBound ? this : context,
-      args.concat(innerArgs) // 拼接参数
-    );
-  };
-
-  // 使用Object.create实现继承
-  fBound.prototype = Object.create(this.prototype);
-  return fBound;
-};
-
-// --测试代码--
-// 构造函数
-function Person(name, age) {
-  console.log('person name:', name);
-  console.log('person age:', age);
-  console.log('person this:', this);
-}
-
-Person.prototype.say = function () {
-  console.log('say');
-};
-
-var obj = { name: 'ttt', age: 12 };
-var bindFn = Person.myBind(obj, '修改');
-
-// person name: 修改
-// person age: 111
-// person this: Person {}
-var newFn = new bindFn(111);
-
-// newFn.say(); // say
-
-// 普通函数
-function normalFunc(name, age) {
-  console.log('普通函数 name', name);
-  console.log('普通函数 age', age);
-  console.log('普通函数 this', this);
-}
-
-var bindNormalFunc = normalFunc.bind(obj, 'qqq');
-
-// 普通函数 name qqq
-// 普通函数 age 33
-// 普通函数 this { name: 'ttt', age: 12 }
-bindNormalFunc(33);
-```
-
 ### call、apply、bind 的实际应用
 
 1️⃣ 判断数据类型`Object.prototype.toString.call()`
@@ -872,27 +565,45 @@ console.log(min); // 6
 
 [es5 继承速览](https://www.jianshu.com/p/124ed22c4844)
 
-组合式继承（原型链继承 + 构造函数继承）
+寄生组合继承（原型链继承 + 构造函数继承）
+
+es6 中的 extends 被 babel 编译成 es5 的代码时，采用的就是寄生组合继承，在此基础上 es6 额外进行了`Object.setPrototypeOf(subClass,superClass)`的操作，来**继承父类的静态方法**，**弥补了寄生组合继承的不足**。
 
 ```js
-function Parent(name) {
-  this.name = name;
-  this.friend = ['lucky'];
+function Parent5(name) {
+  this.name = 'parent5';
+  this.play = [1, 2, 3];
+  this.getName = () => {
+    console.log(name ?? this.name); // ttt
+  };
 }
 
-Parent.prototype.getFriend = function () {
-  console.log('friend', this.friend);
+Parent5.prototype.getProtoName = () => {
+  console.log('ProtoName');
 };
 
-function Student(name) {
-  Parent.call(this, name);
+Parent5.getOwnName = () => {
+  console.log('own');
+};
+
+function Child5() {
+  Parent5.call(this); // 子类拿到父类的属性值
+  this.type = 'child5';
 }
 
-Student.prototype = new Parent('tom');
-let stu1 = new Student('lily');
+Child5.prototype = Object.create(Parent5.prototype); // 使用Object.create继承父类原型上的方法
+Child5.prototype.constructor = Child5; // 指定子类实例的构造函数,构造函数只执行一次
 
-console.log(stu1);
+const newChild = new Child5();
+newChild.getProtoName(); // ProtoName
+newChild.getOwnName(); // TypeError: newChild.getOwnName is not a function
 ```
+
+## 面向对象
+
+基本思想是使用**对象，类，继承，封装，多态，抽象**等基本概念来进行程序设计
+
+优势：易扩展，降低重复工作量，重用性和继承性高
 
 ### 对象形式的继承
 
@@ -908,20 +619,24 @@ function normalCopy(p, c) {
 }
 ```
 
-浅拷贝的缺点：浅拷贝对于引用类型的拷贝只是拷贝了地址，如果修改了引用类型的值，会影响到父对象中的值。
+浅拷贝的缺点：浅拷贝对于子对象中引用类型的拷贝只是拷贝了地址，如果修改了引用类型的值，会影响到父对象中的值。
 
 #### 深拷贝继承
 
 利用递归进行深拷贝
 
+使用 for in 遍历对象会遍历原型链上的属性，使用`Object.hasOwnProperty()`检测剔除原型链上的属性
+
 ```js
 function deepCopy(p, c) {
-  let c = c || {};
+  let copy = c || {};
   for (let prop in p) {
-    if (typeof p[prop] === 'object') {
-      c[prop] = p[prop].constructor === Array ? [] : {};
-      deepCopy(p[prop], c[prop]);
-    } else c[prop] = p[prop];
+    if (!p.hasOwnProperty(prop)) continue;
+
+    if (typeof p[prop] === 'object' && p[prop] !== null) {
+      copy[prop] = p[prop] instanceof Array ? [] : {};
+      deepCopy(p[prop], copy[prop]);
+    } else copy[prop] = p[prop];
   }
 }
 ```
@@ -956,11 +671,14 @@ console.log(obj.name); // poetry
 ##### 实现`Object.create()`
 
 ```js
-function myCreate(o) {
-  function F() {}
-  F.prototype = o;
-  o = new F();
-  return o;
+function myCreate(obj, props) {
+  function Fn() {}
+  Fn.prototype = obj;
+  let newFn = new Fn();
+  for (let key in props) {
+    Object.defineProperty(newFn, key, { enumerable: true, value: props[key] });
+  }
+  return newFn;
 }
 
 var p = { name: 'poetry' };
@@ -968,134 +686,254 @@ var obj = myCreate(p);
 console.log(obj.name); // poetry
 ```
 
-## ❓new 的过程实现
+### 面向对象中的静态方法/静态属性
 
-### new 操作符做了哪些事
-
-- 以构造器的 prototype 属性为原型（区分私有字段[[prototype]]），创建新对象
-
-- 将 this 和调用参数传给构造器，执行
-
-- 如果构造器返回的是对象，则返回，否则返回第一步创建的对象
+没有 new，也可以引用静态方法属性
 
 ```js
-function myNew(constructor, ...args) {
-  // 创建一个新对象，继承构造函数的原型对象
-  let newObj = Object.create(constructor.prototype);
-  // 调用构造函数，为新对象添加属性，获取函数执行结果result
-  let result = constructor.apply(newObj, args);
-  // 如果函数执行结果的返回值类型是对象，则返回执行结果，否则返回新创建的对象
-  return typeof result === 'object' ? result : newObj;
+function Person(name) {
+  var age = 100;
+  this.name = name;
 }
+//静态成员
+Person.walk = function () {
+  console.log('static');
+};
+Person.walk(); // static
 ```
 
-new 操作符的行为，客观上提供了两种方式添加属性：
-
-1️⃣ 在构造器中添加属性
+### 私有/公有
 
 ```js
-function c1() {
-  this.p1 = '构造器的属性';
-  this.p2 = function () {
-    console.log(this.p1);
+function Person(id) {
+  // 私有属性与方法
+  var name = 'poetry';
+
+  //公有属性与方法
+  this.id = id;
+  this.say = function () {
+    console.log(this.id, name);
   };
 }
-
-var o1 = new c1();
-o1.p2(); // 构造器的属性
+var p1 = new Person(123);
+console.log(p1.name); // undefined
+p1.say(); // 123 poetry
 ```
 
-2️⃣ 在构造器的 `prototype` 属性上添加属性
+### 多态
+
+同一个父类继承出来的子类各有各的形态
 
 ```js
-function c2() {}
-
-c2.prototype.p1 = '原型的属性';
-c2.prototype.p2 = function () {
-  console.log(this.p1);
-};
-
-var o2 = new c2();
-o2.p2(); // 原型的属性
+function Cat() {
+  this.eat = '肉';
+}
+function Tiger() {
+  this.color = '黑黄相间';
+}
+function Cheetah() {
+  this.color = '报文';
+}
+function Lion() {
+  this.color = '土黄色';
+}
+Tiger.prototype = Cheetah.prototype = Lion.prototype = new Cat(); //共享一个祖先 Cat
+var T = new Tiger();
+var C = new Cheetah();
+var L = new Lion();
+console.log(T.color);
+console.log(C.color);
+console.log(L.color);
+console.log(T.eat);
+console.log(C.eat);
+console.log(L.eat);
 ```
 
-<!-- ### 类继承 -->
+### 抽象类
 
-## 类型
+抽象类不能被实例化，只能被继承
+
+```js
+function DetectorBase() {
+  throw new Error('Abstract class can not be invoked directly!');
+}
+
+DetectorBase.prototype.detect = function () {
+  console.log('Detection starting...');
+};
+
+// 不能直接被实例化
+// const d = new DetectorBase(); // Error: Abstract class can not be invoked directly!
+
+// 只能通过继承来调用
+function LinkDetector() {}
+LinkDetector.prototype = Object.create(DetectorBase.prototype);
+LinkDetector.prototype.constructor = LinkDetector;
+var l = new LinkDetector();
+l.detect(); //Detection starting...
+```
+
+## 深入了解模块化
+
+模块化出现之前存在的问题
+
+每个加载的 js 文件都共享变量和方法，很容易出现**全局变量污染**和**依赖管理混乱**的问题
+
+以前的解决方案：使用**匿名函数自执行**的方式，形成独立的块极作用域解决问题
+
+```js
+(function () {
+  function name() {
+    //...
+  }
+})();
+```
+
+### 模块化规范
+
+- CommonJS ：通过 require 来引入模块，通过 module.exports 定义模块的输出接口，在服务端以同步的方式引入模块。浏览器端，webpack 打包工具具备对 CommonJS 的支持和转换。
+- ES Module ：使用 import 和 export 的形式来导入导出模块，在浏览器端以异步的方式引入模块。ES6 的模块系统，如果借助 Babel 的转换，ES6 的模块系统最终还是会转换成 CommonJS 的规范。
+- AMD
+- CMD
+
+### CommonJS
+
+nodejs 借鉴了 Commonjs 的 Module ，实现了良好的模块化管理。
+
+CommonJS 模块加载过程：
+
+- 模块在被第一次引入时，模块中的 js 代码会被运行一次。
+- 被多次引入时，会缓存，最终只加载（运行）一次。
+  - 每个模块对象 module 都有一个属性：loaded，为 false 表示还没有加载，为 true 表示已经加载。
+- 如果存在循环引入，那么加载顺序是怎样的？
+  - Node 采用的是深度优先，所以存在循环引入时，加载顺序是不确定的。
+
+### ES Module
+
+#### 基础使用
+
+**导出模块：a.js**
+
+```js
+// 方式一
+// ⭐️module 是 Node 独有的一个变量
+var greet = function () {
+  console.log('Hello World');
+};
+
+module.exports = greet;
+// 方式二
+// exports.a = 1;
+```
+
+以上代码会被 node 包装为 IIFE
+
+```js
+(function (exports, require, module, __filename, __dirname) {
+  //add by node
+  var greet = function () {
+    console.log('Hello World');
+  };
+  module.exports = greet;
+}).apply(); //add by node
+
+return module.exports; // module.exports 和 exports 指向同一个引用
+```
+
+**导入：b.js**
+
+```js
+// 实质就是包装了一层立即执行函数
+var module = require('./a.js');
+module.a; // -> log 1
+```
+
+**1.在 script 标签引入模块的 js 文件时，要加上类型 type="module"**
+
+`<script src="./main.js" type="module"></script>`
+
+**2.导出可以给标识符起一个别名：通过 as 关键字**
+
+`export { name as cname }`
+
+`import { name as fname } from "./foo.js"`
+
+**3.使用 `*`，将模块功能放到一个模块功能对象上**
+
+`import * as foo from "./foo.js"`
+
+**4.`export default`:默认导出。在一个模块中只能有一个默认导出**
+
+#### ES Module 的解析过程
+
+![](/images/js-img/esmodule.png)
+
+阶段一：构建（Construction），根据地址查找 js 文件，并且下载，将其解析成模块记录（Module Record）；
+
+阶段二：实例化（Instantiation），对模块记录进行实例化，并且分配内存空间，解析模块的导入和导出语句，把模块指向对应的内存地址。
+
+阶段三：运行（Evaluation），运行代码，计算值，并且将值填充到内存地址中
+
+### ES6
+
+```js
+//导出
+export function sum(x, y) {
+  return x + y;
+}
+export const pi = 3.14;
+
+//导入
+import { sum, pi } from './my.js';
+```
+
+<a name="eventloop"></a>
+
+## eventloop 机制
+
+### 同步 与 异步
+
+同步：在主线程上排队执行的任务，只有前一个任务执行完毕，才能执行后一个任务
+
+异步：不进入主线程、而进入"任务队列"（task queue）的任务，只有"任务队列"通知主线程，某个异步任务可以执行了，该任务才会进入主线程执行
+
+### eventloop 机制运行流程
+
+（1）所有同步任务都在主线程上执行，形成一个执行栈（execution context stack）。
+
+（2）主线程之外，还存在一个"任务队列"（task queue）。只要异步任务有了运行结果，就在"任务队列"之中放置一个事件。
+
+（3）一旦"执行栈"中的所有同步任务执行完毕，系统就会读取"任务队列"，看看里面有哪些事件。那些对应的异步任务，于是结束等待状态，进入执行栈，开始执行。
+
+（4）主线程不断重复上面的第三步
+
+## 数据类型
 
 ![](/images/js-img/类型.png)
 
-**基本数据类型**：基础类型存储在栈内存，被引用或拷贝时会创建一个完全相等的变量；占据空间小、大小固定，属于被频繁使用的数据，所以放入栈中存储。
+**基本数据类型**：Undefined、Null、Boolean、Number、String、Symbol（es6）和 BigInt（es10）。基础类型存储在栈内存，被引用或拷贝时会创建一个完全相等的变量；占据空间小、大小固定，属于被频繁使用的数据，所以放入栈中存储。
 
-**引用数据类型**：引用类型存储在堆内存，存储的是地址，多个引用指向同一个地址，占据空间大、大小不固定。引用数据类型在栈中存储了指针，该指针指向堆中该实体的起始地址。当解释器寻找引用值时，会首先检索其在栈中的地址，取得地址后从堆中获得实体。
+**引用数据类型**：Object。引用类型存储在堆内存，存储的是地址，多个引用指向同一个地址，占据空间大、大小不固定。引用数据类型在栈中存储了指针，该指针指向堆中该实体的起始地址。当解释器寻找引用值时，会首先检索其在栈中的地址，取得地址后从堆中获得实体。
 
-### ❓ 为什么有的编程规范要求用`void 0`代替`undefined`
+## 类型检测方法
 
-任何变量在赋值前是 `Undefined` 类型、值为 undefined。在 JS 设计中，`undefined`不是关键字，而是变量。为避免无意篡改值，建议使用`void 0`代替`undefined`值。
+### 1.`typeof`
 
-在实际编程时，可以将变量先赋值为`null`,`null`表示：定义了但是为空值。一般不会把变量赋值为 `undefined`，这样可以保证所有值为`undefined`的变量，都是从未赋值的自然状态。
-
-### ❓ 0.1+0.2 不等于 0.3
-
-`console.log(0.1 + 0.2 == 0.3); // false`
-
-浮点数运算的精度问题导致等式两侧的结果并不是严格相等，正确的比较方法是使用 JS 提供的最小精度值`Number.EPSILON`
-
-`console.log(Math.abs(0.1 + 0.2 - 0.3) <= Number.EPSILON); // true`
-
-### ❓ 遍历中如何取到`symbol`类型
-
-常见的对象遍历方法
-
-- `for (let xx in obj)`：【es5】遍历对象的可枚举属性，包括继承（原型上）的属性，遍历顺序不确定。
-- `for (let xx of obj)`：【es6】遍历可迭代对象(数组、字符串、Set、Map 等)，不会遍历非述职属性或原型上的属性
-- `Object.keys(obj)`：返回包含 key 的数组
-- `Object.values(obj)`：返回包含 value 的数组
-- `Object.getOwnPropertyNames()`：返回包含 key 的数组
-
-如何遍历到`Symbol`
-
-- `Object.getOwnPropertySymbols()`：返回对象中只包含 symbol 类型 key 的数组
-- `Reflect.ownKeys()` ：返回对象中所有类型 key 的数组（包含 symbol）
-
-### ❓ 递归遍历实现深拷贝（for in）
+判断除了 null 的基础数据类型
 
 ```js
-function deepClone(obj) {
-  if (typeof obj !== 'object' || obj === null) return obj;
-
-  let copyObj = obj instanceof Array ? [] : {};
-
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      copyObj[obj] = deepClone(obj[key]);
-    }
-  }
-  return copyObj;
-}
+console.log(typeof function () {}); // function
+console.log(typeof undefined); // undefined
+console.log(typeof null); // object
+console.log(typeof []); // object
+console.log(typeof {}); // object
 ```
 
-### ❓ 为什么给对象添加的方法能用在基本类型上
+### 2.`instanceof`
 
-运算符提供了装箱操作，它会根据基础类型构造一个临时对象，使得我们能在基础类型上调用对应对象的方法。
+判断引用数据类型，不能判断基本数据类型。原理：**判断对象的原型链中是否存在类型的 prototype**
 
-📄**理解装箱转换 & 拆箱转换**
-
-包装类与原始值转换过程叫做「装箱」和「拆箱」，装箱(boxing)是将值类型包装为对象类型，拆箱(unboxing)是将对象类型转换为类型。
-
-每一种基本类型 `Number`、`String`、`Boolean`、`Symbol` 在对象中都有对应内置的类。装箱机制会频繁产生临时对象，在一些对性能要求较高的场景下，我们应该尽量避免对基本类型做装箱转换。
-
-装箱操作的**具体步骤**为：创建该类型的实例，在实例上调用指定的方法，销毁实例。
-
-拆箱转换：在 JavaScript 标准中，规定了 `toPrimitive` 函数（es6），允许对象通过重写`toPrimitive` 函数来实现转换（优先级最高）。它是对象类型到基本类型的转换，如果没有`ToPrimitive`函数，会先后尝试调用 `valueOf` 和 `toString` 来获得拆箱后的基本类型。如果 `valueOf` 和 `toString` 都不存在，或者没有返回基本类型，则会产生类型错误 TypeError。
-
-## 类型检测
-
-### ❓`instanceof`的实现原理
-
-判断对象的原型链中是否存在类型的 prototype
-
-实现代码
+#### 实现`instanceof`
 
 ```js
 function myInstanceOf(instance, classOrFunc) {
@@ -1108,11 +946,68 @@ function myInstanceOf(instance, classOrFunc) {
   }
   return false;
 }
+
+console.log('test', _instanceof(null, Array)); // false
+console.log('test', _instanceof([], Array)); // true
 ```
 
-## 理解 js 对象的两类属性
+### 3.`constructor`
 
-### 第一类属性：数据属性
+```js
+console.log('str'.constructor === String); // true
+console.log([].constructor === Array); // true
+console.log(function () {}.constructor === Function); // true
+console.log({}.constructor === Object); // true
+```
+
+弊端：创建一个对象并更改它的原型， constructor 会变得不可靠
+
+```js
+function Fn() {}
+Fn.prototype = new Array();
+
+console.log(new Fn().constructor === Array); // true
+console.log(new Fn().constructor === Fn); // false
+```
+
+### 4.`Object.prototype.toString.call()`
+
+- 对于 Object 对象，直接调用 toString(),就能返回 [object Object] ;而对于其他对象，需要通过 call 来调用，返回正确的类型信息
+- 可以区分 window、document、Date、正则等
+
+### 通用的数据类型判断实现
+
+```js
+function getType(obj) {
+  let type = typeof obj;
+  if (type !== 'object') return type;
+
+  return Object.prototype.toString
+    .call(obj)
+    .replace(/^\[object (\S+)\]$/, '$1')
+    .toLowerCase();
+}
+
+console.log(getType([])); // array
+console.log(getType('ttt')); // string
+```
+
+Tip 补充：
+
+```js
+// 将英文单词首字母大写
+console.log('hello'.toUpperCase().slice(0, 1) + 'hello'.slice(1));
+
+// 英文单词全部大写
+console.log('hello'.toUpperCase()); // HELLO
+
+// 英文单词小写
+console.log('Hello'.toLowerCase()); // hello
+```
+
+## js 对象的两类属性
+
+### 一：数据属性
 
 特征如下：
 
@@ -1121,7 +1016,7 @@ function myInstanceOf(instance, classOrFunc) {
 - `enumerable`:决定 for in 能否枚举该属性。
 - `configurable`:决定该属性能否被删除或者改变特征值。
 
-### 第二类属性：访问器属性
+### 二：访问器属性
 
 特征如下：
 
@@ -1189,3 +1084,30 @@ let o = {
 console.log(o.c); // 22
 o.b = 777;
 ```
+
+## Promise
+
+### 静态方法
+
+- `Promise.all`
+  - 用途：将多个异步请求并行操作
+  - 参数：Promise 的数组，返回一个新的 Promise。
+  - 当所有结果成功返回时**按照请求顺序返回成功结果**
+  - 当其中有一个失败方法时，则进入失败方法
+- `Promise.allSettled`:
+  - 用途：将多个异步请求并行操作，并且返回所有结果，操作完成后可以拿到每个 Promise 的状态
+  - 参数：Promise 的数组，返回一个新的 Promise。
+- `Promise.any`
+  - 只要参数 Promise 实例有一个变成`fulfilled`状态，最后 any 返回的实例就会变成`fulfilled`状态;如果所有参数 Promise 实例都变成`rejected`状态，包装实例就会变成`rejected`状态
+  - 参数：Promise 的数组，返回一个新的 Promise。
+- `Promise.race`:将多个异步请求并行操作，只返回第一个结果
+  - 只要参数的 Promise 之中有一个实例率先改变状态，则 race 方法的返回状态就跟着改变。那个率先改变的 Promise 实例的返回值，就传递给 race 方法的回调函数
+  - 应用场景：将图片请求和超时判断放到一起，用 race 来实现图片的超时判断
+- `Promise.resolve`:将现有对象转为 Promise 对象
+- `Promise.reject`:返回一个状态为失败的 Promise 对象
+
+### 实例方法
+
+- `then`:为 Promise 实例添加状态改变时的回调函数
+- `catch`:为 Promise 实例添加状态变为 rejected 时的回调函数
+- `finally`:为 Promise 实例添加状态改变时的回调函数，无论状态是 fulfilled 还是 rejected
