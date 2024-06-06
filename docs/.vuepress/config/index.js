@@ -27,11 +27,11 @@ export const cateList = [
         },
         {
           name: '算法基础',
-          link: '/blog/basis//algorithm'
+          link: '/blog/basis/algorithm'
         },
         {
           name: '算法题记录',
-          link: ''
+          link: '/blog/basis/ques'
         }
       ]
     },
