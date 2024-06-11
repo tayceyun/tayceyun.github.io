@@ -127,13 +127,29 @@ a/package.json
 const proxy = new Proxy(target, handler);
 ```
 
+#### proxy 的作用
+
+- 拦截和监视外部对对象的访问
+- 降低函数或类的复杂度
+- 在复杂操作前对操作进行校验或对所需资源进行管理
+
 #### 参数 handler 对象的常用方法
 
-- `handler.has()`
-- `handler.get()`
-- `handler.set()`
-- `handler.deleteProperty()	`
-- `handler.ownKeys()`
+实际上 handler 本身就是 ES6 所新设计的一个对象.它 的作用就是用来 自定义代理对象的各种可代理操作 。它本身一共有 13 中方法,每种方法都可以代理一种 操作.其 13 种方法如下
+
+- 读取代理对象：`handler.getPrototypeOf()`
+- 设置代理对象的原型：`handler.setPrototypeOf()`
+- 判断代理对象是否可扩展：`handler.isExtensible()`
+- 设置代理对象不可扩展：`handler.preventExtensions()`
+- 获取代理对象特定属性的属性描述：`handler.getOwnPropertyDescriptor(proxy,keyName)`
+- 定义代理对象属性的属性描述：`handler.defineProperty()`
+- 判断代理对象是否拥有某个属性：`handler.has()`
+- 读取代理对象的某个属性：`handler.get()`
+- 给代理对象的某个属性赋值：`handler.set()`
+- 删除代理对象的某个属性：`handler.deleteProperty()	`
+- 获取代理对象的所有属性键：`handler.ownKeys()`
+- 调用一个目标对象为函数的代理对象：`handler.apply()`
+- 给一个目标对象为构造函数的代理对象构造实例：`handler.construct()`
 
   `Object.getOwnPropertyNames()` 方法和 `Object.getOwnPropertySymbols()` 方法的捕捉器。
 

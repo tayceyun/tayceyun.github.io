@@ -565,7 +565,7 @@ console.log(min); // 6
 
 [es5 继承速览](https://www.jianshu.com/p/124ed22c4844)
 
-寄生组合继承（原型链继承 + 构造函数继承）
+#### 寄生组合继承（原型链继承 + 构造函数继承）
 
 es6 中的 extends 被 babel 编译成 es5 的代码时，采用的就是寄生组合继承，在此基础上 es6 额外进行了`Object.setPrototypeOf(subClass,superClass)`的操作，来**继承父类的静态方法**，**弥补了寄生组合继承的不足**。
 
@@ -599,6 +599,39 @@ newChild.getProtoName(); // ProtoName
 newChild.getOwnName(); // TypeError: newChild.getOwnName is not a function
 ```
 
+### class 继承
+
+class 实现继承的核心在于使用 `extends` 表明继承自哪个父类，并且在子类构造函数中必须调用 `super` ， 因为这段代码可以看成 `Parent.call(this, value)` 。
+
+```js
+class Parent {
+  constructor(value) {
+    this.val = value;
+  }
+  getVal() {
+    console.log(this.val);
+  }
+}
+
+class Child extends Parent {
+  constructor(value) {
+    super(value);
+    // this.val = value;
+  }
+}
+
+let chi = new Child(222);
+
+chi.getVal(); // 222
+console.log(chi instanceof Parent);
+```
+
+### es5 和 es6 继承的区别
+
+- ES6 继承的子类需要调用 super() 才能拿到子类，ES5 的话是通过
+  种绑定的方式
+- 类声明不会提升，和 let 这些一致
+
 ## 面向对象
 
 基本思想是使用**对象，类，继承，封装，多态，抽象**等基本概念来进行程序设计
@@ -610,13 +643,19 @@ newChild.getOwnName(); // TypeError: newChild.getOwnName is not a function
 #### 浅拷贝继承
 
 ```js
-function normalCopy(p, c) {
-  let c = c || {};
-
-  for (let prop in p) {
-    c[prop] = p[prop];
+const shallowClone = (target) => {
+  if (typeof target === 'object' && target !== null) {
+    const cloneTarget = Array.isArray(target) ? [] : {};
+    for (let prop in target) {
+      if (target.hasOwnProperty(prop)) {
+        cloneTarget[prop] = target[prop];
+      }
+    }
+    return cloneTarget;
+  } else {
+    return target;
   }
-}
+};
 ```
 
 浅拷贝的缺点：浅拷贝对于子对象中引用类型的拷贝只是拷贝了地址，如果修改了引用类型的值，会影响到父对象中的值。
@@ -642,6 +681,8 @@ function deepCopy(p, c) {
 ```
 
 #### 使用`call`和`apply`继承
+
+**缺点**：虽然能够拿到父类的属性值，父类原型对象中的方法子类无法继承。
 
 ```js
 function Parent() {
@@ -887,6 +928,28 @@ export const pi = 3.14;
 import { sum, pi } from './my.js';
 ```
 
+## 事件机制
+
+### 捕获 & 冒泡
+
+- 事件捕获：浏览器会从根节点开始 由外到内进行事件传播，即点击了子元素，如果父 元素通过事件捕获方式注册了对应的事件的话，会 先触发父元素绑定的事件
+
+- 事件冒泡：事件冒泡顺序是由内到外进行事件传播，直到根节点
+
+W3C 的标准是先捕获再冒泡， `addEventListener` 的第三个参数决定把事件注册在捕获(true)还是冒泡(false)
+
+### 事件流阻止
+
+- 阻止默认行为：`event.preventDefault()`
+- 阻止冒泡 / 捕获：`event.stopPropagation()`
+- 不仅阻止冒泡 / 捕获，而且阻止该事件目标执行别的注册事件：`event.stopImmediatePropagation()`
+
+### 事件委托（事件的冒泡原理）
+
+- 减少 dom 操作
+- 节省内存
+- 子节点无需注销事件
+
 <a name="eventloop"></a>
 
 ## eventloop 机制
@@ -897,6 +960,10 @@ import { sum, pi } from './my.js';
 
 异步：不进入主线程、而进入"任务队列"（task queue）的任务，只有"任务队列"通知主线程，某个异步任务可以执行了，该任务才会进入主线程执行
 
+**宏任务**：script、`setTimeout`、`setInterval`、`setImmediate`、I/O 网络请求完成、文件读写完成事件、UI rendering、用户交互事件(比如鼠标点击、滚动页面、放大缩小等)
+
+**微任务**：`process.nextTick`、`promise`、`Object.observe`、`MutationObserver`
+
 ### eventloop 机制运行流程
 
 （1）所有同步任务都在主线程上执行，形成一个执行栈（execution context stack）。
@@ -906,6 +973,59 @@ import { sum, pi } from './my.js';
 （3）一旦"执行栈"中的所有同步任务执行完毕，系统就会读取"任务队列"，看看里面有哪些事件。那些对应的异步任务，于是结束等待状态，进入执行栈，开始执行。
 
 （4）主线程不断重复上面的第三步
+
+**Tip** ：如果宏任务中的异 步代码有大量的计算并且需要操作 DOM 的话，为了 更快的响应界面响应，我们可以把操作 DOM 放入微任务中
+
+### js 运行的整体流程
+
+- 首先 js 是单线程运行的，在代码执行的时候，通过将不同函数的执行上下文压入执行栈中来保证代码的有序执行
+- 在执行同步代码的时候，如果遇到了异步事件，js 引擎并不会一直等待其返回结果，而是会将这个事件挂起，继续执行执行栈中的其他任务
+- 当同步事件执行完毕后，再将异步事件对应的回调加入到与当前执行栈中不同的另一个任务队列中等待执行
+- 任务队列可以分为宏任务对列和微任务对列，当当前执行栈中的事件执行完毕后，js 引擎首先会判断微任务对列中是否有任务可以执行，如果有就将微任务队首的事件压入栈中执行
+- 当微任务对列中的任务都执行完成后再去判断宏任务对列中的任务。
+
+示例：
+
+```js
+setTimeout(function () {
+  console.log(1);
+}, 0);
+new Promise(function (resolve, reject) {
+  console.log(2);
+  resolve();
+}).then(function () {
+  console.log(3);
+});
+process.nextTick(function () {
+  console.log(4);
+});
+console.log(5);
+```
+
+第一轮:主线程开始执行，遇到`setTimeout`,将`setTimeout`的回调函数放入宏任务队列中，往下执行。
+
+new Promise 立即执行【输出 2】，then 进入微任务队列中
+
+process.nextTick，进入微任务队列中
+
+立即【输出 5】，第一轮同步任务执行完成。
+
+查看微任务队列：then 函数和 nextTick 两个微任务，nextTick 异步任务发生在所有异步任务之前。
+先执行 nextTick【输出 4】，再执行 then【输出 3】，第一轮执行结束。
+
+第二轮：从宏任务队列开始， 执行 setTimeout 回调函数【输出 1】
+
+### 重绘和回流和 Event loop 有关
+
+- 当 Event loop 执行完 Microtasks 后，会判断 document 是否需要更新。因为浏览器是 60Hz 的刷新率，每 16ms 才会更新一次。
+- 然后判断是否有 resize 或者 scro11 ，有的话会去触发事件，所以 resize 和 scro11 事件也是至少 16ms 才会触发一次，并且自带节流功能。
+- 判断是否触发了 media query
+- 更新动画并且发送事件
+- 判断是否有全屏操作事件
+- 执行 requestAnimationFrame 回调
+- 执行 Intersectionobserver 回调，该方法用于判断元素是否可见，可以用于懒加载上，但是兼容性不好
+- 更新界面
+- 以上就是一帧中可能会做的事情。如果在一帧中有空闲时间，就会去执行 requestIdlecallback 回调
 
 ## 数据类型
 
@@ -1085,7 +1205,35 @@ console.log(o.c); // 22
 o.b = 777;
 ```
 
+## lterator 迭代器
+
+Iterator (迭代器)是一种接口，也可以说是一种规范。为各种不同的数据结构提供统一的访问机制。 任何数据结构只要部署 Iterator 接口([Symbol.iterator]属性)，就可以完成遍历操作(即依次处理该数据结构的所有成员)。
+
+原型部署了 Iterator 接口的数据结构有三种，具体包含四种，分别是数组，类似数组的对象，Set 和 Map 结构
+
+```js
+const obj = {
+  [Symbol.iterator]: function () {}
+};
+```
+
+- 迭代器的遍历方法是首先获得一个迭代器的指针，初始时该指针指向第一条数据之前，接着通过调用 next 方法，改变指针的指向，让其指向下一条数据
+- 每一次的 next 都会返回一个对象，该对象有两个属性
+  - value 代表想要获取的数据
+  - done 布尔值，false 表示当前指针指向的数据有值，true 表示遍历已经结束
+- 对象(Object)没有部署 iterator 接口
+
 ## Promise
+
+Promise 是 ES6 新增的语法，解决了**回调地狱**的问题。回调地狱就是为是实现代码顺序执行而出现的一种操作，代码阅读性差且难以维护。
+
+可以把 Promise 看成一个状态机。初始是`pending`状态，可以通过函数 `resolve` 和`reject`，将状态转变为`resolved`或者`rejected`状态，**状态一旦改变就不能再次变化**。
+
+### Promise 的三种状态
+
+- 待定(`pending`):初始状态，既没有被完成，也没有被拒绝。
+- 已完成(`fulfilled`):操作成功完成。
+- 已拒绝(`rejected`):操作失败。
 
 ### 静态方法
 
@@ -1111,3 +1259,198 @@ o.b = 777;
 - `then`:为 Promise 实例添加状态改变时的回调函数
 - `catch`:为 Promise 实例添加状态变为 rejected 时的回调函数
 - `finally`:为 Promise 实例添加状态改变时的回调函数，无论状态是 fulfilled 还是 rejected
+
+## Generator
+
+Es6 新增，Generator 函数是 ES6 提供的一种异步编程解决方案。通过 yield 标识位和 next() 方法调用，实现函数的分段执行。
+
+Generator 函数可以说是 Iterator 接口的具体实现方式。Generator 最大的特点就是可以控制函数的执行。
+
+- function* 用来声明一个函数是生成器函数，它比普通的函数声明多了一个 * , \* 的位置比较随意可以挨着 function 关键字，也可以挨着函数名
+- yield 产出的意思，这个关键字只能出现在生成器函数体内，但是生成器中也 可以没有 yield 关键字，函数遇到 yield 的时候会暂停，并把 yield 后面 的表达式结果抛出去
+- next 作用是将代码的控制权交还给生成器函数
+
+function* foo(x) {
+let y = 2 * (yield x + 1);
+let z = yield y / 3;
+return x + y + z;
+}
+let it = foo(5);
+console.log(it.next()); // => {value: 6, done: false}
+console.log(it.next(12)); // => {value: 8, done: false}
+console.log(it.next(13)); // => {value: 42, done: true}
+
+上面这个示例就是一个 Generator 函数，
+
+我们来分析其执行过程: 首先 Generator 函数调用时它会返回一个迭代器
+
+当执行第一次 next 时，传参会被忽略，并且函数暂停在 yield (x + 1) 处，所以 返回 5 + 1 = 6
+
+当执行第二次 next 时，传入的参数等于上一个 yield 的返回值，如果你不传参， yield 永远返回 undefined。此时 let y = 2 _ 12，所以第二个 yield 等于 2 _ 12 / 3 =8
+
+当执行第三次 next 时，传入的参数会传递给 z，所以 z = 13, x = 5, y = 24，相 加等于 42
+
+`yield`实际就是暂缓执行的标示，每执行一次 next() ，相当于指针移动到下一个`yield`位置
+
+### Generator 函数的简单实现
+
+```js
+function generator(cb) {
+  return (function () {
+    var object = {
+      next: 0,
+      stop: function () {}
+    };
+
+    return {
+      next: function () {
+        var ret = cb(object);
+        if (ret === undefined) return { value: undefined, done: true };
+        return {
+          value: ret,
+          done: false
+        };
+      }
+    };
+  })();
+}
+```
+
+## async/await
+
+Generator 函数的语法糖。有更好的语义、更好的适用性、返回值是 Promise 。
+
+await 相比直接使用 Promise 来说，优势在于处理 then 的调用链，能够更清晰准确的写出代码。缺点在于滥用 await 可能会导致性能问题，因为 await 会阻塞代码，也许之后的异步代码并不依赖于前者，但仍然需要等待前者完成，导致代码失去了并发性，此时更应该使用 Promise.all。
+
+一个函数如果加上 async ，那么该函数就会返回一个 Promise
+
+### async/await 原理
+
+Generator 函数+自动执行器
+
+## ajax
+
+异步通信，通过直接由 js 脚本向服 务器发起 http 通信，然后根据服务器返回的数据， 更新网页的相应部分，而不用刷新整个页面的一种 方法。
+
+```js
+//1:创建Ajax对象
+var xhr = window.XMLHttpRequest?new XMLHttpRequest():new ActiveXOb ject('Microsoft.XMLHTTP');// 兼容IE6及以下版本
+//2:配置 Ajax请求地址
+xhr.open('get','index.xml',true);
+//3:发送请求
+xhr.send(null); // 严谨写法
+//4:监听请求，接受响应
+xhr.onreadysatechange=function(){
+          if(xhr.readySate==4&&xhr.status==200 || xhr.status==304 )
+               console.log(xhr.responsetXML)
+}
+```
+
+### Promise 封装
+
+```js
+function getJSON(url) {
+  // 创建一个 promise 对象
+  let promise = new Promise(function (resolve, reject) {
+    let xhr = new XMLHttpRequest();
+    // 新建一个 http 请求
+    xhr.open('GET', url, true);
+    // 设置状态的监听函数
+    xhr.onreadystatechange = function () {
+      if (this.readyState !== 4) return;
+      // 当请求成功或失败时，改变 promise 的状态
+      if (this.status === 200) {
+        resolve(this.response);
+      } else {
+        reject(new Error(this.statusText));
+      }
+    };
+    // 设置错误监听函数
+    xhr.onerror = function () {
+      reject(new Error(this.statusText));
+    };
+    // 设置响应的数据类型
+    xhr.responseType = 'json';
+    // 设置请求头信息
+    xhr.setRequestHeader('Accept', 'application/json');
+    // 发送 http 请求
+    xhr.send(null);
+  });
+  return promise;
+}
+```
+
+## 防抖 & 节流(性能优化)
+
+```js
+function debounce(Fn, wait) {
+  var timer = null;
+
+  return function () {
+    var contex = this;
+    args = arguments;
+
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+
+    timer = setTimeout(() => {
+      Fn.apply(contex, args);
+    }, wait);
+  };
+}
+
+function throttle(Fn, delay) {
+  var preTime = Date.now();
+
+  return function () {
+    var context = this,
+      args = arguments,
+      nowTime = Date.now();
+
+    if (nowTime - preTime >= delay) {
+      preTime = Date.now();
+      return Fn.apply(context, args);
+    }
+  };
+}
+```
+
+## 实现数组扁平化的几种方式
+
+### 递归
+
+```js
+function flatten(arr) {
+  let result = [];
+
+  for (let i = 0; i < arr.length; i++) {
+    if (Array.isArray(arr[i])) result = result.concat(flatten(arr[i]));
+    else result.push(arr[i]);
+  }
+  return result;
+}
+```
+
+### 扩展云算法实现
+
+```js
+function flatten(arr) {
+  while (arr.some((item) => Array.isArray(item))) {
+    arr = [].concat(...arr);
+  }
+  return arr;
+}
+```
+
+### reduce 迭代
+
+```js
+function flatten(arr) {
+  return arr.reduce(
+    (prev, next) => prev.concat(Array.isArray(next) ? flatten(next) : next),
+    []
+  );
+}
+```

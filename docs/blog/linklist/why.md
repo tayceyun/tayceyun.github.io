@@ -474,3 +474,82 @@ function deepClone(obj) {
 
 拆箱转换：在 JavaScript 标准中，规定了 `[Symbol.ToPrimitive]` 函数（es6），允许对象通过重写`toPrimitive` 函数来实现转换（优先级最高）。它是对象类型到基本类型的转换，
 如果没有`ToPrimitive`函数，会先后尝试调用 `valueOf` 和 `toString` 来获得拆箱后的基本类型。如果 `valueOf` 和 `toString` 都不存在，或者没有返回基本类型，则会产生类型错误 TypeError。
+
+## Q15.手写实现 Promise❓
+
+```js
+function myPromise(constructor) {
+  let self = this;
+  self.status = 'pending'; // 初始化状态
+  self.value = undefined; // 状态为resolved的value
+  self.reason = undefined; // 状态为rejected的reason
+
+  function resolve(value) {
+    if (self.status === 'pending') {
+      self.value = value;
+      self.status = 'resolved';
+    }
+  }
+
+  function reject(reason) {
+    if (self.status === 'pending') {
+      self.reason = reason;
+      self.status = 'rejected';
+    }
+  }
+
+  // 捕获constructor异常
+  try {
+    constructor(resolve, reject);
+  } catch (e) {
+    reject(e);
+  }
+}
+
+// 定义链式调用的then方法
+myPromise.prototype.then = function (onFullfilled, onRejected) {
+  let self = this;
+  switch (self.status) {
+    case 'resolved':
+      onFullfilled(self.value);
+      break;
+    case 'rejected':
+      onRejected(self.reason);
+      break;
+    default:
+  }
+};
+```
+
+## Q16.Load 和 DOMContentLoaded 有什么区别 ❓
+
+- Load 事件触发代表页面中的 DOM ， CSS ， JS ，图片已经全部加载完毕。
+- DOMContentLoaded 事件触发代表初始的 HTML 被完全加载和解析，不需要等待 CSS ， JS ，图片加载。
+
+## Q17.重绘和重排有什么区别，如何优化 ❓
+
+重绘是当节点需要更改外观而不会影响布局的，比如改变 color 就叫称为重绘
+
+重排是布局或者几何属性需要改变。
+
+例如：添加或者删除可见的 DOM 元素; 元素尺寸改变——边距、填充、边框、宽度和高度; 内容变化，比如用户在 input 框中输入文字; 浏览器窗口尺寸改变——resize 事件发生时 计算 offsetWidth 和 offsetHeight 属性等等
+
+重排必定发生重绘，重绘不一定引发重排。
+
+**优化：**
+
+- 使用 `visibility` 替换 `display:none`
+
+- 尽量避免使用 table 布局，table 布局中一个小改动很容易造成 table 的重新布局
+
+- css 选择符自右向左匹配查找，避免 dom 深度过深
+
+## Q18.网页的加载流程是怎样的 ❓
+
+- 当打开网址时，浏览器会从服务器中获取到 HTML 内容
+- 浏览器获取到 HTML 内容后，就开始从上到下解析 HTML 的元素
+- <head>元素内容会先被解析，此时浏览器还没开始渲染页面。
+  - <head>元素里有用于描述页面元数据的 <meta> 元素，还有一些<link>元素涉及外部资源(如 图片、css 样式等)，此时浏览器会去获取这些外部资源。<head>元素中还包含着不少的<script>元素，这些<script>元素通过 src 属性指向外部资源
+- 当浏览器解析到 script 元素时，会暂停解析并下载 JavaScript 脚本
+- 当 JavaScript 脚本下载完成后，浏览器的控制权转交给 JavaScript 引擎。当脚本执行完成后，控制权会交回给渲染引擎，渲染引擎继续往下解析 HTML 页面
+- <body>元素内容开始被解析，浏览器开始渲染页面
