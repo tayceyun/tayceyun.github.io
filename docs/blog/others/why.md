@@ -548,8 +548,32 @@ myPromise.prototype.then = function (onFullfilled, onRejected) {
 
 - 当打开网址时，浏览器会从服务器中获取到 HTML 内容
 - 浏览器获取到 HTML 内容后，就开始从上到下解析 HTML 的元素
-- <head>元素内容会先被解析，此时浏览器还没开始渲染页面。
-  - <head>元素里有用于描述页面元数据的 <meta> 元素，还有一些<link>元素涉及外部资源(如 图片、css 样式等)，此时浏览器会去获取这些外部资源。<head>元素中还包含着不少的<script>元素，这些<script>元素通过 src 属性指向外部资源
-- 当浏览器解析到 script 元素时，会暂停解析并下载 JavaScript 脚本
+- `head`元素内容会先被解析，此时浏览器还没开始渲染页面。
+  - `head`元素里有用于描述页面元数据的 `meta` 元素，还有一些`link`元素涉及外部资源(如 图片、css 样式等)，此时浏览器会去获取这些外部资源。`head`元素中还包含着不少的`script`元素，这些`script`元素通过 src 属性指向外部资源
+- 当浏览器解析到 `script` 元素时，会暂停解析并下载 JavaScript 脚本
 - 当 JavaScript 脚本下载完成后，浏览器的控制权转交给 JavaScript 引擎。当脚本执行完成后，控制权会交回给渲染引擎，渲染引擎继续往下解析 HTML 页面
-- <body>元素内容开始被解析，浏览器开始渲染页面
+- `body`元素内容开始被解析，浏览器开始渲染页面
+
+## Q19.性能优化
+
+- 选择合适的缓存策略
+  - 强缓存（Expires 和 Cache-Control(优先级高于 Expires)）
+  - 协商缓存（`Last-Modified` / `If-Modified-Since` 或 `ETag` / `If-None-Match`）
+  - 对于大部分的场景都可以使用强缓存配合协商缓存解决，但是在一些特殊的地方可能需要选择特殊的缓存策略
+    - 不需要缓存的资源：`Cache-control: no-store`
+    - 频繁变动的资源：`Cache-Control: no-cache` + Etag
+  - 对于代码文件，通常使用 Cache-Control: max-age=31536000 并配合策略缓存使用，对文件进行指纹处理，一旦文件名变动就会立刻下载新的文件
+- [preload]预加载：对于不需要立即用到，但是希望尽快获取的资源。预加载即声明式的 fetch ，强制浏览器请求资源，并且不会阻塞 onload 事件。预加载可以一定程度上降低首屏的加载时间，因为可以将一些不影响首屏但重要的文件延后加载，唯一缺点就是兼容性不好。
+
+  `<link rel="preload" href="http://example.com">`
+
+- [prerender]预渲染：将下载的文件预先在后台渲染。
+  `<link rel="prerender" href="http://example.com">`
+- 对于非首屏的资源，可以使用 defer 或 async 的方式引入
+  - [defer]：有顺序依赖
+  - [async]：脚本加载完执行
+- 图片懒加载
+- webpack 优化：
+  - 使用 es6 模块开启 tree shaking
+  - 按路由拆分代码，按需加载
+  - 打包出来的文件添加 hash，实现浏览器缓存文件

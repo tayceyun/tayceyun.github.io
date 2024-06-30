@@ -32,6 +32,54 @@ npm、yarn、pnpm 等是用来管理项目依赖、发布包、安装依赖的�
 
 这些包管理工具与 monorepo 的关系在于它们可以为 monorepo **提供依赖安装与依赖管理的支持**，借助自身对 workspace 的支持，允许在 monorepo 中的不同子项目之间**共享依赖项**，并提供一种管理这些共享依赖项的方式，这可以简化依赖项管理和构建过程，并提高开发效率。
 
+##### 在执行 `npm install` 的时候发生了什么？
+
+- 首先安装的依赖都会存放在根目录的 node_modules,默认采用扁平化的方式安装，排序规则: .bin 第一个然后@系列，再然后按照首字母排序 abcd 等，使用算法:广度优先遍历，
+- 遍历依赖树时，npm 会首先处理项目根目录下的依赖，然后逐层处理每个依赖包的依赖，直到所有依赖都被处理完毕。
+- 在处理每个依赖时，npm 会检查该依赖的版本号是否符合依赖树中其他依赖的版本要求，如果不符合，则会尝试安装适合的版本
+
+##### package-lock.json 文件的作用？
+
+- version 该参数指定了当前包的版本号
+- resolved 该参数指定了当前包的下载地址
+- integrity 用于验证包的完整性
+- dev 该参数指定了当前包是一个开发依赖包
+- bin 该参数指定了当前包中可执行文件的路径和名称
+- engines 该参数指定了当前包所依赖的 Node.js 版本范围
+
+package-lock.json 作用是**缓存**： name + version + integrity 信息生成一个唯一的 key，这个 key 能找到对应的`index-v5`下的缓存记录,如果发现有缓存记录，就会找到 tar 包的 hash 值，然后将对应的二进制文件解压到 node_modeules。（`ls ~/.npm/_cacache/index-v5`）
+
+##### npm run xxx 发生了什么？
+
+- 读取 package json 的 scripts 对应的脚本命令（以 vite 脚本为例）
+
+- 查找顺序：
+
+  - 先从当前项目的 node_modules/.bin 去查找可执行命令 vite
+  - 如果没找到就去全局的 node_modules 去找可执行命令 vite
+  - 如果还没找到就去环境变量查找
+  - 再找不到就进行报错
+
+- 查找到的文件有三种（可执行命令兼容各平台）：.sh 文件 / .cmd 文件 / .ps1 文件
+
+  - .sh 文件是给 Linux unix Macos 使用
+  - .cmd 给 windows 的 cmd 使用
+  - .ps1 给 windows 的 powerShell 使用
+
+npm 生命周期
+
+```json
+    "predev": "node prev.js",
+    "dev": "node index.js",
+    "postdev": "node post.js"
+```
+
+执行 npm run dev 命令时 :
+
+- step1：执行 predev
+- step2: dev 命令
+- 执行 postdev
+
 ##### Workspace 工作区
 
 包管理工具通过 workspace 功能来支持 Monorepo 模式。Workspace 是指在一个代码库中管理多个相关项目或模块的能力。
@@ -380,7 +428,7 @@ observed = new Proxy(data, {
 });
 ```
 
-`Proxy`劫持的是整个对象，可以检测到对象属性的添加和删除。但是`Proxy`不能监听到内部深层次的对象变化。vue 对此的处理方式是,在实际访问到内部对象时在 `getter` 中递归响应式
+`Proxy`劫持的是整个对象，可以检测到对象属性的添加和删除。但是`Proxy`不能监听到内部深层次的对象变化。vue 对此的处理方式是,在实际访问到内部对象时在 `getter` 中递归响应式(`Reflect.get`)
 
 - 4.编译优化
 
@@ -846,8 +894,8 @@ const mountComponent = (
 ### packages
 
 - 📁compiler-core 编译器核心：parse、optimize、codegen
-- 📁compiler-dom 编译器针对浏览器的编译器
-- 📁compiler-sfc 编译器针对单文件组件的编译器
+- 📁compiler-dom 编译器针对浏览器的编译器，处理浏览器 dom 相关逻辑
+- 📁compiler-sfc 编译器针对 vue 单文件组件的编译器
 - 📁compiler-ssr 编译器针对服务端渲染的编译器
 - 📁reactivity 响应式：defineReactive、proxy、ref、reactive、computed、watch
 - 📁runtime-core 渲染器核心：h、createVNode、renderSlot、patchProp、patchText、patchClass、patchStyle、patchEvent、processElement、processComponent、insert、remove、createApp
@@ -1105,4 +1153,36 @@ export function queuePostFlushCb(cb: SchedulerJobs) {
 }
 ```
 
-todo: diff 算法优化
+### vue 渲染过程
+
+- 调用 Compile 函数生成 render 函数字符串,编译过程如下:
+
+  - parse 使用大量的正则表达式对 template 字符串进行解析，将标签、指令、属性等转化为抽象语法树 AST。 【模板->AST(最消耗性能)】
+  - optimize 遍历 AST，找到其中的一些静态节点并进行标记，方便在页面重新渲染的时候进行 diff 比较时直接跳过静态节点，【优化 runtime 的性能】
+  - generate 将最终的 AST 转化为 render 函数字符串
+
+- 调用 new Watcher 函数，监听数据的变化，当数据发生变化时，Render 函数执行 生成 vnode 对象
+
+- 调用 patch 方法,对比新旧 vnode 对象,通过 DOM diff 算法,添加、修改、删除真正的 DOM 元素
+
+### keep-alive 原理
+
+keep-aliVe 组件接受三个属性参数:include 、exclude、max
+
+- include 指定需要缓存的组件 name 集合，参数格式支持 string，RegExp，Array。 当为字符串的时候，多个组件名称以逗号隔开。
+- exclude 指定不需要缓存的组件 name 集合，参数格式和 include-样。
+- max 指定最多可缓存组件的数量,超过数量删除第一个。参数格式支持 String、Number.
+
+#### 原理
+
+keep-alive 实例会缓存对应组件的 vNode,如果命中缓存，直接从缓存对象返口对应 VNode。
+
+LRU(Least recently used)算法根据数据的历史访问记录来进行淘汰数据，其核心思想是”如果数据最近被访问过，那么将来被访问的几率也更高”。
+
+### diff
+
+在新老虚拟 DOM 对比时
+
+- 首先，对比节点本身，判断是否为同一节点，如果不为相同节点，则删除该节点重新创建节点进行替换
+- 如果为相同节点，进行 patchVnode，判断如何对该节点的子节点进行处理，先判断一方有子节点一方没有子节点的情况(如果新的 children 没有子节点，将旧的子节点移除)
+- 比较如果都有子节点，则进行 updateChildren，判断如何对这些新老节点的子节点进行操作(diff 核心)。 匹配时，找到相同的子节点，递归比较子节点

@@ -2,7 +2,7 @@
   <div>
     <el-alert type="info" style="margin-bottom: 24px">
       <template #title>
-        <a href="/blog/linklist/why" :underline="false">
+        <a href="/blog/others/why" :underline="false">
           【❓问题聚集地🙋‍♀️】寻找问题的答案
         </a>
         <i class="el-icon-s-promotion"></i>

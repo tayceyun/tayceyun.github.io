@@ -239,11 +239,11 @@ root.render(<App />);
 
 > 类组件有如下要求：
 >
-> ① 定义类，继承自`React.component`
+> ① 定义类，**继承自`React.component`**
 >
-> ② 类组件必须实现`render`函数
+> ② 类组件**必须实现`render`函数**
 >
-> ③ 组件名称是大写字符开头
+> ③ 组件名称是**大写字符开头**
 
 > 使用`class`定义一个组件：
 >
@@ -272,8 +272,6 @@ export default App;
 ```
 
 - 函数式组件
-
-  **特点：**
 
   ① 会被更新并挂载，但没有生命周期
 
@@ -2914,7 +2912,7 @@ export default App;
   - `element`: 设置匹配到路径后，渲染的组件；（router5.x 使用的是`component`属性）
   - ~~`exact`: 精准匹配，只有精准匹配到完全一致的路径，才会渲染对应的组件；（router6 不再支持该属性，将自动进行精准匹配）~~
 
-- `Link`:用于路径跳转，最终背渲染为 a 元素
+- `Link`:用于路径跳转，最终被渲染为 a 元素
 
   - `to`:用于设置跳转到的路径
   - `replace`: boolean 值，路径是否替换
@@ -3418,9 +3416,31 @@ export default App;
 
 ### Context Hook--useContext
 
+实现在组件树中跨多层级访问 context 的值，而无需通过每层手动传递 props。
+
+使用场景：可以在应用中使用 useContext 来访问用户认证信息、主题设置、语言偏好等全局状态，而不必在每个组件中手动传递这些信息。这样可以简化组件的逻辑，使代码更加清晰和易于维护。
+
+设置默认值:如果没有相应的 Provider 去包裹当前子组件, 那么 useContext 将会返回你在创建 Context 时传入的 defaultValue 。
+
+```js
+import React from 'react';
+
+const MyContext = React.createContext(defaultValue);
+```
+
 示例：
 
---使用 Provider
+```js
+context / index.js;
+
+import { createContext } from 'react';
+
+const UserContext = createContext({ name: 'default', age: 0 });
+
+export { UserContext };
+```
+
+使用 Provider 提供值
 
 ```js
 // index.js
@@ -3457,16 +3477,6 @@ const App = memo(() => {
 });
 
 export default App;
-```
-
-```js
-context / index.js;
-
-import { createContext } from 'react';
-
-const UserContext = createContext();
-
-export { UserContext };
 ```
 
 ### Reducer Hook--useReducer
@@ -3637,8 +3647,8 @@ export default App;
 
 和 useEffect 的区别:
 
-- useEffect 会在渲染的内容更新到 dom 上后执行,不会阻塞 dom 的更新
-- useLayoutEffect 会在渲染内容更新到 dom 上之前执行,会阻塞 dom 的更新
+- useEffect 会在**渲染内容更新到 dom 上后**执行,不会阻塞 dom 的更新
+- useLayoutEffect 会在**渲染内容更新到 dom 上之前**执行,会阻塞 dom 的更新
 
 ### 自定义 hook
 

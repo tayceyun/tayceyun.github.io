@@ -2,6 +2,7 @@ export const cateList = [
   [
     {
       title: '前端基础',
+      key: 'basis',
       tagList: ['Css', 'Js/Ts', 'Html', '算法'],
       files: [
         {
@@ -55,6 +56,7 @@ export const cateList = [
     },
     {
       title: '前端框架',
+      key: 'framework',
       tagList: ['Vue', 'React', 'Wx native', 'Electron', 'HarmonyOS', '源码'],
       files: [
         {
@@ -93,6 +95,7 @@ export const cateList = [
   [
     {
       title: '工具合集',
+      key: 'tools',
       tagList: ['Git', 'Vite', 'Webpack'],
       files: [
         {
@@ -108,13 +111,20 @@ export const cateList = [
       ]
     },
     {
+      key: 'work',
       title: '工作记录',
       tagList: ['bug', '项目相关']
     },
     {
       title: '后端',
+      key: 'backend',
       tagList: ['node', '2024TODO', 'sql'],
       files: [
+        {
+          type: 'md',
+          name: 'node学习日记',
+          link: '/blog/backend/node'
+        },
         {
           type: 'md',
           name: 'sql学习',

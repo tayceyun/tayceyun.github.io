@@ -14,7 +14,7 @@
           </el-switch>
         </div>
         <div class="badges">
-          <el-link href="/blog/linklist/why">问题总结</el-link>
+          <el-link href="/blog/others/why">问题总结</el-link>
           <el-link href="/blog/linklist">技术文章</el-link>
         </div>
         <el-collapse-transition>
