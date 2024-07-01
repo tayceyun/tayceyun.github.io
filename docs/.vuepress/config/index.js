@@ -129,6 +129,11 @@ export const cateList = [
           type: 'md',
           name: 'sql学习',
           link: '/blog/backend/sql'
+        },
+        {
+          type: 'md',
+          name: 'python语法',
+          link: '/blog/backend/python'
         }
       ]
     }

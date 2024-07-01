@@ -67,6 +67,8 @@ tags:
   - `sorted`：数组临时排序（返回一个排序后的列表，不改变原数组），参数与`sort()`相同
   - `reverse()`：列表倒序
   - 列表长度：`len(words)`
+  - `count(item)`表示统计列表/元组中 item 出现的次数
+  - `index(item)`表示返回列表/元组中 item 第一次出现的索引
   - for 循环
 
     ```python
@@ -75,7 +77,20 @@ tags:
         print(magician)
     ```
 
+  - 切片：
+    ```python
+    l = [1,2,3,4]
+    l[0:1] # 返回列表中索引0-1的子列表
+    ```
+
 - Tuple:有序的不可变序列
+
+  ```python
+  top = (1,2,3,4)
+
+  top[1,2] # 返回元组中索引1-2的子元组
+  ```
+
 - Set:无序不重复集合
 - Dictionary:无序 key-value 集合
 
