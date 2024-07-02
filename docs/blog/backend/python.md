@@ -501,6 +501,23 @@ zipped = zip_longest(list1, list2, fillvalue='N/A')
 print(list(zipped))  # Output: [(1, 'a'), (2, 'b'), (3, 'N/A')]
 ```
 
+#### `reduce()`
+
+```python
+from functools import reduce
+reduce(function, iterable, [initializer])
+
+from functools import reduce
+
+# List of numbers
+numbers = [1, 2, 3, 4, 5]
+
+# Use reduce with a lambda function to sum the numbers
+sum_result = reduce(lambda x, y: x + y, numbers)
+
+print(sum_result)  # Output: 15
+```
+
 ### 异常处理
 
 `try` 和 `except`
