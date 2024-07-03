@@ -9,36 +9,37 @@
       </template>
     </el-alert>
     <div class="all-page">
-      <el-collapse
-        v-for="(item, i) in list"
-        class="collapse"
-        :key="`${i}-collapse`"
-        v-model="activeNames"
-      >
-        <el-collapse-item v-for="(col, i) in item" :name="i">
-          <template slot="title">
-            <span class="title">{{ col.title }}</span>
-            <el-tag
-              v-for="tag in col.tagList"
-              size="mini"
-              :type="getTagType()"
-              class="tag"
-              >{{ tag }}</el-tag
-            >
-          </template>
+      <el-card class="box-card" shadow="hover" v-for="(item, i) in list">
+        <el-collapse
+          class="collapse"
+          :key="`${item.key}-collapse`"
+          v-model="activeNames[i]"
+        >
+          <el-collapse-item v-for="(col, i) in item" :name="i">
+            <template slot="title">
+              <span class="title">{{ col.title }}</span>
+              <el-tag
+                v-for="tag in col.tagList"
+                size="mini"
+                :type="getTagType()"
+                class="tag"
+                >{{ tag }}</el-tag
+              >
+            </template>
 
-          <template v-for="file in col.files">
-            <el-divider
-              v-if="file.type === 'divider'"
-              content-position="left"
-              >{{ file.name }}</el-divider
-            >
-            <el-link v-else :href="file.link" :underline="false">
-              {{ file.name }}
-            </el-link>
-          </template>
-        </el-collapse-item>
-      </el-collapse>
+            <template v-for="file in col.files">
+              <el-divider
+                v-if="file.type === 'divider'"
+                content-position="left"
+                >{{ file.name }}</el-divider
+              >
+              <el-link v-else :href="file.link" :underline="false">
+                {{ file.name }}
+              </el-link>
+            </template>
+          </el-collapse-item>
+        </el-collapse>
+      </el-card>
     </div>
   </div>
 </template>
@@ -48,7 +49,10 @@ import { cateList } from '../config/index';
 export default {
   data() {
     return {
-      activeNames: [0, 1, 2, 3, 4, 5],
+      activeNames: [
+        [0, 1, 2, 3, 4, 5],
+        [0, 1, 2, 3, 4, 5]
+      ],
       tagColorList: ['', 'info', 'warning', 'danger', 'success'],
       list: cateList
     };
@@ -68,10 +72,18 @@ export default {
 <style scoped>
 .all-page {
   display: flex;
-  justify-content: space-between;
+}
+
+.box-card {
+  height: 100%;
+  width: calc(50% - 16px);
+
+  &:first-child {
+    margin-right: 32px;
+  }
 }
 .collapse {
-  width: 48%;
+  width: 100%;
 }
 .title {
   font-weight: 600;
@@ -86,6 +98,7 @@ export default {
 }
 .el-divider--horizontal {
   margin: 8px 0;
+  color: red;
 }
 
 .el-divider__text {

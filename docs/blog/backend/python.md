@@ -4,7 +4,9 @@ tags:
   - python
 ---
 
-## 常见值类型
+## Python 学习 📑
+
+### 常见值类型
 
 - Number
   - 整数：10
