@@ -1170,7 +1170,7 @@ printPerson({ name: 'name', age: 12 });
 
 ① 可以创建类对应的实例对象 ② 类本身可以作为实例的类型 ③ 类也可以当作有一个构造签名的函数
 
-#### 索引签名
+#### 索引签名(Index Signatures)
 
 ```typescript
 interface ICollection {
@@ -1268,7 +1268,7 @@ const item = names[0];
 const forFn = names['22'];
 ```
 
-### 索引类型:
+### 索引类型
 
 - 属性名的字符串索引
 
@@ -1489,7 +1489,7 @@ const info = {
 const nickName = getObjProperty(info, 'name');
 ```
 
-### 映射类型
+### 映射类型(Mapped Types)
 
 一个类型需要基于另外一个类型，可以考虑使用映射类型
 

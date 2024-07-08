@@ -113,30 +113,53 @@ tags:
   s1.remove(4)
 
   # 删除集合中最后一个元素：pop()
+
+  # discard 删除元素
+  s1.discard(2)
+
+  # 并集： union 等同于 the | operator
+  set1 = {1, 2, 3}
+  set2 = {3, 4, 5}
+  set3 = {5, 6, 7}
+  union_set = set1.union(set2, set3)
+  print(union_set) # Output: {1, 2, 3, 4, 5, 6, 7}
+  # Using the | operator
+  union_set = set1 | set2 | set3
+  print(union_set) # Output: {1, 2, 3, 4, 5, 6, 7}
+
+  # 交集：intersection 等同于 the & operator
+  set1 = {1, 2, 3}
+  set2 = {2, 3, 4}
+  set3 = {3, 4, 5}
+  intersection_set = set1.intersection(set2, set3)
+  print(intersection_set)  # Output: {3}
+  # Using the & operator
+  intersection_set = set1 & set2 & set3
+  print(intersection_set) # Output: {3}
   ```
 
-  注意：集合并不支持索引操作，因为集合本质上是一个哈希表，和列表不一样。
+注意：集合并不支持索引操作，因为集合本质上是一个哈希表，和列表不一样。
 
 - Dictionary:(字典)有序的 key-value 集合
 
-  ```python
-  # 字典的定义方式：
-  d1 = {'name': 'jason', 'age': 20, 'gender': 'male'}
-  d2 = dict({'name': 'jason', 'age': 20, 'gender': 'male'})
-  d3 = dict([('name', 'jason'), ('age', 20), ('gender', 'male')])
-  d4 = dict(name='jason', age=20, gender='male')
+```python
+# 字典的定义方式：
+d1 = {'name': 'jason', 'age': 20, 'gender': 'male'}
+d2 = dict({'name': 'jason', 'age': 20, 'gender': 'male'})
+d3 = dict([('name', 'jason'), ('age', 20), ('gender', 'male')])
+d4 = dict(name='jason', age=20, gender='male')
 
-  d1['name'] # 'jason'
-  # get(key, default):如果键不存在，调用 get() 函数可以返回一个默认值。
-  d1.get('name') # 'jason'
-  d1.get('ttt','null') # 'null'
+d1['name'] # 'jason'
+# get(key, default):如果键不存在，调用 get() 函数可以返回一个默认值。
+d1.get('name') # 'jason'
+d1.get('ttt','null') # 'null'
 
-  # 增加元素
-  d1['ttt'] = 'ttt'
+# 增加元素
+d1['ttt'] = 'ttt'
 
-  # 删除元素
-  d1.pop('ttt')
-  ```
+# 删除元素
+d1.pop('ttt')
+```
 
 ### 补充
 
@@ -408,7 +431,9 @@ string_numbers = map(str, numbers)
 print(list(string_numbers))  # Output: ['1', '2', '3', '4', '5']
 ```
 
-#### `lambda`
+#### `lambda` 匿名函数
+
+lambda 是一个表达式（expression），并不是一个语句（statement）
 
 `lambda arguments: expression`
 
@@ -424,6 +449,28 @@ print(multiply(2, 3))  # Output: 6
 # Example 3: Lambda function to return the maximum of two numbers
 maximum = lambda x, y: x if x > y else y
 print(maximum(4, 7))  # Output: 7
+
+# 在列表内部使用示例
+# [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+print([(lambda x: x*x)(x) for x in range(10)])
+
+# lambda 可以被用作某些函数的参数
+list1 = [(1, 20), (3, 0), (9, 10), (2, -1)]
+list1.sort(key=lambda x: x[1])  # 按列表中元祖的第二个元素排序
+# [(2, -1), (3, 0), (9, 10), (1, 20)]
+print(list1)
+```
+
+根据字典的值进行从高到低排序
+
+```python
+d = {'mike': 10, 'lucy': 2, 'ben': 30}
+
+# dict_items([('mike', 10), ('lucy', 2), ('ben', 30)])
+print(d.items())
+
+# [('ben', 30), ('mike', 10), ('lucy', 2)]
+print(sorted(d.items(), key=lambda x: x[1], reverse=True))
 ```
 
 #### `filter()`
@@ -520,6 +567,38 @@ sum_result = reduce(lambda x, y: x + y, numbers)
 print(sum_result)  # Output: 15
 ```
 
+#### `all()`
+
+检查可迭代对象（例如列表、元组或集合）中的所有元素是否为 True。如果所有元素均为 True，则返回 True，否则返回 False。如果可迭代对象为空，则 all() 返回 True。
+
+```python
+numbers = [1, 2, 3, 4, 5]
+result = all(numbers)
+print(result)  # Output: True
+
+empty = []
+result = all(empty)
+print(result)  # Output: True
+```
+
+#### ` [start:stop:step]`
+
+可以在列表、元组、字符串中使用
+
+```python
+original_string = "Hello, World!"
+reversed_string = original_string[::-1]
+print(reversed_string)  # Output: !dlroW ,olleH
+
+original_list = [1, 2, 3, 4, 5]
+reversed_list = original_list[::-1]
+print(reversed_list)  # Output: [5, 4, 3, 2, 1]
+
+original_tuple = (1, 2, 3, 4, 5)
+reversed_tuple = original_tuple[::-1]
+print(reversed_tuple)  # Output: (5, 4, 3, 2, 1)
+```
+
 ### 异常处理
 
 `try` 和 `except`
@@ -547,3 +626,430 @@ else:
 finally:
     print("This runs no matter what.")
 ```
+
+### 函数中访问 / 修改内部变量
+
+```python
+# 全局变量，可以在文件内的任何地方被访问
+MIN_VALUE = 1
+
+
+# Python 的解释器会默认函数内部的变量为局部变量，但是又发现局部变量 MIN_VALUE 并没有声明，因此就无法执行相关操作。所以，如果要在函数内部改变全局变量的值，加上 global 声明
+def validation_check(value):
+    # 不能在函数内部随意改变全局变量的值
+    global MIN_VALUE
+    MIN_VALUE += value
+
+
+validation_check(5)
+# 6
+print(MIN_VALUE)
+```
+
+### 嵌套函数中：内部函数修改外部函数变量
+
+在内部函数中修改外部函数变量前，使用关键字`nonlocal`
+
+```python
+def outer():
+    x = "local"
+    def inner():
+        nonlocal x
+        x = 'nonlocal'
+        print("inner:", x)
+    inner()
+    print("outer:", x)
+
+
+# inner: nonlocal
+# outer: nonlocal
+outer()
+```
+
+如果没有 `nonlocal` 关键字，而内部函数的变量又和外部函数变量同名，**内部函数变量会覆盖外部函数的变量**。
+
+```python
+def outer():
+    x = "local"
+
+    def inner():
+        x = 'inner--ttt'
+        print("inner:", x)
+    inner()
+    print("outer:", x)
+
+
+# inner: inner--ttt
+# outer: local
+outer()
+```
+
+### 闭包
+
+```python
+def nth_power(exponent):
+    def exponent_of(base):
+        return base ** exponent
+    return exponent_of
+
+
+# 计算一个数的平方 9
+print(nth_power(2)(3))
+# 计算一个数的立方 27
+print(nth_power(3)(3))
+```
+
+### 面向对象编程(object oriented programming)
+
+四要素： 类、属性、函数（方法）、对象（实例）
+
+一个简单的类 示例：
+
+```python
+class Document:
+    # 定义常量
+    CONSTANT_STR = '每个实例对象都可以访问的常量,书名：{}'
+
+    # 构造函数：对象生成时会被自动调用
+    def __init__(self, title, author, context):
+        print('init function')
+        self.title = title
+        self.author = author
+        # __context ： 私有属性，在类函数之外无法访问和修改
+        self.__context = context
+
+    # 类函数 cls:在类方法中引用类本身
+    @classmethod
+    def create_empty_book(cls, title, author):
+        return cls(title=title, author=author, context='nothing')
+
+    # 成员函数
+    def get_context_length(self):
+        # print: 3 每个实例对象都可以访问的常量
+        print(len(self.__context))
+
+    # 静态函数
+    @staticmethod
+    def get_constant_name(context):
+        return Document.CONSTANT_STR.format(context)
+
+
+test_book = Document('ttt', 'name', '111')
+
+# 3
+test_book.get_context_length()
+
+# ttt
+print(test_book.title)
+
+# 报错：AttributeError: 'Document' object has no attribute '__context'
+# print(test_book.__context)
+
+# print: 每个实例对象都可以访问的常量,书名：ttt
+print(test_book.get_constant_name(test_book.title))
+```
+
+#### 类的继承
+
+一个类既拥有另一个类的特征，也拥有不同于另一个类的独特特征
+
+```python
+class WordDocument(Document):
+    def __init__(self, title, author, context, word_type):
+        self.type = word_type
+        super().__init__(title, author, context)
+
+    def transfer_type(self, new_value):
+        self.type = new_value
+        print('new type is {}'.format(self.type))
+        print(f'test {self.type}')
+
+
+word_doc = WordDocument('son_doc', 'son_author', 'son_context', 'son_type')
+
+word_doc.transfer_type('新的类型')
+```
+
+#### 补充：引擎是如何工作的？
+
+一个搜索引擎由搜索器、索引器、检索器和用户接口四个部分组成。
+
+搜索器（爬虫 scrawler），在互联网上大量爬取各类网站的内容，送给索引器。索引器拿到网页和内容后，会对内容进行处理，形成索引（index），存储于内部的数据库等待检索。用户接口指网页和 App 前端界面。用户通过用户接口，向搜索引擎发出询问（query），询问解析后送达检索器；检索器高效检索后，再将结果返回给用户。
+
+```python
+# SearchEngineBase 引擎基类，继承的类分别代表不同的算法引擎
+class SearchEngineBase(object):
+    def __init__(self):
+        pass
+
+    # 读取文件内容，将文件路径作为 ID，连同内容一起送到 process_corpus 中。
+    def add_corpus(self, file_path):
+        with open(file_path, 'r') as fin:
+            text = fin.read()
+            self.process_corpus(file_path, text)
+
+    # 索引器，对内容进行处理，然后文件路径为 ID ，将处理后的内容存下来。处理后的内容就叫做索引（index）。
+    def process_corpus(self, id, text):
+        raise Exception('process_corpus not implemented')
+
+    # 检索器：给定一个询问，处理询问，再通过索引检索，然后返回。
+    def search(self, query):
+        raise Exception('search not implemented')
+
+
+# 提供搜索器和用户接口
+def main(search_engine):
+    for file_path in ['1.txt', '2.txt', '3.txt', '4.txt', '5.txt']:
+        search_engine.add_corpus(file_path)
+
+    while True:
+        query = input()
+        results = search_engine.search(query)
+        print('found {} result(s):'.format(len(results)))
+        for result in results:
+            print(result)
+
+
+class SimpleEngine(SearchEngineBase):
+    def __init__(self):
+        super(SimpleEngine, self).__init__()
+        self.__id_to_texts = {}
+
+    def process_corpus(self, id, text):
+        self.__id_to_texts[id] = text
+
+     def search(self, query):
+         results = []
+         for id, text in self.__id_to_texts.items():
+             if query in text:
+                results.append(id)
+                return results
+
+search_engine = SimpleEngine()
+main(search_engine)
+```
+
+#### 扩展：LRU Cache （Least Recently Used）
+
+How LRU Cache Works?
+
+1. Capacity: The cache has a fixed maximum capacity.
+2. Order of Usage: Items in the cache are ordered by their usage, with the most recently used items at the front and the least recently used items at the back.
+3. Eviction: When the cache reaches its capacity and a new item is added, the least recently used item is evicted to make space.
+
+Python 的 functools 模块提供了一种使用 @lru_cache 装饰器创建 LRU 缓存的内置方法。
+
+```python
+from functools import lru_cache
+
+@lru_cache(maxsize=3)
+def expensive_function(x):
+    print(f"Computing {x}...")
+    return x * x
+
+print(expensive_function(2))  # Computes and caches the result
+print(expensive_function(3))  # Computes and caches the result
+print(expensive_function(4))  # Computes and caches the result
+print(expensive_function(2))  # Retrieves the result from cache
+print(expensive_function(5))  # Computes and caches the result, evicting the least recently used entry
+```
+
+自定义 LRU 缓存
+
+```python
+from collections import OrderedDict
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.cache = OrderedDict()
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        else:
+            # Move the accessed item to the end (most recently used)
+            self.cache.move_to_end(key)
+            return self.cache[key]
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            # Update the value and move to the end
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) > self.capacity:
+            # Pop the first item (least recently used)
+            self.cache.popitem(last=False)
+
+# Example usage
+cache = LRUCache(2)
+cache.put(1, 1)
+cache.put(2, 2)
+print(cache.get(1))  # Returns 1
+cache.put(3, 3)      # Evicts key 2
+print(cache.get(2))  # Returns -1 (not found)
+cache.put(4, 4)      # Evicts key 1
+print(cache.get(1))  # Returns -1 (not found)
+print(cache.get(3))  # Returns 3
+print(cache.get(4))  # Returns 4
+```
+
+### 函数 / 闭包
+
+函数也是对象。可以把函数赋予变量
+
+```python
+def func(message):
+    print('func message:{}'.format(message))
+    return message
+
+
+send_message = func
+
+# func message:ttt
+send_message('ttt')
+
+
+# 类比js中的高阶函数
+def get_message_length(message):
+    return len(func(message))
+
+
+print(get_message_length('ttt1'))
+
+
+# 闭包
+def get_msg_list(message):
+    def transfer_list(message):
+        return message.split(',')
+
+    return transfer_list(message)
+
+
+# ['hello', 'ttt']
+print(get_msg_list('hello,ttt'))
+```
+
+### 装饰器
+
+#### 简单的示例
+
+```python
+def my_decorator(func):
+    def wrapper():
+        print('wrapper of decorator')
+        func()
+    return wrapper
+
+
+@my_decorator
+def greet():
+    print('hello world')
+
+
+greet()
+```
+
+#### 带有参数的装饰器
+
+```python
+import functools
+
+
+def authorize_decorator(required_roles):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(user, *args, **kwargs):
+            # Step 3: Define the wrapper function
+            if not set(required_roles).issubset(set(user.get('roles', []))):
+                raise PermissionError("User does not have the required roles")
+            return func(user, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+@authorize_decorator(['admin', 'editor'])
+def edit_content(user, content):
+    print(f"Content edited: {content}")
+
+
+# Example users
+admin_user = {'name': 'Tayce', 'roles': ['admin', 'editor']}
+guest_user = {'name': 'Guest', 'roles': ['guest']}
+
+edit_content(admin_user, "New content")  # This should work
+try:
+    edit_content(guest_user, "New content")  # This should raise a PermissionError
+except PermissionError as e:
+    print(e)
+```
+
+#### 类装饰器
+
+类装饰器主要依赖于函数`__call__()`，每调用一个类的实例时，函数`__call__()`就会被执行一次。
+
+### `__name__`
+
+#### 理解`__name__`
+
+- `__name__`是 Python 中的一个特殊属性，它表示当前文件或模块的名称。
+- 当一个 Python 脚本作为主文件或者主模块被直接运行时，`__name__` 的值就是 `__main__`。
+- 而当该脚本被其他模块导入时，即`__name__`位于次文件（被导入的文件）中，则执行`__name__`时返回的值就是导入的文件名。
+
+#### 用途
+
+- 用于判断当前模块是否作为主模块运行，从而执行不同的逻辑。
+- 在被导入的模块中，根据 `__name__` 的值来控制某些代码是否执行，例如只在模块自身运行时执行一些测试或示例代码。
+
+示例：
+
+```python
+# example.py
+
+def main():
+    print("This is the main function.")
+
+if __name__ == "__main__":
+    # This block will only execute if this script is run directly
+    main()
+```
+
+```python
+# another_script.py
+
+import example
+
+# The code here does not trigger the execution of example.main() because
+# example.py is imported as a module and its __name__ is now 'example'.
+```
+
+### `@functools.wraps`的作用
+
+```python
+import functools
+
+
+def my_decorator(func):
+    @functools.wraps(func)  # Ensure wrapper looks like the original function
+    def wrapper(*args, **kwargs):
+        print(f"Calling function {func.__name__}")
+        return func(*args, **kwargs)
+    return wrapper
+
+
+@my_decorator
+def greet(name):
+    """greet introduction"""
+    return f"Hello, {name}!"
+
+
+# 如果未使用@functools.wraps(func)  print: wrapper / None
+print(greet.__name__)
+print(greet.__doc__)
+
+# 使包装函数的行为接近原始函数 使用@functools.wraps(func) print: greet / greet introduction
+print(greet.__name__)
+print(greet.__doc__)
+```
+
+TODO 18.metaclass
