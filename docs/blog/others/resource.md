@@ -34,7 +34,7 @@ npm、yarn、pnpm 等是用来管理项目依赖、发布包、安装依赖的�
 
 ##### 在执行 `npm install` 的时候发生了什么？
 
-- 首先安装的依赖都会存放在根目录的 node_modules,默认采用扁平化的方式安装，排序规则: .bin 第一个然后@系列，再然后按照首字母排序 abcd 等，使用算法:广度优先遍历，
+- 首先安装的依赖都会存放在根目录的 node_modules,默认采用扁平化的方式安装，排序规则: .bin 第一个然后@系列，再然后按照首字母排序 abcd 等，使用算法:**广度优先遍历**，
 - 遍历依赖树时，npm 会首先处理项目根目录下的依赖，然后逐层处理每个依赖包的依赖，直到所有依赖都被处理完毕。
 - 在处理每个依赖时，npm 会检查该依赖的版本号是否符合依赖树中其他依赖的版本要求，如果不符合，则会尝试安装适合的版本
 
@@ -47,7 +47,11 @@ npm、yarn、pnpm 等是用来管理项目依赖、发布包、安装依赖的�
 - bin 该参数指定了当前包中可执行文件的路径和名称
 - engines 该参数指定了当前包所依赖的 Node.js 版本范围
 
-package-lock.json 作用是**缓存**： name + version + integrity 信息生成一个唯一的 key，这个 key 能找到对应的`index-v5`下的缓存记录,如果发现有缓存记录，就会找到 tar 包的 hash 值，然后将对应的二进制文件解压到 node_modeules。（`ls ~/.npm/_cacache/index-v5`）
+package-lock.json 作用是**缓存**：
+
+`name` + `version` + `integrity` 信息生成一个唯一的 key，这个 key 能找到对应的`index-v5`下的缓存记录,如果发现有缓存记录，就会找到 tar 包的 hash 值，然后将对应的二进制文件解压到 node_modules。（`ls ~/.npm/_cacache/index-v5`）
+
+在博客的项目中：node_modules --> .cache --> terser-webpack-plugin --> index-v5
 
 ##### npm run xxx 发生了什么？
 
@@ -55,7 +59,7 @@ package-lock.json 作用是**缓存**： name + version + integrity 信息生成
 
 - 查找顺序：
 
-  - 先从当前项目的 node_modules/.bin 去查找可执行命令 vite
+  - 先从当前项目的 node_modules/.bin 去查找可执行命令 vite(node_modules --> .bin --> vite 文件)
   - 如果没找到就去全局的 node_modules 去找可执行命令 vite
   - 如果还没找到就去环境变量查找
   - 再找不到就进行报错

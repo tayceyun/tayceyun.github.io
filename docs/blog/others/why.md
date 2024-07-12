@@ -411,8 +411,8 @@ o2.p2(); // 原型的属性
 
 - 加载机制：
 
-  - ESModule 是**静态**的，**import 和 export 必须位于模块的顶层作用域**。ESModule 可以进行静态分析，从而实现树摇（tree shaking）等优化。
-  - CommonJS 是**动态**的，require 可以在代码的任何地方调用，可以根据条件动态加载模块。
+  - ESModule 是**静态**的，顶层 this 指向 `undefined`。**import 和 export 必须位于模块的顶层作用域**。ESModule 可以进行静态分析，从而实现树摇（tree shaking）等优化。
+  - CommonJS 是**动态**的，顶层 this 指向模块本身。require 可以在代码的任何地方调用，可以根据条件动态加载模块。
 
 ## Q10.为什么有的编程规范要求用`void 0`代替`undefined`❓
 

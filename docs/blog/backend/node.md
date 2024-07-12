@@ -8,6 +8,10 @@ tags:
 
 [知识来源](https://juejin.cn/column/7274893714970918969)
 
+[Node 官网](https://www.nodejs.com.cn/)
+
+[node 部分源码解析](https://juejin.cn/post/7264044879209775141)
+
 ### 前置概念
 
 1️⃣ v8 引擎
@@ -20,7 +24,7 @@ V8 是一个由 Google 开发的开源 JavaScript 引擎，用于 Chrome、Node.
 
 3️⃣ npx 和 npm 区别
 
-- npx **侧重于执行命令**，执行某个模块命令。虽然会自动安装模块，但是重在执行命令
+- npx **侧重于执行命令**，执行某个模块命令，允许用户在不安装全局包的情况下，运行已安装在本地项目中的包或者远程仓库中的包。虽然会自动安装模块，但是重在执行命令
 
 - npm **侧重于安装或者卸载模块**。重在安装，并不具备执行某个模块的功能。
 
@@ -28,11 +32,293 @@ V8 是一个由 Google 开发的开源 JavaScript 引擎，用于 Chrome、Node.
 
 - npx 的运行查找规则与 npm 相同
 
-### 了解 Nodejs
+- npm 命令
+
+  - `npm init`：初始化 npm 项目，创建 package.json 文件。
+  - `npm install <package-name>`：安装指定的包
+  - `npm install <package-name> --save`：安装包到依赖列表中
+  - `npm install <package-name> --save-dev`：安装包到开发依赖列表中
+  - `npm install -g <package-name>`：全局安装指定的包
+  - `npm config list`：npm 配置信息
+  - `npm get registry`：获取当前 npm 包的下载地址
+  - `npm config set registry <registry-url>`： 永久更改下载源地址
+  - `npm install <package-name> --registry <registry-url>`：临时更改下载源地址
+
+### 发布 npm 包
+
+确认 package.json 文件的信息：包名、版本等--> npm adduser --> npm login --> npm publish
+
+### npm 搭建私服
+
+将 npm 私服部署到内网集群后，可以：
+
+- 可以离线使用
+- 避免使用公共的 npm 包出现漏洞
+- 提高包的下载速度，将经常使用的 npm 包缓存到本地，减少依赖包的下载时间。对于团队内部开发和持续集成、部署等场景非常有用
+
+使用 **Verdaccio** 工具可以快速构建 npm 私服
+
+## 了解 Nodejs
 
 - Nodejs 是一个跨平台的 JavaScript 的运行时环境。
 - Nodejs 是构建在 V8 引擎之上的，V8 引擎是由 C/C++编写的， JavaSCript 代码需要由 C/C++转化后再执行。
 - NodeJs 使用异步 I/O 和事件驱动的设计理念，可以高效地处理大量并发请求，提供了非阻塞式 I/O 接口和事件循环机制，异步 I/O 最终都是由 libuv 事件循环库去实现的。nodejs 适合干一些 IO 密集型应用，不适合 CPU 密集型应用，nodejsIO 依靠 libuv 有很强的处理能力，而 CPU 因为 nodejs 单线程原因，容易造成 CPU 占用率高，如果非要做 CPU 密集型应用，可以使用 C++插件编写 或者 nodejs 提供的 `cluster`。(CPU 密集型指的是图像的处理 或者音频处理需要大量数据结构 + 算法)
+
+### nodejs 模块化规范
+
+#### CommonJS 规范
+
+- `require`：引入模块
+  - 内置模块： `http`、`os`、`fs`、`child_process`
+  - 第三方模块：`express`、`md5`、`koa`
+  - 示例
+    ```js
+    const fs = require('node:fs'); // 导入核心模块
+    const express = require('express'); // 导入 node_modules 目录下的模块
+    const myModule = require('./myModule.js'); // 导入相对路径下的模块
+    const nodeModule = require('./myModule.node'); // 导入扩展模块
+    ```
+- `exports` 和 `module.exports`
+
+  ```js
+  module.exports = {
+    hello: function () {
+      console.log('Hello, world!');
+    }
+  };
+  ```
+
+  `module.exports = 123`
+
+#### ESM 模块规范
+
+**注意**
+
+1. 使用 ESM 模块的时候必须开启一个选项 打开 package.json 设置 `type:module`
+
+   示例：`import fs from 'node:fs'`
+
+2. 如果要引入 json 文件需要特殊处理 需要增加断言并且指定类型 json
+
+   示例：`import data from './data.json' assert { type: "json" };`
+
+3. 加载模块的整体对象
+
+   示例：`import * as all from 'xxx.js'`
+
+4. 动态导入
+
+   示例：`import('./test.js').then()`
+
+5. 默认导出 和 变量导出
+
+   ```js
+   export default {
+     name: 'test'
+   };
+   ```
+
+   `export const a = 1`
+
+### 内置全局 api
+
+#### 定义全局变量
+
+使用 es2020 的 `globalThis`：在 node 环境会切换成 global，浏览器环境切换为 window
+
+只能在 cjs 使用的内置全局 api
+
+1️⃣`__dirname`：当前模块的所在目录的绝对路径
+
+2️⃣`__filename`：当前模块文件的绝对路径，包括文件名和文件扩展名
+
+#### process 全局对象
+
+可以在任何模块中直接访问，无需导入或定义。`process`提供了与当前进程和运行时环境交互的方法和属性。通过 `process` 对象，我们可以访问进程的信息、控制流程和进行进程间通信。
+
+- `process.arch`：返回操作系统 CPU 架构
+- `process.cwd()`：返回当前的工作目录
+- `process.argv`：获取执行进程后面的参数
+- `process.memoryUsage`：用于获取当前进程的内存使用情况。该方法返回一个对象，其中包含了各种内存使用指标，如 rss（Resident Set Size，常驻集大小）、heapTotal（堆区总大小）、heapUsed（已用堆大小）和 external（外部内存使用量）等
+- `process.exit()`：强制进程尽快退出，即使仍有未完全完成的异步操作挂起
+- `process.kill`：kill 用来杀死一个进程，接受一个参数进程 id 可以通过 process.pid 获取
+- `process.env`：读取操作系统所有的环境变量，也可以修改和查询环境变量
+  - `cross-env`库：跨平台设置和使用环境变量
+
+```js
+// arm64
+console.log(process.arch);
+
+// /Users/tayce/code/test
+console.log(process.cwd());
+
+// [ '/usr/local/bin/node', '/Users/tayce/code/test/node.js' ]
+console.log(process.argv);
+
+// [Function: memoryUsage] { rss: [Function: rss] }
+console.log(process.memoryUsage);
+```
+
+[参考](https://juejin.cn/post/7266009957576884239)
+
+#### `child_process` 子进程模块
+
+child_process 模块可以在子进程中运行任何系统命令来访问操作系统功能
+
+创建子进程，包含 Sync 是同步 API，不包含是异步 API
+
+- spawn 执行命令
+- exec 执行命令
+- execFile 执行可执行文件
+- fork 创建 node 子进程
+- `execSync` 执行命令 同步执行
+- `execFileSync` 执行可执行文件 同步执行
+- `spawnSync` 执行命令 同步执行
+
+spawn 用于执行一些实时获取的信息因为 spawn 返回的是流边执行边返回，exec 是返回一个完整的 buffer，buffer 的大小是 200k，如果超出会报错，而 spawn 是无上限的。
+
+spawn 在执行完成后会抛出 close 事件监听，并返回状态码，通过状态码可以知道子进程是否顺利执行。exec 只能通过返回的 buffer 去识别完成状态，识别起来较为麻烦。
+
+exec 是底层通过 execFile 实现 execFile 底层通过 spawn 实现。
+
+### 在 node 环境操作 DOM 和 BOM
+
+使用 jsdom 示例
+
+安装： `npm i jsdom`
+
+#### 示例 1️⃣
+
+```js
+const { JSDOM } = require('jsdom');
+
+// Create a new JSDOM instance with some initial HTML content
+const dom = new JSDOM(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Example</title>
+</head>
+<body>
+    <h1>Hello, world!</h1>
+    <p>This is a paragraph.</p>
+    <ul id="list">
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+    </ul>
+</body>
+</html>
+`);
+
+// Access the document and window objects
+const { document } = dom.window;
+
+// Manipulate the DOM: Add a new list item
+const newListItem = document.createElement('li');
+newListItem.textContent = 'Item 4';
+document.getElementById('list').appendChild(newListItem);
+
+// Extract information from the DOM
+const title = document.querySelector('title').textContent;
+const heading = document.querySelector('h1').textContent;
+const listItems = [...document.querySelectorAll('#list li')].map(
+  (li) => li.textContent
+);
+
+console.log('Title:', title);
+console.log('Heading:', heading);
+console.log('List Items:', listItems);
+
+// Modify the DOM: Change the heading text
+document.querySelector('h1').textContent = 'Hello, jsdom!';
+
+// Serialize the modified HTML back to a string
+const modifiedHtml = dom.serialize();
+console.log('Modified HTML:', modifiedHtml);
+```
+
+输出
+
+![](/images/backend/jsdom.png)
+
+#### 示例 2️⃣
+
+```js
+const fs = require('node:fs');
+const { JSDOM } = require('jsdom');
+
+const dom = new JSDOM(`<!DOCTYPE html><div id='app'></div>`);
+
+const document = dom.window.document;
+
+const window = dom.window;
+
+fetch('https://api.thecatapi.com/v1/images/search?limit=10&page=1')
+  .then((res) => res.json())
+  .then((data) => {
+    const app = document.getElementById('app');
+    data.forEach((item) => {
+      const img = document.createElement('img');
+      img.src = item.url;
+      img.style.width = '200px';
+      img.style.height = '200px';
+      app.appendChild(img);
+    });
+    fs.writeFileSync('./index.html', dom.serialize());
+  });
+```
+
+生成 index.html，这就是 ssr 的实现：
+
+![](/images/backend/ssr.png)
+
+#### CSR 和 SSR 的区别
+
+![](/images/backend/比较.png)
+
+### vite 的配置项：`open: true`
+
+用途：开发服务器启动时自动打开浏览器
+
+```js
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  server: {
+    open: true // 自动在浏览器中打开应用
+  }
+});
+```
+
+#### 🧐 配置项的原理是什么？
+
+os 模块可以跟操作系统进行交互：`var os = require("node:os")`
+
+获取 CPU 的线程以及详细信息：`os.cpus()`
+
+获取网络信息：`os.networkInterfaces()`
+
+```js
+const { exec } = require('child_process');
+const os = require('os');
+
+function openBrowser(url) {
+  if (os.platform() === 'darwin') {
+    // macOS
+    exec(`open ${url}`); //执行shell脚本
+  } else if (os.platform() === 'win32') {
+    // Windows
+    exec(`start ${url}`); //执行shell脚本
+  } else {
+    // Linux, Unix-like
+    exec(`xdg-open ${url}`); //执行shell脚本
+  }
+}
+
+// Example usage
+openBrowser('https://www.juejin.cn');
+```
 
 ### crypto 模块（加密和哈希算法）
 
