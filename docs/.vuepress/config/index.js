@@ -122,6 +122,11 @@ export const cateList = [
       files: [
         {
           type: 'md',
+          name: 'liunx整理',
+          link: '/blog/backend/linux'
+        },
+        {
+          type: 'md',
           name: 'node学习日记',
           link: '/blog/backend/node'
         },

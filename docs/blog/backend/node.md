@@ -12,6 +12,8 @@ tags:
 
 [node 部分源码解析](https://juejin.cn/post/7264044879209775141)
 
+[处理音频视频(ffmpeg)](https://juejin.cn/post/7279062141947183165)
+
 ### 前置概念
 
 1️⃣ v8 引擎
@@ -58,15 +60,27 @@ V8 是一个由 Google 开发的开源 JavaScript 引擎，用于 Chrome、Node.
 
 使用 **Verdaccio** 工具可以快速构建 npm 私服
 
-## 了解 Nodejs
+## 软件架构
+
+事件驱动架构（Event-Driven Architecture，简称 EDA）是一种软件架构设计方法，它将系统的各个组件通过**事件和事件处理器之间**的一系列关系连接起来，使得系统可以灵活地响应外部事件，并实现**高度解耦和可扩展性**。
+
+包含下列一种或多种情况就能称为 EDA：
+
+- 事件通知
+- 基于事件的状态转移
+- 事件寻源
+
+[详细介绍](https://zhuanlan.zhihu.com/p/601702808)
+
+## Nodejs 简介
 
 - Nodejs 是一个跨平台的 JavaScript 的运行时环境。
 - Nodejs 是构建在 V8 引擎之上的，V8 引擎是由 C/C++编写的， JavaSCript 代码需要由 C/C++转化后再执行。
 - NodeJs 使用异步 I/O 和事件驱动的设计理念，可以高效地处理大量并发请求，提供了非阻塞式 I/O 接口和事件循环机制，异步 I/O 最终都是由 libuv 事件循环库去实现的。nodejs 适合干一些 IO 密集型应用，不适合 CPU 密集型应用，nodejsIO 依靠 libuv 有很强的处理能力，而 CPU 因为 nodejs 单线程原因，容易造成 CPU 占用率高，如果非要做 CPU 密集型应用，可以使用 C++插件编写 或者 nodejs 提供的 `cluster`。(CPU 密集型指的是图像的处理 或者音频处理需要大量数据结构 + 算法)
 
-### nodejs 模块化规范
+## nodejs 模块化规范
 
-#### CommonJS 规范
+### CommonJS 规范
 
 - `require`：引入模块
   - 内置模块： `http`、`os`、`fs`、`child_process`
@@ -120,9 +134,9 @@ V8 是一个由 Google 开发的开源 JavaScript 引擎，用于 Chrome、Node.
 
    `export const a = 1`
 
-### 内置全局 api
+## 内置全局 api
 
-#### 定义全局变量
+### 定义全局变量
 
 使用 es2020 的 `globalThis`：在 node 环境会切换成 global，浏览器环境切换为 window
 
@@ -132,7 +146,7 @@ V8 是一个由 Google 开发的开源 JavaScript 引擎，用于 Chrome、Node.
 
 2️⃣`__filename`：当前模块文件的绝对路径，包括文件名和文件扩展名
 
-#### process 全局对象
+### process 全局对象
 
 可以在任何模块中直接访问，无需导入或定义。`process`提供了与当前进程和运行时环境交互的方法和属性。通过 `process` 对象，我们可以访问进程的信息、控制流程和进行进程间通信。
 
@@ -161,7 +175,7 @@ console.log(process.memoryUsage);
 
 [参考](https://juejin.cn/post/7266009957576884239)
 
-#### `child_process` 子进程模块
+### `child_process` 子进程模块
 
 child_process 模块可以在子进程中运行任何系统命令来访问操作系统功能
 
@@ -273,7 +287,7 @@ fetch('https://api.thecatapi.com/v1/images/search?limit=10&page=1')
 
 ![](/images/backend/ssr.png)
 
-#### CSR 和 SSR 的区别
+### CSR 和 SSR 的区别
 
 ![](/images/backend/比较.png)
 
@@ -402,4 +416,43 @@ const hashValue = hash.digest('hex');
 
 console.log('Text:', text);
 console.log('Hash:', hashValue);
+```
+
+### 事件模型
+
+Nodejs 事件模型采用了**发布订阅设计模式**
+
+当一个发布者有新消息时，就将这个消息发布到调度中心。调度中心就会将这个消息通知给所有订阅者。这就实现了发布者和订阅者之间的解耦，发布者和订阅者不再直接依赖于彼此，他们可以独立地扩展自己。
+
+![](/images/backend/事件模型.png)
+
+Node.js 核心 API 都是采用异步事件驱动架构，简单来说就是通过有效的方法来监听事件状态的变化，并在变化的时候做出相应的动作。
+
+示例：
+
+EventEmitter
+
+**注册事件**
+
+```js
+// 使用 fs 文件系统模块创建一个目录，使用回调函数检查和抛出错误
+fs.mkdir('/tmp/a/apple', { recursive: true }, (err) => {
+  if (err) throw err;
+});
+```
+
+recursive 属性
+
+- 用于指定创建目录时，如果父目录不存在，是否自动创建父目录及所有中间目录
+- 值为 true：如果指定的目录路径中存在不存在的父目录，会自动创建这些父目录，以确保能够成功创建指定的目录
+- 值为 false：如果父目录不存在会抛出错误
+
+**监听事件**
+
+```js
+process.on('xxx', () => {});
+
+// 示例
+process.on('exit', (code) => {}); // 监听进程退出事件，在进程推出前执行的逻辑
+process.on('uncaughtException', (err) => {}); // 捕获未被捕获的异常
 ```
