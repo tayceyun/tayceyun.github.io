@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>封装 axios | tayce&#39;s library</title>
+    <meta name="generator" content="VuePress 1.9.10">
+    <link rel="icon" href="/images/logo.jpg">
+    <link rel="stylesheet" href="/styles/index.css">
+    <meta name="description" content="移动的图书馆">
+    
+    <link rel="preload" href="/assets/css/0.styles.b67afc4c.css" as="style"><link rel="preload" href="/assets/js/app.f9c3f30c.js" as="script"><link rel="preload" href="/assets/js/2.b7af9bcd.js" as="script"><link rel="preload" href="/assets/js/1.6eac4c2f.js" as="script"><link rel="preload" href="/assets/js/42.aad61fb2.js" as="script"><link rel="prefetch" href="/assets/js/10.cac3315f.js"><link rel="prefetch" href="/assets/js/11.22aa9600.js"><link rel="prefetch" href="/assets/js/12.2a5384fa.js"><link rel="prefetch" href="/assets/js/13.820e2af8.js"><link rel="prefetch" href="/assets/js/14.11b318eb.js"><link rel="prefetch" href="/assets/js/15.4359e6dc.js"><link rel="prefetch" href="/assets/js/16.42eda455.js"><link rel="prefetch" href="/assets/js/17.3e808b6b.js"><link rel="prefetch" href="/assets/js/18.7130fbcf.js"><link rel="prefetch" href="/assets/js/19.58d29412.js"><link rel="prefetch" href="/assets/js/20.4da7041e.js"><link rel="prefetch" href="/assets/js/21.a6bf00fc.js"><link rel="prefetch" href="/assets/js/22.4de2c7de.js"><link rel="prefetch" href="/assets/js/23.a4fb8c1e.js"><link rel="prefetch" href="/assets/js/24.c3aa6e5e.js"><link rel="prefetch" href="/assets/js/25.519bcaa7.js"><link rel="prefetch" href="/assets/js/26.908b218a.js"><link rel="prefetch" href="/assets/js/27.ead5efbd.js"><link rel="prefetch" href="/assets/js/28.f0099a76.js"><link rel="prefetch" href="/assets/js/29.de5d9f07.js"><link rel="prefetch" href="/assets/js/3.3d769f85.js"><link rel="prefetch" href="/assets/js/30.8a485245.js"><link rel="prefetch" href="/assets/js/31.229bf691.js"><link rel="prefetch" href="/assets/js/32.9bb2b8d8.js"><link rel="prefetch" href="/assets/js/33.41b2fb5b.js"><link rel="prefetch" href="/assets/js/34.7539eb47.js"><link rel="prefetch" href="/assets/js/35.47144861.js"><link rel="prefetch" href="/assets/js/36.3f061274.js"><link rel="prefetch" href="/assets/js/37.c3577050.js"><link rel="prefetch" href="/assets/js/38.78ad621f.js"><link rel="prefetch" href="/assets/js/39.d5eafe9c.js"><link rel="prefetch" href="/assets/js/4.b09b1dd9.js"><link rel="prefetch" href="/assets/js/40.8ce3c438.js"><link rel="prefetch" href="/assets/js/41.0fe59981.js"><link rel="prefetch" href="/assets/js/43.6b970b53.js"><link rel="prefetch" href="/assets/js/44.0f85b437.js"><link rel="prefetch" href="/assets/js/45.3f668e4c.js"><link rel="prefetch" href="/assets/js/46.e4f24bc3.js"><link rel="prefetch" href="/assets/js/47.346e64d5.js"><link rel="prefetch" href="/assets/js/48.c4d9666b.js"><link rel="prefetch" href="/assets/js/49.57ec0363.js"><link rel="prefetch" href="/assets/js/5.d2116699.js"><link rel="prefetch" href="/assets/js/50.0c8a5db9.js"><link rel="prefetch" href="/assets/js/51.8782a2cd.js"><link rel="prefetch" href="/assets/js/52.6f1a07d1.js"><link rel="prefetch" href="/assets/js/53.4b57668e.js"><link rel="prefetch" href="/assets/js/54.a926e336.js"><link rel="prefetch" href="/assets/js/55.ea5fe790.js"><link rel="prefetch" href="/assets/js/56.310bbcfd.js"><link rel="prefetch" href="/assets/js/57.6d8b5be5.js"><link rel="prefetch" href="/assets/js/58.ec9d1474.js"><link rel="prefetch" href="/assets/js/59.7fd99801.js"><link rel="prefetch" href="/assets/js/6.dc14cda6.js"><link rel="prefetch" href="/assets/js/60.dcb5d4d7.js"><link rel="prefetch" href="/assets/js/7.c4829e31.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.e1f8ac62.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.b67afc4c.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">tayce's library</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">
+  🏠 Home
+</a></div><div class="nav-item"><a href="/blog/linklist/" class="nav-link">
+  💬 All
+</a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">
+  🏠 Home
+</a></div><div class="nav-item"><a href="/blog/linklist/" class="nav-link">
+  💬 All
+</a></div> <!----></nav>  <!----> </aside> <main class="page"> <div class="theme-default-content content__default"><h2 id="封装-axios"><a href="#封装-axios" class="header-anchor">#</a> 封装 axios</h2> <div class="language-typescript extra-class"><pre class="language-typescript"><code><span class="token keyword">import</span> axios <span class="token keyword">from</span> <span class="token string">'axios'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token keyword">type</span> <span class="token punctuation">{</span> AxiosInstance<span class="token punctuation">,</span> AxiosRequestConfig<span class="token punctuation">,</span> AxiosResponse <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'axios'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">interface</span> <span class="token class-name">IAxiosRequestConfig</span> <span class="token keyword">extends</span> <span class="token class-name">AxiosRequestConfig</span> <span class="token punctuation">{</span>
+  interceptors<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    requestSuccessFn<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">(</span>config<span class="token operator">:</span> AxiosRequestConfig<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> AxiosRequestConfig<span class="token punctuation">;</span>
+    requestFailFn<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">(</span>err<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token builtin">any</span><span class="token punctuation">;</span>
+    responseSuccessFn<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">(</span>res<span class="token operator">:</span> AxiosResponse<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> AxiosResponse<span class="token punctuation">;</span>
+    responseFailFn<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">(</span>err<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token builtin">any</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// ts封装axios</span>
+<span class="token keyword">class</span> <span class="token class-name">AxiosRequest</span> <span class="token punctuation">{</span>
+  instance<span class="token operator">:</span> AxiosInstance<span class="token punctuation">;</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span>config<span class="token operator">:</span> IAxiosRequestConfig<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>instance <span class="token operator">=</span> axios<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// 可以统一添加拦截器,也可以通过对不同的实例是否传入拦截器来决定是否进行精细化拦截</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>instance<span class="token punctuation">.</span>interceptors<span class="token punctuation">.</span>request<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>
+      <span class="token punctuation">(</span>config<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 统一设置token</span>
+        <span class="token keyword">return</span> config<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 请求失败拦截</span>
+        <span class="token keyword">return</span> err<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>instance<span class="token punctuation">.</span>interceptors<span class="token punctuation">.</span>response<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>
+      <span class="token punctuation">(</span>res<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 全局响应成功拦截</span>
+        <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 响应失败拦截</span>
+        <span class="token keyword">return</span> err<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">this</span><span class="token punctuation">.</span>instance<span class="token punctuation">.</span>interceptors<span class="token punctuation">.</span>request<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>
+      config<span class="token punctuation">.</span>interceptors<span class="token operator">?.</span>requestSuccessFn<span class="token punctuation">,</span>
+      config<span class="token punctuation">.</span>interceptors<span class="token operator">?.</span>requestFailFn
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>instance<span class="token punctuation">.</span>interceptors<span class="token punctuation">.</span>response<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>
+      config<span class="token punctuation">.</span>interceptors<span class="token operator">?.</span>responseSuccessFn<span class="token punctuation">,</span>
+      config<span class="token punctuation">.</span>interceptors<span class="token operator">?.</span>responseFailFn
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 封装网络请求方法</span>
+  <span class="token function">request</span><span class="token punctuation">(</span>config<span class="token operator">:</span> IAxiosRequestConfig<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">//  对第三方库进行二次封装</span>
+    <span class="token comment">// (应对库不维护时, 需要更换库的情况, 通过二次封装可以统一更换库)</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>instance<span class="token punctuation">.</span><span class="token function">request</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// 创建实例</span>
+<span class="token comment">// 对于不同的实例通过是否传入拦截器,来进行分别处理</span>
+<span class="token keyword">const</span> sitRequest <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AxiosRequest</span><span class="token punctuation">(</span><span class="token punctuation">{</span> url<span class="token operator">:</span> <span class="token string">''</span><span class="token punctuation">,</span> timeout<span class="token operator">:</span> <span class="token number">1000</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> uatRequest <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AxiosRequest</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  url<span class="token operator">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  timeout<span class="token operator">:</span> <span class="token number">1000</span><span class="token punctuation">,</span>
+  interceptors<span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token function-variable function">requestSuccessFn</span><span class="token operator">:</span> <span class="token punctuation">(</span>config<span class="token operator">:</span> AxiosRequestConfig<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> config<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function-variable function">requestFailFn</span><span class="token operator">:</span> <span class="token punctuation">(</span>err<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> err<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function-variable function">responseSuccessFn</span><span class="token operator">:</span> <span class="token punctuation">(</span>res<span class="token operator">:</span> AxiosResponse<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function-variable function">responseFailFn</span><span class="token operator">:</span> <span class="token punctuation">(</span>err<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> err<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.f9c3f30c.js" defer></script><script src="/assets/js/2.b7af9bcd.js" defer></script><script src="/assets/js/1.6eac4c2f.js" defer></script><script src="/assets/js/42.aad61fb2.js" defer></script>
+  </body>
+</html>
