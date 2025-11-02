@@ -1,0 +1,9 @@
+{
+  "label": "工作记录",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "项目经验、bug总结等工作记录"
+  }
+}
+

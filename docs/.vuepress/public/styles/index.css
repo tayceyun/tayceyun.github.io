@@ -1,8 +1,0 @@
-.theme-default-content:not(.custom) {
-  max-width: unset !important;
-}
-
-.home .footer {
-  padding: 1rem !important;
-  border-top: unset !important;
-}

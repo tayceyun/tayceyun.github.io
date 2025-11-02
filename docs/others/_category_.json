@@ -1,0 +1,9 @@
+{
+  "label": "工具合集",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Git、Webpack、TypeScript 等开发工具使用总结"
+  }
+}
+
