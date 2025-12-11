@@ -4,10 +4,20 @@
 ETF投资目标价格分析工具 (多维度版)
 基于 MA20 + MA60 + 月K低点 加权计算目标买入价格
 """
+
+# 禁用 SSL 验证（解决公司网络代理问题）
 import ssl
+import os
 import urllib3
+
 ssl._create_default_https_context = ssl._create_unverified_context
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+os.environ['CURL_CA_BUNDLE'] = ''
+os.environ['REQUESTS_CA_BUNDLE'] = ''
+
+import requests
+from functools import partial
+requests.Session.request = partial(requests.Session.request, verify=False)
 
 import akshare as ak
 import pandas as pd
