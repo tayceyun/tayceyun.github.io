@@ -100,8 +100,163 @@ ssh -i ~/Downloads/ec2test.pem ec2-user@13.61.33.230
 exit
 ```
 
+### Security Groups (安全组)
+
+![安全组简介](/img/aws/security-groups-intro.png)
+
+![安全组流量图解](/img/aws/security-groups-diagram.png)
+
+![安全组深入了解](/img/aws/security-groups-deeper-dive.png)
+
+![安全组须知](/img/aws/security-groups-good-to-know.png)
+
+![引用其他安全组](/img/aws/other-security-group-diagram.png)
+
+### Classic Ports (常用端口)
+
+![常用端口](/img/aws/classic-ports.png)
+
+### SSH 连接方式
+
+![SSH 连接方式汇总](/img/aws/SSH-summary-table.png)
+
+### EC2 Instances Purchasing Options (EC2 购买选项)
+
+![EC2 购买选项概览](/img/aws/ec2-purchase-options.png)
+
+#### EC2 Reserved Instances (预留实例)
+
+![EC2 预留实例](/img/aws/ec2-reserved.png)
+
+#### EC2 Savings Plans (节省计划)
+
+![EC2 节省计划](/img/aws/ec2-saving-plan.png)
+
+#### EC2 Spot Instances (竞价实例)
+
+![EC2 竞价实例](/img/aws/ec2-spot.png)
+
+#### EC2 Dedicated Hosts (专用主机)
+
+![EC2 专用主机](/img/aws/ec2-dedicated-hosts.png)
+
+#### EC2 Dedicated Instances (专用实例)
+
+![EC2 专用实例](/img/aws/ec2-dedicated-instances.png)
+
+#### EC2 Capacity Reservations (容量预留)
+
+![EC2 容量预留](/img/aws/ec2-capacity-reservations.png)
+
+#### AWS IPv4 地址收费
+
+![IPv4 地址收费](/img/aws/charge-for-ipv4.png)
+
+### EBS Volume (弹性块存储)
+
+![EBS 卷概述](/img/aws/EBS-Volume.png)
+
+![EBS 卷示例](/img/aws/ebs-volume-example.png)
+
+#### EBS Delete on Termination (终止时删除)
+
+![EBS 终止时删除](/img/aws/EBS-delete-on-termination.png)
+
+#### EBS Snapshots (快照)
+
+![EBS 快照](/img/aws/EBS-Snapshots.png)
+
+![EBS 快照功能](/img/aws/EBS-Snapshots-Features.png)
+
 ### EBS volume types
+
+![EBS 卷类型](/img/aws/EBS-volume-types.png)
+
 https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html
+
+#### General Purpose SSD (gp2/gp3)
+
+![通用型 SSD](/img/aws/gp2-gp3.png)
+
+#### Provisioned IOPS SSD (io1/io2)
+
+![预配置 IOPS SSD](/img/aws/PIOPS%20SSD.png)
+
+#### Hard Disk Drives (HDD)
+
+![HDD 硬盘](/img/aws/HDD.png)
+
+### EC2 Instance Store (实例存储)
+
+![EC2 实例存储](/img/aws/EC2-instance-store.png)
+
+### EBS Multi-Attach (多重挂载)
+
+![EBS 多重挂载](/img/aws/EBS-Multi-Attach.png)
+
+### AMI (Amazon Machine Image)
+
+![AMI 概述](/img/aws/AMI-overview.png)
+
+![AMI 创建流程](/img/aws/ami-process.png)
+
+### Amazon EFS (弹性文件系统)
+
+![EFS 概述](/img/aws/EFS-overview.png)
+
+![EFS 特性](/img/aws/EFS-overview2.png)
+
+#### EFS Performance & Storage Classes
+
+![EFS 性能与存储类别](/img/aws/EFS-performance.png)
+
+![EFS 存储类别](/img/aws/EFS-storage-class.png)
+
+### EBS vs EFS 对比
+
+![EBS 与 EFS 对比](/img/aws/diff%20between%20EBS%20and%20EFS.png)
+
+### High Availability & Scalability (高可用性与可扩展性)
+
+![高可用性与可扩展性](/img/aws/availability%26Scalability.png)
+
+### Elastic Load Balancing (弹性负载均衡)
+
+#### 什么是负载均衡
+
+![什么是负载均衡](/img/aws/concept%20of%20load%20balancing.png)
+
+#### 为什么使用负载均衡
+
+![为什么使用负载均衡](/img/aws/load-balancer.png)
+
+#### Why use an Elastic Load Balancer
+
+![弹性负载均衡器](/img/aws/elastic-load-balancer.png)
+
+#### Health Checks (健康检查)
+
+![健康检查](/img/aws/health-check.png)
+
+#### Load Balancer Security Groups
+
+![负载均衡器安全组](/img/aws/load-balancer-security-groups.png)
+
+### Application Load Balancer (ALB)
+
+![应用负载均衡器](/img/aws/load-balancer-v2.png)
+
+#### ALB Target Groups (目标组)
+
+![ALB 目标组](/img/aws/v2-target-groups.png)
+
+#### ALB Good to Know
+
+![ALB 须知](/img/aws/v2-good-to-know.png)
+
+### Network Load Balancer (NLB)
+
+![网络负载均衡器](/img/aws/network-load-balancer.png)
 
 ---
 
