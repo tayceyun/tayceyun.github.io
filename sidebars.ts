@@ -68,6 +68,7 @@ const sidebars: SidebarsConfig = {
         'backend/sql',
         'backend/python',
         'backend/docker',
+        'backend/aws',
       ],
     },
     // {
