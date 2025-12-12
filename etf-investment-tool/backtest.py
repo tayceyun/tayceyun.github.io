@@ -16,8 +16,13 @@ os.environ['CURL_CA_BUNDLE'] = ''
 os.environ['REQUESTS_CA_BUNDLE'] = ''
 
 import requests
-from functools import partial
-requests.Session.request = partial(requests.Session.request, verify=False)
+
+# 全局禁用 SSL 验证的推荐做法：monkey patch requests.Session.__init__，让所有实例默认 verify=False
+_orig_init = requests.Session.__init__
+def _patched_init(self, *args, **kwargs):
+    _orig_init(self, *args, **kwargs)
+    self.verify = False
+requests.Session.__init__ = _patched_init
 
 import argparse
 import akshare as ak
