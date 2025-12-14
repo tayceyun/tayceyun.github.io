@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunktayceyun_library=globalThis.webpackChunktayceyun_library||[]).push([[969],{5782:a=>{a.exports=JSON.parse('{"tag":{"label":"aws","permalink":"/blog/tags/aws","allTagsPath":"/blog/tags","count":1,"items":[{"id":"backend/aws","title":"aws","description":"AWS","permalink":"/blog/backend/aws"}],"unlisted":false}}')}}]);

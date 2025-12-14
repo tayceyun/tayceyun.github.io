@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunktayceyun_library=globalThis.webpackChunktayceyun_library||[]).push([[6296],{190:s=>{s.exports=JSON.parse('{"tag":{"label":"ts","permalink":"/blog/tags/ts","allTagsPath":"/blog/tags","count":1,"items":[{"id":"basis/ts","title":"ts","description":"\u57fa\u7840","permalink":"/blog/basis/ts"}],"unlisted":false}}')}}]);
