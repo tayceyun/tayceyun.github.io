@@ -2,30 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 策略回测工具
-支持自定义股票代码、时间范围，验证9维度加权评分策略的有效性
+支持自定义股票代码、时间范围，验证策略有效性
+- 9维度加权评分策略
+- 网格交易策略
+- 目标价策略（买入条件：现价 ≤ 目标价）
+数据源：Tushare Pro / Baostock
 """
 
-# 禁用 SSL 验证
-import ssl
-import os
-import urllib3
-
-ssl._create_default_https_context = ssl._create_unverified_context
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-os.environ['CURL_CA_BUNDLE'] = ''
-os.environ['REQUESTS_CA_BUNDLE'] = ''
-
-import requests
-
-# 全局禁用 SSL 验证的推荐做法：monkey patch requests.Session.__init__，让所有实例默认 verify=False
-_orig_init = requests.Session.__init__
-def _patched_init(self, *args, **kwargs):
-    _orig_init(self, *args, **kwargs)
-    self.verify = False
-requests.Session.__init__ = _patched_init
-
 import argparse
-import akshare as ak
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -35,9 +19,11 @@ from rich.panel import Panel
 from rich import box
 import csv
 
+from data_source import get_historical_data
+
 console = Console()
 
-# 权重配置（与stock_analyzer.py保持一致）
+# 权重配置（与原 stock_analyzer.py 保持一致）
 WEIGHTS = {
     "ma_system": 0.25,
     "rsi": 0.15,
@@ -49,39 +35,6 @@ WEIGHTS = {
     "market": 0.05,
     "sector": 0.03,
 }
-
-
-def get_historical_data(code: str, days: int = 250, start_date: str = None, end_date: str = None) -> pd.DataFrame:
-    """获取历史数据"""
-    try:
-        # 判断是股票还是ETF
-        if code.startswith('1') or code.startswith('5'):
-            # ETF
-            df = ak.fund_etf_hist_em(symbol=code, period="daily", adjust="qfq")
-        else:
-            # 股票
-            df = ak.stock_zh_a_hist(symbol=code, period="daily", adjust="qfq")
-        
-        if df.empty:
-            return None
-        
-        df['日期'] = pd.to_datetime(df['日期'])
-        df = df.sort_values('日期').reset_index(drop=True)
-        
-        # 按日期范围筛选
-        if start_date:
-            df = df[df['日期'] >= pd.to_datetime(start_date)]
-        if end_date:
-            df = df[df['日期'] <= pd.to_datetime(end_date)]
-        
-        # 按天数筛选
-        if not start_date and not end_date:
-            df = df.tail(days + 120)  # 多取120天用于计算均线
-        
-        return df
-    except Exception as e:
-        console.print(f"[red]获取数据失败: {e}[/red]")
-        return None
 
 
 def calculate_indicators(df: pd.DataFrame, idx: int) -> dict:
@@ -297,20 +250,19 @@ def calculate_weighted_score(scores: dict) -> float:
     return total
 
 
-def run_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000, initial_shares: int = 0, cost: float = 0):
-    """运行回测"""
+def run_score_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000, 
+                       initial_shares: int = 0, cost: float = 0):
+    """运行评分策略回测"""
     
-    # 初始化
     cash = initial_cash
     shares = initial_shares
     if cost == 0 and len(df) > 60:
-        cost = float(df.iloc[60]['收盘'])  # 初始成本取第一个有效交易日价格
+        cost = float(df.iloc[60]['收盘'])
     
-    trades = []  # 交易记录
-    daily_records = []  # 每日记录
-    portfolio_values = []  # 组合价值
+    trades = []
+    portfolio_values = []
     
-    start_idx = 60  # 从第60天开始（需要计算60日均线）
+    start_idx = 60
     
     for idx in range(start_idx, len(df)):
         date = df.iloc[idx]['日期']
@@ -323,25 +275,11 @@ def run_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000, init
         scores = calculate_dimension_scores(indicators, cost)
         weighted_score = calculate_weighted_score(scores)
         
-        # 记录每日数据
-        daily_record = {
-            "日期": date.strftime("%Y-%m-%d"),
-            "收盘价": current_price,
-            "MA5": indicators["ma5"],
-            "MA30": indicators["ma30"],
-            "MA60": indicators["ma60"],
-            "RSI": indicators["rsi"],
-            "加权评分": weighted_score,
-        }
-        daily_records.append(daily_record)
-        
-        # 交易逻辑
         action = None
         trade_shares = 0
         reason = ""
         
         if weighted_score >= 5.0:
-            # 大力加仓：40%现金
             buy_amount = cash * 0.4
             trade_shares = int(buy_amount / current_price / 100) * 100
             if trade_shares >= 100 and cash >= trade_shares * current_price:
@@ -349,13 +287,11 @@ def run_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000, init
                 reason = f"大力加仓(评分{weighted_score:.2f})"
                 cash -= trade_shares * current_price
                 shares += trade_shares
-                # 更新成本
                 if shares > 0:
                     total_cost = cost * (shares - trade_shares) + current_price * trade_shares
                     cost = total_cost / shares
                     
         elif weighted_score >= 3.0:
-            # 正常加仓：25%现金
             buy_amount = cash * 0.25
             trade_shares = int(buy_amount / current_price / 100) * 100
             if trade_shares >= 100 and cash >= trade_shares * current_price:
@@ -367,21 +303,7 @@ def run_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000, init
                     total_cost = cost * (shares - trade_shares) + current_price * trade_shares
                     cost = total_cost / shares
                     
-        elif weighted_score >= 1.5:
-            # 小仓加仓：15%现金
-            buy_amount = cash * 0.15
-            trade_shares = int(buy_amount / current_price / 100) * 100
-            if trade_shares >= 100 and cash >= trade_shares * current_price:
-                action = "买入"
-                reason = f"小仓加仓(评分{weighted_score:.2f})"
-                cash -= trade_shares * current_price
-                shares += trade_shares
-                if shares > 0:
-                    total_cost = cost * (shares - trade_shares) + current_price * trade_shares
-                    cost = total_cost / shares
-                    
         elif weighted_score <= -5.0:
-            # 大力减仓：40%持仓
             trade_shares = int(shares * 0.4 / 100) * 100
             if trade_shares >= 100:
                 action = "卖出"
@@ -390,24 +312,13 @@ def run_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000, init
                 shares -= trade_shares
                 
         elif weighted_score <= -3.0:
-            # 正常减仓：25%持仓
             trade_shares = int(shares * 0.25 / 100) * 100
             if trade_shares >= 100:
                 action = "卖出"
                 reason = f"正常减仓(评分{weighted_score:.2f})"
                 cash += trade_shares * current_price
                 shares -= trade_shares
-                
-        elif weighted_score <= -1.5:
-            # 小仓减仓：15%持仓
-            trade_shares = int(shares * 0.15 / 100) * 100
-            if trade_shares >= 100:
-                action = "卖出"
-                reason = f"小仓减仓(评分{weighted_score:.2f})"
-                cash += trade_shares * current_price
-                shares -= trade_shares
         
-        # 记录交易
         if action:
             trades.append({
                 "日期": date.strftime("%Y-%m-%d"),
@@ -421,7 +332,6 @@ def run_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000, init
                 "现金": cash,
             })
         
-        # 记录组合价值
         portfolio_value = cash + shares * current_price
         portfolio_values.append({
             "日期": date,
@@ -433,11 +343,334 @@ def run_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000, init
     
     return {
         "trades": trades,
-        "daily_records": daily_records,
         "portfolio_values": portfolio_values,
         "final_cash": cash,
         "final_shares": shares,
         "final_cost": cost,
+    }
+
+
+def run_target_price_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000,
+                               profit_target: float = 0.10, stop_loss: float = 0.08,
+                               score_factor: float = 0.5, use_dynamic: bool = True):
+    """动态目标价策略回测（结合9维度评分）
+    
+    策略逻辑：
+    - 基础目标价 = MA20×40% + MA60×40% + 月K低点×20%
+    - 动态目标价 = 基础目标价 × (1 + 加权评分 × score_factor%)
+      - 评分高（看多）→ 目标价上调 → 更容易触发买入
+      - 评分低（看空）→ 目标价下调 → 需要更大跌幅才买入
+    - 买入条件：现价 ≤ 动态目标价
+    - 卖出条件：
+      - 止盈：现价 ≥ 买入价 × (1 + profit_target)
+      - 止损：现价 ≤ 买入价 × (1 - stop_loss)
+      - 技术面恶化：加权评分 ≤ -5
+    
+    Args:
+        code: 股票代码
+        df: 日线数据 DataFrame
+        initial_cash: 初始资金
+        profit_target: 止盈比例（默认 10%）
+        stop_loss: 止损比例（默认 8%）
+        score_factor: 评分调整系数（默认 0.5，即评分每1分调整0.5%）
+        use_dynamic: 是否使用动态目标价（False则使用简单目标价）
+    
+    Returns:
+        dict with trades, portfolio_values, metrics
+    """
+    cash = initial_cash
+    shares = 0
+    cost = 0  # 用于计算成本关系维度
+    
+    trades = []
+    portfolio_values = []
+    positions = []  # 记录每笔买入的成本
+    
+    start_idx = 60  # 需要足够数据计算 MA60
+    
+    # 初始化成本（用于评分系统的成本关系维度）
+    if len(df) > 60:
+        cost = float(df.iloc[60]['收盘'])
+    
+    for idx in range(start_idx, len(df)):
+        date = df.iloc[idx]['日期']
+        current_data = df.iloc[:idx+1]
+        current_price = float(current_data['收盘'].iloc[-1])
+        
+        # 计算技术指标和9维度评分
+        indicators = calculate_indicators(df, idx)
+        dimension_scores = calculate_dimension_scores(indicators, cost) if indicators else {}
+        weighted_score = calculate_weighted_score(dimension_scores)
+        
+        # 计算基础目标价
+        ma20 = float(current_data['收盘'].tail(20).mean())
+        ma60 = float(current_data['收盘'].tail(60).mean())
+        monthly_low = float(current_data['最低'].tail(60).min())
+        base_target = ma20 * 0.4 + ma60 * 0.4 + monthly_low * 0.2
+        
+        # 计算动态目标价（根据评分调整）
+        if use_dynamic:
+            # 评分范围 -10 到 +10，调整范围 -5% 到 +5%（默认 score_factor=0.5）
+            score_adjustment = weighted_score * score_factor / 100
+            dynamic_target = base_target * (1 + score_adjustment)
+        else:
+            dynamic_target = base_target
+        
+        action = None
+        trade_shares = 0
+        reason = ""
+        
+        # 1. 先检查卖出条件
+        for pos in positions[:]:
+            if pos["status"] != "holding":
+                continue
+            
+            buy_price = pos["buy_price"]
+            pos_shares = pos["shares"]
+            
+            # 止盈
+            if current_price >= buy_price * (1 + profit_target):
+                action = "卖出"
+                trade_shares = pos_shares
+                profit_pct = (current_price - buy_price) / buy_price * 100
+                reason = f"止盈 +{profit_pct:.1f}%"
+                cash += trade_shares * current_price
+                shares -= trade_shares
+                pos["status"] = "sold_profit"
+                pos["sell_price"] = current_price
+                pos["sell_date"] = date.strftime("%Y-%m-%d")
+                break
+            
+            # 止损
+            if current_price <= buy_price * (1 - stop_loss):
+                action = "卖出"
+                trade_shares = pos_shares
+                loss_pct = (current_price - buy_price) / buy_price * 100
+                reason = f"止损 {loss_pct:.1f}%"
+                cash += trade_shares * current_price
+                shares -= trade_shares
+                pos["status"] = "sold_loss"
+                pos["sell_price"] = current_price
+                pos["sell_date"] = date.strftime("%Y-%m-%d")
+                break
+            
+            # 技术面恶化卖出（评分极低）
+            if weighted_score <= -5:
+                action = "卖出"
+                trade_shares = pos_shares
+                loss_pct = (current_price - buy_price) / buy_price * 100
+                reason = f"技术面恶化 (评分{weighted_score:.1f}, {'盈' if loss_pct >= 0 else '亏'}{abs(loss_pct):.1f}%)"
+                cash += trade_shares * current_price
+                shares -= trade_shares
+                pos["status"] = "sold_technical"
+                pos["sell_price"] = current_price
+                pos["sell_date"] = date.strftime("%Y-%m-%d")
+                break
+        
+        # 2. 检查买入条件：现价 ≤ 动态目标价
+        if action is None and current_price <= dynamic_target:
+            # 根据评分决定买入仓位
+            if weighted_score >= 5:
+                buy_ratio = 0.40  # 评分高，大力加仓
+            elif weighted_score >= 3:
+                buy_ratio = 0.30  # 评分较高，正常加仓
+            elif weighted_score >= 0:
+                buy_ratio = 0.20  # 评分中性，谨慎加仓
+            else:
+                buy_ratio = 0.10  # 评分低，小仓位试探
+            
+            buy_amount = cash * buy_ratio
+            trade_shares = int(buy_amount / current_price / 100) * 100
+            
+            if trade_shares >= 100 and cash >= trade_shares * current_price:
+                action = "买入"
+                discount_pct = (dynamic_target - current_price) / dynamic_target * 100
+                reason = f"现价{current_price:.2f}≤动态目标{dynamic_target:.2f} (折价{discount_pct:.1f}%, 评分{weighted_score:.1f})"
+                cash -= trade_shares * current_price
+                shares += trade_shares
+                
+                # 更新持仓成本
+                if shares > 0:
+                    total_cost = cost * (shares - trade_shares) + current_price * trade_shares
+                    cost = total_cost / shares
+                
+                positions.append({
+                    "buy_price": current_price,
+                    "shares": trade_shares,
+                    "buy_date": date.strftime("%Y-%m-%d"),
+                    "base_target": base_target,
+                    "dynamic_target": dynamic_target,
+                    "weighted_score": weighted_score,
+                    "status": "holding"
+                })
+        
+        if action:
+            trades.append({
+                "日期": date.strftime("%Y-%m-%d"),
+                "操作": action,
+                "价格": current_price,
+                "数量": trade_shares,
+                "金额": trade_shares * current_price,
+                "基础目标": round(base_target, 2),
+                "动态目标": round(dynamic_target, 2),
+                "评分": round(weighted_score, 2),
+                "原因": reason,
+                "持仓": shares,
+                "现金": round(cash, 2),
+            })
+        
+        portfolio_value = cash + shares * current_price
+        portfolio_values.append({
+            "日期": date,
+            "组合价值": portfolio_value,
+            "持仓数量": shares,
+            "现金": cash,
+            "股价": current_price,
+            "基础目标": base_target,
+            "动态目标": dynamic_target,
+            "评分": weighted_score,
+        })
+    
+    # 统计交易结果
+    profit_trades = len([p for p in positions if p["status"] == "sold_profit"])
+    loss_trades = len([p for p in positions if p["status"] == "sold_loss"])
+    technical_sells = len([p for p in positions if p["status"] == "sold_technical"])
+    holding_trades = len([p for p in positions if p["status"] == "holding"])
+    total_closed = profit_trades + loss_trades + technical_sells
+    win_rate = profit_trades / total_closed * 100 if total_closed > 0 else 0
+    
+    return {
+        "trades": trades,
+        "portfolio_values": portfolio_values,
+        "final_cash": cash,
+        "final_shares": shares,
+        "positions": positions,
+        "trade_stats": {
+            "profit_trades": profit_trades,
+            "loss_trades": loss_trades,
+            "technical_sells": technical_sells,
+            "holding_trades": holding_trades,
+            "win_rate": win_rate,
+        }
+    }
+
+
+def run_grid_backtest(code: str, df: pd.DataFrame, initial_cash: float = 100000,
+                      initial_shares: int = 0, grid_step: float = 3.5,
+                      base_amount: float = 2000):
+    """运行网格交易策略回测"""
+    
+    cash = initial_cash
+    shares = initial_shares
+    
+    trades = []
+    portfolio_values = []
+    grid_positions = []  # 记录每格买入
+    
+    start_idx = 60
+    
+    for idx in range(start_idx, len(df)):
+        date = df.iloc[idx]['日期']
+        current_data = df.iloc[:idx+1]
+        current_price = float(current_data['收盘'].iloc[-1])
+        
+        # 动态计算中枢价格
+        ma20 = float(current_data['收盘'].tail(20).mean())
+        ma60 = float(current_data['收盘'].tail(60).mean())
+        monthly_low = float(current_data['最低'].tail(60).min())
+        center_price = ma20 * 0.4 + ma60 * 0.4 + monthly_low * 0.2
+        
+        # 计算网格档位
+        grid_levels = [center_price]
+        for i in range(1, 7):
+            grid_levels.append(center_price * (1 - grid_step * i / 100))
+        
+        # 确定当前所在格
+        current_level = 0
+        for i, level in enumerate(grid_levels):
+            if current_price >= level:
+                current_level = i
+                break
+        else:
+            current_level = len(grid_levels) - 1
+        
+        action = None
+        trade_shares = 0
+        reason = ""
+        
+        # 买入逻辑：价格跌破新的格子
+        for i, pos in enumerate(grid_positions):
+            if pos["status"] == "pending" and current_price <= pos["trigger_price"]:
+                # 触发买入
+                deviation = abs((current_price - center_price) / center_price * 100)
+                buy_amount = base_amount * (1 + deviation * 0.5 / 100)
+                trade_shares = int(buy_amount / current_price / 100) * 100
+                
+                if trade_shares >= 100 and cash >= trade_shares * current_price:
+                    action = "买入"
+                    reason = f"触发格{pos['grid_level']}买入"
+                    cash -= trade_shares * current_price
+                    shares += trade_shares
+                    pos["status"] = "holding"
+                    pos["buy_price"] = current_price
+                    pos["shares"] = trade_shares
+                    pos["buy_date"] = date.strftime("%Y-%m-%d")
+                break
+        
+        # 检查是否需要添加新的网格
+        if not action:
+            existing_levels = [p["grid_level"] for p in grid_positions]
+            for i in range(1, len(grid_levels)):
+                if i not in existing_levels and current_price < grid_levels[i-1]:
+                    grid_positions.append({
+                        "grid_level": i,
+                        "trigger_price": grid_levels[i],
+                        "status": "pending"
+                    })
+        
+        # 卖出逻辑：价格涨回上一格
+        for pos in grid_positions:
+            if pos["status"] == "holding" and pos["grid_level"] > 0:
+                sell_trigger = grid_levels[pos["grid_level"] - 1]
+                if current_price >= sell_trigger:
+                    trade_shares = pos.get("shares", 0)
+                    if trade_shares >= 100:
+                        action = "卖出"
+                        reason = f"涨回格{pos['grid_level']-1}卖出"
+                        cash += trade_shares * current_price
+                        shares -= trade_shares
+                        pos["status"] = "sold"
+                        pos["sell_price"] = current_price
+                        pos["sell_date"] = date.strftime("%Y-%m-%d")
+                    break
+        
+        if action:
+            trades.append({
+                "日期": date.strftime("%Y-%m-%d"),
+                "操作": action,
+                "价格": current_price,
+                "数量": trade_shares,
+                "金额": trade_shares * current_price,
+                "原因": reason,
+                "持仓": shares,
+                "现金": cash,
+            })
+        
+        portfolio_value = cash + shares * current_price
+        portfolio_values.append({
+            "日期": date,
+            "组合价值": portfolio_value,
+            "持仓数量": shares,
+            "现金": cash,
+            "股价": current_price,
+        })
+    
+    return {
+        "trades": trades,
+        "portfolio_values": portfolio_values,
+        "final_cash": cash,
+        "final_shares": shares,
+        "grid_positions": grid_positions,
     }
 
 
@@ -449,23 +682,18 @@ def calculate_metrics(portfolio_values: list, df: pd.DataFrame, initial_value: f
     values = [pv["组合价值"] for pv in portfolio_values]
     final_value = values[-1]
     
-    # 总收益率
     total_return = (final_value - initial_value) / initial_value * 100
     
-    # 持有收益率（买入持有）
     start_price = df.iloc[60]['收盘']
     end_price = df.iloc[-1]['收盘']
     hold_return = (end_price - start_price) / start_price * 100
     
-    # 超额收益
     excess_return = total_return - hold_return
     
-    # 年化收益率
     days = len(portfolio_values)
     annual_return = (1 + total_return / 100) ** (252 / days) - 1 if days > 0 else 0
     annual_return *= 100
     
-    # 最大回撤
     peak = values[0]
     max_drawdown = 0
     for v in values:
@@ -475,16 +703,13 @@ def calculate_metrics(portfolio_values: list, df: pd.DataFrame, initial_value: f
         if drawdown > max_drawdown:
             max_drawdown = drawdown
     
-    # 日收益率
     daily_returns = []
     for i in range(1, len(values)):
         ret = (values[i] - values[i-1]) / values[i-1]
         daily_returns.append(ret)
     
-    # 波动率
     volatility = np.std(daily_returns) * np.sqrt(252) * 100 if daily_returns else 0
     
-    # 夏普比率（假设无风险利率3%）
     risk_free = 0.03
     avg_return = np.mean(daily_returns) * 252 if daily_returns else 0
     sharpe = (avg_return - risk_free) / (volatility / 100) if volatility > 0 else 0
@@ -503,54 +728,36 @@ def calculate_metrics(portfolio_values: list, df: pd.DataFrame, initial_value: f
     }
 
 
-def calculate_trade_stats(trades: list) -> dict:
-    """计算交易统计"""
-    if not trades:
-        return {"total": 0, "buys": 0, "sells": 0, "win_rate": 0, "profit_factor": 0}
-    
-    buys = [t for t in trades if t["操作"] == "买入"]
-    sells = [t for t in trades if t["操作"] == "卖出"]
-    
-    # 简化胜率计算：卖出价格 > 买入均价
-    profits = []
-    losses = []
-    
-    for i, sell in enumerate(sells):
-        # 找之前的买入
-        prev_buys = [b for b in buys if b["日期"] < sell["日期"]]
-        if prev_buys:
-            avg_buy_price = sum(b["价格"] * b["数量"] for b in prev_buys) / sum(b["数量"] for b in prev_buys)
-            profit = (sell["价格"] - avg_buy_price) * sell["数量"]
-            if profit > 0:
-                profits.append(profit)
-            else:
-                losses.append(abs(profit))
-    
-    win_rate = len(profits) / len(sells) * 100 if sells else 0
-    avg_profit = np.mean(profits) if profits else 0
-    avg_loss = np.mean(losses) if losses else 1
-    profit_factor = avg_profit / avg_loss if avg_loss > 0 else 0
-    
-    return {
-        "total": len(trades),
-        "buys": len(buys),
-        "sells": len(sells),
-        "win_rate": win_rate,
-        "profit_factor": profit_factor,
-        "total_profit": sum(profits),
-        "total_loss": sum(losses),
-    }
-
-
-def print_summary(code: str, metrics: dict, trade_stats: dict, start_date: str, end_date: str):
+def print_summary(code: str, strategy: str, metrics: dict, trades: list, 
+                  start_date: str, end_date: str, trade_stats: dict = None,
+                  strategy_params: dict = None):
     """打印摘要报告"""
     console.print()
     console.print(Panel.fit(
-        f"[bold cyan]📈 策略回测摘要[/bold cyan]\n"
+        f"[bold cyan]📈 {strategy}策略回测摘要[/bold cyan]\n"
         f"[bold]{code}[/bold]\n"
         f"[dim]{start_date} ~ {end_date} (共{metrics.get('trading_days', 0)}个交易日)[/dim]",
         border_style="cyan"
     ))
+    
+    # 策略参数（目标价策略）
+    if strategy_params:
+        table0 = Table(title="[bold]策略参数[/bold]", box=box.ROUNDED)
+        table0.add_column("参数", style="cyan")
+        table0.add_column("数值", justify="left")
+        
+        if "formula" in strategy_params:
+            table0.add_row("基础目标价", strategy_params["formula"])
+        if "dynamic_formula" in strategy_params:
+            table0.add_row("动态调整", strategy_params["dynamic_formula"])
+        if "score_factor" in strategy_params:
+            table0.add_row("评分系数", f"{strategy_params['score_factor']}%/分")
+        if "profit_target" in strategy_params:
+            table0.add_row("止盈比例", f"{strategy_params['profit_target']*100:.0f}%")
+        if "stop_loss" in strategy_params:
+            table0.add_row("止损比例", f"{strategy_params['stop_loss']*100:.0f}%")
+        
+        console.print(table0)
     
     # 收益对比
     table1 = Table(title="[bold]收益对比[/bold]", box=box.ROUNDED)
@@ -579,15 +786,25 @@ def print_summary(code: str, metrics: dict, trade_stats: dict, start_date: str, 
     console.print(table1)
     
     # 交易统计
+    buys = [t for t in trades if t["操作"] == "买入"]
+    sells = [t for t in trades if t["操作"] == "卖出"]
+    
     table2 = Table(title="[bold]交易统计[/bold]", box=box.ROUNDED)
     table2.add_column("指标", style="cyan")
     table2.add_column("数值", justify="right")
     
-    table2.add_row("总交易次数", f"{trade_stats.get('total', 0)}次")
-    table2.add_row("买入次数", f"{trade_stats.get('buys', 0)}次")
-    table2.add_row("卖出次数", f"{trade_stats.get('sells', 0)}次")
-    table2.add_row("胜率", f"{trade_stats.get('win_rate', 0):.1f}%")
-    table2.add_row("盈亏比", f"{trade_stats.get('profit_factor', 0):.2f}")
+    table2.add_row("总交易次数", f"{len(trades)}次")
+    table2.add_row("买入次数", f"{len(buys)}次")
+    table2.add_row("卖出次数", f"{len(sells)}次")
+    
+    # 目标价策略额外统计
+    if trade_stats:
+        table2.add_row("止盈次数", f"[green]{trade_stats.get('profit_trades', 0)}次[/green]")
+        table2.add_row("止损次数", f"[red]{trade_stats.get('loss_trades', 0)}次[/red]")
+        if trade_stats.get('technical_sells', 0) > 0:
+            table2.add_row("技术面卖出", f"[yellow]{trade_stats.get('technical_sells', 0)}次[/yellow]")
+        table2.add_row("持仓中", f"{trade_stats.get('holding_trades', 0)}笔")
+        table2.add_row("胜率", f"[bold]{trade_stats.get('win_rate', 0):.1f}%[/bold]")
     
     console.print(table2)
     
@@ -604,138 +821,123 @@ def print_summary(code: str, metrics: dict, trade_stats: dict, start_date: str, 
     
     # 策略评价
     excess = metrics.get("excess_return", 0)
-    win_rate = trade_stats.get("win_rate", 0)
     
-    if excess > 0 and win_rate > 50:
+    if excess > 5:
+        evaluation = "[bold green]✅ 策略非常有效[/bold green]"
+    elif excess > 0:
         evaluation = "[bold green]✅ 策略有效[/bold green]"
-    elif excess > 0 or win_rate > 50:
+    elif excess > -5:
         evaluation = "[bold yellow]⚠️ 策略一般[/bold yellow]"
     else:
         evaluation = "[bold red]❌ 策略无效[/bold red]"
     
     console.print(Panel(
-        f"{evaluation}\n"
-        f"超额收益: {excess:+.2f}%，胜率: {win_rate:.1f}%",
+        f"{evaluation}\n超额收益: {excess:+.2f}%",
         title="[bold]策略评价[/bold]",
         border_style="green" if excess > 0 else "red",
     ))
 
 
-def print_detail(trades: list, daily_records: list, show_all: bool = False):
-    """打印详细数据"""
-    console.print()
-    console.print(Panel.fit(
-        "[bold magenta]📋 交易明细记录[/bold magenta]",
-        border_style="magenta"
-    ))
-    
-    # 交易记录
-    if trades:
-        table = Table(title="[bold]交易操作记录[/bold]", box=box.ROUNDED)
-        table.add_column("日期", width=12)
-        table.add_column("操作", width=6)
-        table.add_column("价格", justify="right", width=8)
-        table.add_column("数量", justify="right", width=8)
-        table.add_column("金额", justify="right", width=10)
-        table.add_column("评分", justify="right", width=8)
-        table.add_column("原因", width=24)
-        
-        display_trades = trades if show_all else trades[:20]
-        for t in display_trades:
-            color = "green" if t["操作"] == "买入" else "red"
-            table.add_row(
-                t["日期"],
-                f"[{color}]{t['操作']}[/]",
-                f"{t['价格']:.3f}",
-                str(t["数量"]),
-                f"¥{t['金额']:.0f}",
-                f"{t['评分']:+.2f}",
-                t["原因"],
-            )
-        
-        if len(trades) > 20 and not show_all:
-            table.add_row("...", "...", "...", "...", "...", "...", f"[dim]共{len(trades)}条记录[/dim]")
-        
-        console.print(table)
-    else:
-        console.print("[yellow]无交易记录[/yellow]")
-
-
-def export_data(code: str, trades: list, daily_records: list, output_dir: str = "."):
-    """导出数据到CSV"""
-    # 导出交易记录
-    trades_file = f"{output_dir}/backtest_{code}_trades.csv"
-    if trades:
-        with open(trades_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=trades[0].keys())
-            writer.writeheader()
-            writer.writerows(trades)
-        console.print(f"[green]✅ 交易记录已导出: {trades_file}[/green]")
-    
-    # 导出每日数据
-    daily_file = f"{output_dir}/backtest_{code}_daily.csv"
-    if daily_records:
-        with open(daily_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=daily_records[0].keys())
-            writer.writeheader()
-            writer.writerows(daily_records)
-        console.print(f"[green]✅ 每日数据已导出: {daily_file}[/green]")
-
-
 def main():
     parser = argparse.ArgumentParser(description="策略回测工具")
-    parser.add_argument("--code", "-c", required=True, help="股票/ETF代码，多个用逗号分隔")
+    parser.add_argument("--code", "-c", required=True, help="股票/ETF代码")
+    parser.add_argument("--strategy", "-s", choices=["score", "grid", "target"], default="score",
+                        help="策略类型: score(评分) 或 grid(网格) 或 target(目标价)")
     parser.add_argument("--days", "-d", type=int, default=250, help="回测天数（默认250天）")
-    parser.add_argument("--start", "-s", help="开始日期（YYYY-MM-DD）")
-    parser.add_argument("--end", "-e", help="结束日期（YYYY-MM-DD）")
+    parser.add_argument("--start", help="开始日期（YYYY-MM-DD）")
+    parser.add_argument("--end", help="结束日期（YYYY-MM-DD）")
     parser.add_argument("--cash", type=float, default=100000, help="初始资金（默认10万）")
     parser.add_argument("--shares", type=int, default=0, help="初始持仓（默认0）")
-    parser.add_argument("--cost", type=float, default=0, help="持仓成本（默认0）")
+    parser.add_argument("--grid-step", type=float, default=3.5, help="网格间距（默认3.5%%）")
+    parser.add_argument("--profit-target", type=float, default=0.10, help="止盈比例（默认10%%）")
+    parser.add_argument("--stop-loss", type=float, default=0.08, help="止损比例（默认8%%）")
+    parser.add_argument("--score-factor", type=float, default=0.5, help="评分调整系数（默认0.5，即评分每1分调整0.5%%目标价）")
+    parser.add_argument("--simple-target", action="store_true", help="使用简单目标价（不用评分调整）")
     parser.add_argument("--export", action="store_true", help="导出CSV文件")
-    parser.add_argument("--detail", action="store_true", help="显示所有交易记录")
     
     args = parser.parse_args()
     
-    codes = args.code.split(",")
+    strategy_names = {
+        "score": "评分",
+        "grid": "网格交易",
+        "target": "目标价"
+    }
     
-    for code in codes:
-        code = code.strip()
-        console.print(f"\n[bold]正在回测 {code}...[/bold]")
-        
-        # 获取数据
-        df = get_historical_data(code, args.days, args.start, args.end)
-        if df is None or len(df) < 100:
-            console.print(f"[red]数据不足，跳过 {code}[/red]")
-            continue
-        
-        # 运行回测
-        result = run_backtest(
-            code, df,
+    console.print(f"\n[bold]正在回测 {args.code} ({strategy_names[args.strategy]}策略)...[/bold]")
+    
+    # 获取数据（统一使用 Baostock）
+    console.print("[dim]使用 Baostock 数据源...[/dim]")
+    df = get_historical_data(args.code, args.start, args.end, args.days)
+    
+    if df is None or len(df) < 100:
+        console.print(f"[red]数据不足，无法回测（需要至少100条记录）[/red]")
+        return
+    
+    console.print(f"[dim]获取到 {len(df)} 条数据[/dim]")
+    
+    # 运行回测
+    trade_stats = None
+    strategy_params = None
+    
+    if args.strategy == "target":
+        use_dynamic = not args.simple_target
+        result = run_target_price_backtest(
+            args.code, df,
+            initial_cash=args.cash,
+            profit_target=args.profit_target,
+            stop_loss=args.stop_loss,
+            score_factor=args.score_factor,
+            use_dynamic=use_dynamic
+        )
+        strategy_name = "动态目标价" if use_dynamic else "简单目标价"
+        trade_stats = result.get("trade_stats")
+        strategy_params = {
+            "formula": "基础目标价 = MA20×40% + MA60×40% + 月K低点×20%",
+            "profit_target": args.profit_target,
+            "stop_loss": args.stop_loss,
+        }
+        if use_dynamic:
+            strategy_params["dynamic_formula"] = f"动态目标价 = 基础目标价 × (1 + 评分×{args.score_factor}%)"
+            strategy_params["score_factor"] = args.score_factor
+    elif args.strategy == "grid":
+        result = run_grid_backtest(
+            args.code, df,
             initial_cash=args.cash,
             initial_shares=args.shares,
-            cost=args.cost
+            grid_step=args.grid_step
         )
-        
-        # 计算指标
-        initial_value = args.cash + args.shares * (args.cost if args.cost > 0 else float(df.iloc[60]['收盘']))
-        metrics = calculate_metrics(result["portfolio_values"], df, initial_value)
-        trade_stats = calculate_trade_stats(result["trades"])
-        
-        # 日期范围
-        start_date = df.iloc[60]['日期'].strftime("%Y-%m-%d")
-        end_date = df.iloc[-1]['日期'].strftime("%Y-%m-%d")
-        
-        # 输出报告
-        print_summary(code, metrics, trade_stats, start_date, end_date)
-        print_detail(result["trades"], result["daily_records"], args.detail)
-        
-        # 导出数据
-        if args.export:
-            export_data(code, result["trades"], result["daily_records"])
+        strategy_name = "网格交易"
+    else:
+        result = run_score_backtest(
+            args.code, df,
+            initial_cash=args.cash,
+            initial_shares=args.shares
+        )
+        strategy_name = "评分"
+    
+    # 计算指标
+    initial_value = args.cash + args.shares * float(df.iloc[60]['收盘'])
+    metrics = calculate_metrics(result["portfolio_values"], df, initial_value)
+    
+    # 日期范围
+    start_date = df.iloc[60]['日期'].strftime("%Y-%m-%d")
+    end_date = df.iloc[-1]['日期'].strftime("%Y-%m-%d")
+    
+    # 输出终端报告
+    print_summary(args.code, strategy_name, metrics, result["trades"], start_date, end_date,
+                  trade_stats=trade_stats, strategy_params=strategy_params)
+    
+    # 导出CSV数据
+    if args.export and result["trades"]:
+        filename = f"backtest_{args.code}_{args.strategy}.csv"
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=result["trades"][0].keys())
+            writer.writeheader()
+            writer.writerows(result["trades"])
+        console.print(f"[green]✅ 交易记录已导出: {filename}[/green]")
     
     console.print()
 
 
 if __name__ == "__main__":
     main()
-

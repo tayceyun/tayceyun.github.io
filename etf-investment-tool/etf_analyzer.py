@@ -3,77 +3,48 @@
 """
 ETF投资目标价格分析工具 (多维度版)
 基于 MA20 + MA60 + 月K低点 加权计算目标买入价格
+数据源：Tushare Pro
 """
 
-# 禁用 SSL 验证（解决公司网络代理问题）
-import ssl
-import os
-import urllib3
-
-ssl._create_default_https_context = ssl._create_unverified_context
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-os.environ['CURL_CA_BUNDLE'] = ''
-os.environ['REQUESTS_CA_BUNDLE'] = ''
-
-import requests
-
-# 全局禁用 SSL 验证的推荐做法：monkey patch requests.Session.__init__，让所有实例默认 verify=False
-_orig_init = requests.Session.__init__
-def _patched_init(self, *args, **kwargs):
-    _orig_init(self, *args, **kwargs)
-    self.verify = False
-requests.Session.__init__ = _patched_init
-
-import akshare as ak
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from rich import box
 
+from data_source import get_etf_daily, get_etf_realtime
+
 console = Console()
 
 # ETF配置：代码、名称、单次定投金额、溢价率阈值
-# 美股QDII因额度限制常年溢价，阈值设为4%；A股ETF套利完善，阈值设为0%
+# 美股QDII因额度限制常年溢价，阈值设为4%
 ETF_CONFIG = [
     {"code": "159941", "name": "纳指100ETF", "amount": 1000, "market": "sz", "premium_threshold": 4.0, "type": "QDII"},
     {"code": "513500", "name": "标普500ETF", "amount": 500, "market": "sh", "premium_threshold": 4.0, "type": "QDII"},
-    {"code": "510300", "name": "沪深300ETF", "amount": 500, "market": "sh", "premium_threshold": 0.0, "type": "A股"},
-    {"code": "588000", "name": "科创50ETF", "amount": 500, "market": "sh", "premium_threshold": 0.0, "type": "A股"},
 ]
 
 
 def get_etf_premium_rate(code: str) -> float:
-    """获取ETF溢价率"""
+    """获取ETF溢价率
+    
+    注意：Tushare 免费版不提供实时溢价率，暂返回0
+    """
     try:
-        # 尝试获取ETF实时行情（包含溢价率）
-        df = ak.fund_etf_spot_em()
-        if df is not None and not df.empty:
-            # 查找对应ETF
-            row = df[df['代码'] == code]
-            if not row.empty and '折价率' in row.columns:
-                # 注意：akshare返回的是折价率，需要取负值得到溢价率
-                discount_rate = float(row['折价率'].iloc[0])
-                return -discount_rate  # 折价率为正表示折价，取负得溢价率
-        return 0.0
+        realtime = get_etf_realtime(code)
+        return realtime.get("premium_rate", 0.0)
     except Exception:
-        return 0.0  # 获取失败时返回0
+        return 0.0
 
 
 def get_etf_data(code: str, market: str) -> dict:
     """获取ETF行情数据"""
     try:
         # 获取日K线数据（最近120个交易日）
-        symbol = f"{market}{code}"
-        df = ak.fund_etf_hist_em(symbol=code, period="daily", adjust="qfq")
+        df = get_etf_daily(code, days=120)
         
         if df.empty:
             return None
-        
-        # 确保数据按日期排序
-        df['日期'] = pd.to_datetime(df['日期'])
-        df = df.sort_values('日期').tail(120)
         
         # 当前价格
         current_price = float(df['收盘'].iloc[-1])
@@ -92,12 +63,8 @@ def get_etf_data(code: str, market: str) -> dict:
             rs = gain / loss
             rsi = 100 - (100 / (1 + rs))
         
-        # 获取月K线数据，计算近3个月最低点
-        df_monthly = ak.fund_etf_hist_em(symbol=code, period="monthly", adjust="qfq")
-        if not df_monthly.empty:
-            monthly_low = float(df_monthly['最低'].tail(3).min())
-        else:
-            monthly_low = float(df['最低'].tail(60).min())
+        # 近3个月最低点（约60个交易日）
+        monthly_low = float(df['最低'].tail(60).min())
         
         # 计算月涨跌幅
         price_20_days_ago = float(df['收盘'].iloc[-21]) if len(df) > 20 else current_price
@@ -231,11 +198,11 @@ def calculate_target_price(data: dict, premium_threshold: float = 0.0) -> dict:
     }
 
 
-def analyze_all_etfs():
-    """分析所有ETF并输出结果"""
+def analyze_all_etfs() -> list:
+    """分析所有ETF并返回结果"""
     console.print()
     console.print(Panel.fit(
-        f"[bold cyan]ETF投资目标价格分析 (多维度版)[/bold cyan]\n"
+        f"[bold cyan]ETF投资目标价格分析 (定投版)[/bold cyan]\n"
         f"[dim]分析时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/dim]",
         border_style="cyan"
     ))
@@ -262,6 +229,7 @@ def analyze_all_etfs():
     
     total_amount = 0
     buy_signals = []
+    results = []
     
     for etf in ETF_CONFIG:
         console.print(f"[dim]正在获取 {etf['name']} 数据...[/dim]")
@@ -317,6 +285,18 @@ def analyze_all_etfs():
                 f"{result['target_price']:.3f}",
                 f"{advice_style}{result['advice']}[/]",
             )
+            
+            # 收集结果用于 HTML 报告
+            actual_amount = etf["amount"] if "正常买入" in result["advice"] or "强烈买入" in result["advice"] else (etf["amount"] // 2 if "减半买入" in result["advice"] else 0)
+            results.append({
+                "name": etf["name"],
+                "code": etf["code"],
+                "current_price": data["current_price"],
+                "target_price": result["target_price"],
+                "premium_rate": premium_rate,
+                "advice": result["advice"],
+                "amount": actual_amount
+            })
         else:
             table.add_row(
                 etf["name"],
@@ -356,18 +336,21 @@ def analyze_all_etfs():
         "折扣率: RSI<30→2%, RSI<50→4%, RSI≥50→6%\n"
         "均线/底部加成: 每满足一项减1%折扣\n"
         "溢价率调整: 超过阈值部分×0.5%加入折扣\n"
-        "  └ 阈值: 美股QDII=4%, A股ETF=0%[/dim]",
+        "  └ 阈值: 美股QDII=4%[/dim]",
         title="[dim]算法说明[/dim]",
         border_style="dim",
     ))
+    
+    return results
 
 
 def main():
     """主函数"""
     try:
-        analyze_all_etfs()
+        return analyze_all_etfs()
     except KeyboardInterrupt:
         console.print("\n[yellow]已取消分析[/yellow]")
+        return []
     except Exception as e:
         console.print(f"\n[red]分析出错: {e}[/red]")
         raise
@@ -375,4 +358,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

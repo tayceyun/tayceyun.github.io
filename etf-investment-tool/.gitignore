@@ -1,0 +1,26 @@
+# 虚拟环境
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# 数据文件（包含持仓信息）
+data/*.json
+!data/.gitkeep
+
+# 生成的报告
+output/*.html
+!output/.gitkeep
+
+# 历史行情数据（太大，不提交）
+# market_data/daily/
+# market_data/5min/
+# market_data/download_log.json
+# !market_data/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+
