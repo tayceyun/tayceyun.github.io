@@ -1,0 +1,658 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年A股6124-5178压力线突破技术分析报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #FFFFFF;
+        }
+        .card {
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 1.25rem; /* 20px */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+            position: relative;
+        }
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        .highlight-gradient-blue {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0), rgba(59, 130, 246, 0.05));
+        }
+        .highlight-gradient-green {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0), rgba(16, 185, 129, 0.05));
+        }
+        .highlight-gradient-purple {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0), rgba(139, 92, 246, 0.05));
+        }
+        .highlight-gradient-orange {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0), rgba(249, 115, 22, 0.05));
+        }
+        .highlight-gradient-red {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0), rgba(239, 68, 68, 0.05));
+        }
+        .grid-dot {
+            background-image: radial-gradient(#E5E7EB 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
+            <!-- 标题卡片 -->
+            <div class="card md:col-span-4 p-8 flex flex-col justify-center relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="text-sm font-semibold text-blue-600 mb-2">TECHNICAL ANALYSIS REPORT</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">2025年A股6124-5178压力线突破技术分析报告</h1>
+                    <div class="flex items-center space-x-4 text-gray-500">
+                        <div class="flex items-center"><i class="fa-solid fa-calendar mr-2"></i>2025年12月31日</div>
+                        <div class="flex items-center"><i class="fa-solid fa-chart-line mr-2"></i>上证指数 3968.84点</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关键结论卡片 -->
+            <div class="card md:col-span-2 p-6 flex flex-col justify-center relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-green"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-bullseye text-2xl text-green-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">关键结论</h2>
+                    </div>
+                    <p class="text-gray-700 mb-4">上证指数以3968.84点收盘，<span class="font-bold text-green-600">突破6124-5178压力线(3882.78点)</span>，创近18年新高，实现历史性突破。</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <div class="flex items-center mr-4"><i class="fa-solid fa-arrow-up text-green-500 mr-1"></i>突破幅度: +2.216%</div>
+                        <div class="flex items-center"><i class="fa-solid fa-clock text-green-500 mr-1"></i>11连阳收官</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 年度表现卡片 -->
+            <div class="card p-6 flex flex-col justify-center items-center text-center relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-purple"></div>
+                <div class="relative">
+                    <div class="text-5xl font-bold text-purple-600 mb-2">+18.41%</div>
+                    <div class="text-gray-700 font-semibold">2025年年度涨幅</div>
+                    <div class="text-sm text-gray-500 mt-2">创2020年以来最佳年度表现</div>
+                </div>
+            </div>
+
+            <!-- 突破意义卡片 -->
+            <div class="card p-6 flex flex-col justify-center items-center text-center relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-orange"></div>
+                <div class="relative">
+                    <div class="text-5xl font-bold text-orange-600 mb-2">18年</div>
+                    <div class="text-gray-700 font-semibold">历史性突破</div>
+                    <div class="text-sm text-gray-500 mt-2">突破2007年以来长期下降趋势</div>
+                </div>
+            </div>
+
+            <!-- 6124-5178压力线图表 -->
+            <div class="card md:col-span-4 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-trending-down text-2xl text-blue-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">6124-5178压力线与上证指数走势</h2>
+                    </div>
+                    <div class="w-full h-80">
+                        <canvas id="pressureLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 技术分析框架 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-ruler-combined text-2xl text-blue-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">技术分析框架</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-3 flex-shrink-0"></div>
+                            <div>
+                                <div class="font-semibold text-gray-900">压力线数学定义</div>
+                                <div class="text-sm text-gray-600">连接2007年10月6124.04点与2015年6月5178.18点的下降趋势线</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-3 flex-shrink-0"></div>
+                            <div>
+                                <div class="font-semibold text-gray-900">斜率计算</div>
+                                <div class="text-sm text-gray-600">每月下降约-10.281点，斜率=-10.2809783</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-3 flex-shrink-0"></div>
+                            <div>
+                                <div class="font-semibold text-gray-900">2025年12月压力线位置</div>
+                                <div class="text-sm text-gray-600">3882.78点(精确计算结果)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 市场共识与分歧 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-purple"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-comments text-2xl text-purple-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">市场共识与分歧</h2>
+                    </div>
+                    <div class="w-full h-64">
+                        <canvas id="marketConsensusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日线级别分析 -->
+            <div class="card p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-green"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-calendar-day text-xl text-green-600 mr-3"></i>
+                        <h3 class="text-lg font-bold text-gray-900">日线级别</h3>
+                    </div>
+                    <div class="text-4xl font-bold text-green-600 mb-2">11连阳</div>
+                    <div class="text-sm text-gray-600 mb-4">从3824点上涨至3968.84点，累计涨幅3.77%</div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">MACD</span>
+                            <span class="font-semibold text-green-600">金叉</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">RSI</span>
+                            <span class="font-semibold text-yellow-600">78(超买)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">成交量</span>
+                            <span class="font-semibold text-green-600">8295亿</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 周线级别分析 -->
+            <div class="card p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-calendar-week text-xl text-blue-600 mr-3"></i>
+                        <h3 class="text-lg font-bold text-gray-900">周线级别</h3>
+                    </div>
+                    <div class="text-4xl font-bold text-blue-600 mb-2">二连阳</div>
+                    <div class="text-sm text-gray-600 mb-4">周涨幅1.88%，收出放量大阳线</div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">均线系统</span>
+                            <span class="font-semibold text-blue-600">5周、10周向上</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">KDJ</span>
+                            <span class="font-semibold text-blue-600">向好</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">突破位置</span>
+                            <span class="font-semibold text-blue-600">3960+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 月线级别分析 -->
+            <div class="card p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-purple"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-calendar-month text-xl text-purple-600 mr-3"></i>
+                        <h3 class="text-lg font-bold text-gray-900">月线级别</h3>
+                    </div>
+                    <div class="text-4xl font-bold text-purple-600 mb-2">+2.06%</div>
+                    <div class="text-sm text-gray-600 mb-4">锤头阳线，阳包阴形态</div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">月MA5</span>
+                            <span class="font-semibold text-purple-600">站稳</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">MACD</span>
+                            <span class="font-semibold text-purple-600">零轴上金叉</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">红柱长度</span>
+                            <span class="font-semibold text-purple-600">5.2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 年线级别分析 -->
+            <div class="card p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-orange"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-calendar-check text-xl text-orange-600 mr-3"></i>
+                        <h3 class="text-lg font-bold text-gray-900">年线级别</h3>
+                    </div>
+                    <div class="text-4xl font-bold text-orange-600 mb-2">+18.41%</div>
+                    <div class="text-sm text-gray-600 mb-4">连续两年收阳，创18年新高</div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">市盈率</span>
+                            <span class="font-semibold text-orange-600">17.23</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">市净率</span>
+                            <span class="font-semibold text-orange-600">1.50</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">成交金额</span>
+                            <span class="font-semibold text-orange-600">172万亿</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 突破有效性评估 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-green"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-shield-halved text-2xl text-green-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">突破有效性评估</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-percent text-green-500 mr-2"></i>
+                                <span class="text-gray-700">3%法则验证</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full mr-2">
+                                    <div class="w-14 h-2 bg-yellow-500 rounded-full"></div>
+                                </div>
+                                <span class="text-sm font-semibold text-yellow-600">2.216%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-chart-pie text-green-500 mr-2"></i>
+                                <span class="text-gray-700">成交量配合</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full mr-2">
+                                    <div class="w-16 h-2 bg-green-500 rounded-full"></div>
+                                </div>
+                                <span class="text-sm font-semibold text-green-600">良好</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-clock text-green-500 mr-2"></i>
+                                <span class="text-gray-700">三日原则</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full mr-2">
+                                    <div class="w-6 h-2 bg-blue-500 rounded-full"></div>
+                                </div>
+                                <span class="text-sm font-semibold text-blue-600">待验证</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-cogs text-green-500 mr-2"></i>
+                                <span class="text-gray-700">技术指标确认</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full mr-2">
+                                    <div class="w-18 h-2 bg-green-500 rounded-full"></div>
+                                </div>
+                                <span class="text-sm font-semibold text-green-600">支持</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史对比分析 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-purple"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-history text-2xl text-purple-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">历史突破案例对比</h2>
+                    </div>
+                    <div class="w-full h-64">
+                        <canvas id="historicalComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2026年市场展望 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-binoculars text-2xl text-blue-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">2026年市场展望</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">3700-4500</div>
+                            <div class="text-sm text-gray-600">核心运行区间</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">10-15%</div>
+                            <div class="text-sm text-gray-600">年度涨幅预期</div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-circle-check text-blue-500 mt-1 mr-2"></i>
+                            <div class="text-sm text-gray-700">上半年修整蓄力，下半年突破上行</div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-circle-check text-blue-500 mt-1 mr-2"></i>
+                            <div class="text-sm text-gray-700">从"结构性牛市"向"全面牛初期"过渡</div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-circle-check text-blue-500 mt-1 mr-2"></i>
+                            <div class="text-sm text-gray-700">小票与权重股轮动上行</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 投资策略建议 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-green"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-lightbulb text-2xl text-green-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">投资策略建议</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="font-semibold text-gray-900 mb-2">总体策略</div>
+                            <div class="text-sm text-gray-700">保持7-8成仓位，均衡配置科技成长与价值蓝筹</div>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-900 mb-2">重点关注板块</div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">人工智能</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">半导体</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">新能源</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">大金融</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">大消费</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-900 mb-2">关键点位</div>
+                            <div class="flex justify-between text-sm">
+                                <div>
+                                    <div class="text-gray-500">支撑位</div>
+                                    <div class="text-gray-900">3900 → 3800 → 3700</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500">压力位</div>
+                                    <div class="text-gray-900">4000 → 4153 → 4485</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 风险因素 -->
+            <div class="card md:col-span-4 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-red"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-triangle-exclamation text-2xl text-red-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">风险因素与提示</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-3">技术面风险</h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li class="flex items-start"><i class="fa-solid fa-circle-minus text-red-500 mt-1 mr-2"></i>日线RSI达到78，短期超买压力</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-minus text-red-500 mt-1 mr-2"></i>连续上涨积累大量获利盘，面临回吐压力</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-minus text-red-500 mt-1 mr-2"></i>突破有效性需2026年1月进一步确认</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-3">外部环境风险</h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li class="flex items-start"><i class="fa-solid fa-circle-minus text-red-500 mt-1 mr-2"></i>美联储政策变化与美元波动</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-minus text-red-500 mt-1 mr-2"></i>地缘政治冲突与贸易摩擦</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-minus text-red-500 mt-1 mr-2"></i>全球经济复苏不及预期</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    // 6124-5178压力线与上证指数走势图
+    const pressureLineCtx = document.getElementById('pressureLineChart').getContext('2d');
+    new Chart(pressureLineCtx, {
+        type: 'line',
+        data: {
+            labels: ['2007年10月', '2010年', '2015年6月', '2018年', '2021年', '2024年', '2025年12月'],
+            datasets: [
+                {
+                    label: '上证指数',
+                    data: [6124.04, 3277.14, 5178.18, 2493.90, 3639.78, 3351.72, 3968.84],
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.2,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#3B82F6'
+                },
+                {
+                    label: '6124-5178压力线',
+                    data: [6124.04, 5797.91, 5178.18, 4852.05, 4525.92, 4199.79, 3882.78],
+                    borderColor: '#EF4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#EF4444'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
+
+    // 市场共识与分歧图表
+    const marketConsensusCtx = document.getElementById('marketConsensusChart').getContext('2d');
+    new Chart(marketConsensusCtx, {
+        type: 'bar',
+        data: {
+            labels: ['3882.78点', '3937.40点', '3970点', '4000点', '4100点'],
+            datasets: [{
+                label: '市场观点分布',
+                data: [25, 20, 35, 15, 5],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(16, 185, 129, 0.7)',
+                    'rgba(139, 92, 246, 0.7)',
+                    'rgba(249, 115, 22, 0.7)',
+                    'rgba(239, 68, 68, 0.7)'
+                ],
+                borderColor: [
+                    '#3B82F6',
+                    '#10B981',
+                    '#8B5CF6',
+                    '#F97316',
+                    '#EF4444'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + '%';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 40,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // 历史突破案例对比图表
+    const historicalComparisonCtx = document.getElementById('historicalComparisonChart').getContext('2d');
+    new Chart(historicalComparisonCtx, {
+        type: 'line',
+        data: {
+            labels: ['突破前1个月', '突破当月', '突破后1个月', '突破后3个月', '突破后6个月', '突破后12个月'],
+            datasets: [
+                {
+                    label: '2005年998点突破',
+                    data: [100, 103, 115, 140, 180, 250],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.2
+                },
+                {
+                    label: '2006年2245点突破',
+                    data: [100, 102, 108, 125, 150, 170],
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.2
+                },
+                {
+                    label: '2025年6124-5178线突破',
+                    data: [100, 102.2, null, null, null, null],
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.2,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#8B5CF6'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + '%';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 95,
+                    max: 260,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+</script>
+</html>
