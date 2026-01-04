@@ -19,6 +19,30 @@ def ensure_output_dir():
     OUTPUT_DIR.mkdir(exist_ok=True)
 
 
+def cleanup_old_reports(pattern: str = "report_*.html", keep_latest: int = 1):
+    """
+    清理旧报告，只保留最新的 N 个
+    
+    Args:
+        pattern: 文件匹配模式
+        keep_latest: 保留最新的报告数量，默认1
+    """
+    if not OUTPUT_DIR.exists():
+        return
+    
+    # 获取匹配的文件并按修改时间排序（最新在前）
+    files = list(OUTPUT_DIR.glob(pattern))
+    files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+    
+    # 删除旧文件，只保留最新的 keep_latest 个
+    for old_file in files[keep_latest:]:
+        try:
+            old_file.unlink()
+            print(f"[清理] 已删除旧报告: {old_file.name}")
+        except Exception as e:
+            print(f"[警告] 删除旧报告失败: {old_file.name} - {e}")
+
+
 def generate_html_report(etf_results: List[Dict], stock_results: List[Dict]) -> str:
     """生成 HTML 报告
     
@@ -294,6 +318,9 @@ def generate_html_report(etf_results: List[Dict], stock_results: List[Dict]) -> 
     filepath = OUTPUT_DIR / filename
     with open(filepath, 'w', encoding='utf-8') as f:
         f.write(html_content)
+    
+    # 清理旧报告，只保留最新的1个
+    cleanup_old_reports("report_*.html", keep_latest=1)
     
     return str(filepath)
 

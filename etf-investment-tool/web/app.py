@@ -46,6 +46,42 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # 配置目录
 CONFIG_DIR = PROJECT_ROOT / "config"
 
+
+def cleanup_old_reports(report_type: str, keep_latest: int = 1, index_code: str = None):
+    """
+    清理旧报告，只保留最新的 N 个
+    
+    Args:
+        report_type: 报告类型 ("market", "index", "stock", "report")
+        keep_latest: 保留最新的报告数量，默认1
+        index_code: 对于 index 类型，指定指数代码
+    """
+    if not OUTPUT_DIR.exists():
+        return
+    
+    if report_type == "market":
+        pattern = "market_*.html"
+    elif report_type == "index":
+        if index_code:
+            pattern = f"index_{index_code}_*.html"
+        else:
+            pattern = "index_*.html"
+    elif report_type == "stock":
+        pattern = "stock_*.html"
+    elif report_type == "report":
+        pattern = "report_*.html"
+    else:
+        return
+    
+    files = list(OUTPUT_DIR.glob(pattern))
+    files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+    
+    for old_file in files[keep_latest:]:
+        try:
+            old_file.unlink()
+        except Exception:
+            pass
+
 # 静态文件目录
 STATIC_DIR = Path(__file__).parent / "static"
 STATIC_DIR.mkdir(exist_ok=True)
@@ -191,6 +227,9 @@ if FASTAPI_AVAILABLE:
                 
                 with open(report_file, 'w', encoding='utf-8') as f:
                     f.write(html_content)
+                
+                # 清理该指数的旧报告，只保留最新的1个
+                cleanup_old_reports("index", keep_latest=1, index_code=request.index_code)
                 
                 report_path = str(report_file)
             

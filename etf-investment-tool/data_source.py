@@ -165,14 +165,19 @@ def get_index_daily(code: str = "000001", days: int = 60) -> pd.DataFrame:
         DataFrame with columns: 日期, 开盘, 最高, 最低, 收盘, 成交量
     """
     # Baostock 指数代码格式
-    if code == "000001":
-        bs_code = "sh.000001"  # 上证指数
-    elif code == "399001":
-        bs_code = "sz.399001"  # 深证成指
-    elif code == "000300":
-        bs_code = "sh.000300"  # 沪深300
-    else:
+    # 上交所指数
+    SH_INDICES = ["000001", "000300", "000016", "000905", "000852", "000688"]
+    # 深交所指数
+    SZ_INDICES = ["399001", "399006", "399303"]
+    
+    if code in SH_INDICES:
         bs_code = f"sh.{code}"
+    elif code in SZ_INDICES:
+        bs_code = f"sz.{code}"
+    elif code.startswith("39"):
+        bs_code = f"sz.{code}"  # 以39开头的是深交所指数
+    else:
+        bs_code = f"sh.{code}"  # 默认为上交所
     
     # 登录 baostock
     lg = bs.login()

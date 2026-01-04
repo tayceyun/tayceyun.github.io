@@ -42,6 +42,31 @@ class RSIResult:
 
 
 @dataclass
+class MultiPeriodRSI:
+    """多周期 RSI 结果"""
+    rsi6: float          # RSI(6) - 短周期
+    rsi12: float         # RSI(12) - 中周期
+    rsi24: float         # RSI(24) - 长周期
+    status: str          # 综合状态 'overbought' / 'oversold' / 'normal'
+    divergence: str      # 背离情况 'bull_divergence' / 'bear_divergence' / 'none'
+    signal: SignalType
+
+
+@dataclass
+class BullBearLine:
+    """牛熊分界线结果"""
+    ma60: float          # 60日均线（季线）
+    ma250: float         # 250日均线（年线）
+    ma30w: float         # 30周均线（约150日）
+    price: float         # 当前价格
+    above_ma60: bool     # 是否站上60日线
+    above_ma250: bool    # 是否站上年线
+    above_ma30w: bool    # 是否站上30周线
+    bull_bear_status: str  # 'strong_bull' / 'bull' / 'neutral' / 'bear' / 'strong_bear'
+    signal: SignalType
+
+
+@dataclass
 class MAResult:
     """均线系统计算结果"""
     ma5: float
@@ -84,6 +109,9 @@ class TechIndicatorsSummary:
     kline: KLinePattern
     overall_signal: SignalType
     signal_score: int        # 综合评分 -10 到 +10
+    # 新增指标
+    multi_rsi: MultiPeriodRSI = None      # 多周期RSI (6/12/24)
+    bull_bear: BullBearLine = None        # 牛熊分界线
 
 
 class TechIndicators:
@@ -109,12 +137,14 @@ class TechIndicators:
         """
         self.params = {**self.DEFAULT_PARAMS, **(params or {})}
     
-    def calculate_all(self, df: pd.DataFrame, price_col: str = '收盘') -> TechIndicatorsSummary:
+    def calculate_all(self, df: pd.DataFrame, price_col: str = '收盘',
+                       weekly_df: pd.DataFrame = None) -> TechIndicatorsSummary:
         """计算所有技术指标
         
         Args:
             df: K线数据 DataFrame，需包含 '开盘', '最高', '最低', '收盘' 列
             price_col: 收盘价列名
+            weekly_df: 周线数据（可选，用于计算30周均线）
         
         Returns:
             TechIndicatorsSummary: 综合指标结果
@@ -128,8 +158,25 @@ class TechIndicators:
         bollinger = self.calculate_bollinger(df, price_col)
         kline = self.analyze_kline_pattern(df)
         
+        # 新增：多周期RSI和牛熊分界线
+        multi_rsi = self.calculate_multi_period_rsi(df, price_col)
+        bull_bear = self.calculate_bull_bear_line(df, weekly_df, price_col)
+        
         # 计算综合评分
         signal_score = self._calculate_signal_score(macd, rsi, ma, bollinger, kline)
+        
+        # 加入牛熊分界线对评分的影响
+        if bull_bear.bull_bear_status == 'strong_bull':
+            signal_score += 2
+        elif bull_bear.bull_bear_status == 'bull':
+            signal_score += 1
+        elif bull_bear.bull_bear_status == 'bear':
+            signal_score -= 1
+        elif bull_bear.bull_bear_status == 'strong_bear':
+            signal_score -= 2
+        
+        # 限制评分范围
+        signal_score = max(-10, min(10, signal_score))
         
         # 确定整体信号
         if signal_score >= 3:
@@ -146,7 +193,9 @@ class TechIndicators:
             bollinger=bollinger,
             kline=kline,
             overall_signal=overall_signal,
-            signal_score=signal_score
+            signal_score=signal_score,
+            multi_rsi=multi_rsi,
+            bull_bear=bull_bear
         )
     
     def calculate_macd(self, df: pd.DataFrame, price_col: str = '收盘') -> MACDResult:
@@ -280,6 +329,138 @@ class TechIndicators:
         return RSIResult(
             value=round(current_rsi, 2),
             status=status,
+            signal=signal
+        )
+    
+    def calculate_multi_period_rsi(self, df: pd.DataFrame, price_col: str = '收盘') -> MultiPeriodRSI:
+        """计算多周期 RSI (6/12/24)
+        
+        Args:
+            df: K线数据
+            price_col: 价格列名
+        
+        Returns:
+            MultiPeriodRSI: 多周期RSI结果
+        """
+        close = df[price_col].astype(float)
+        
+        def calc_rsi(period: int) -> float:
+            delta = close.diff()
+            gain = delta.where(delta > 0, 0)
+            loss = (-delta).where(delta < 0, 0)
+            avg_gain = gain.rolling(window=period, min_periods=period).mean()
+            avg_loss = loss.rolling(window=period, min_periods=period).mean()
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
+            return round(float(rsi.iloc[-1]), 2) if pd.notna(rsi.iloc[-1]) else 50.0
+        
+        rsi6 = calc_rsi(6)
+        rsi12 = calc_rsi(12)
+        rsi24 = calc_rsi(24)
+        
+        # 综合状态判断（以RSI6为主，RSI12/24确认）
+        if rsi6 >= 80 and rsi12 >= 70:
+            status = 'overbought'
+            signal = SignalType.BEAR
+        elif rsi6 <= 20 and rsi12 <= 30:
+            status = 'oversold'
+            signal = SignalType.BULL
+        elif rsi6 >= 70:
+            status = 'overbought'
+            signal = SignalType.NEUTRAL
+        elif rsi6 <= 30:
+            status = 'oversold'
+            signal = SignalType.NEUTRAL
+        else:
+            status = 'normal'
+            signal = SignalType.NEUTRAL
+        
+        # 背离判断（简化版：比较价格高低点与RSI高低点）
+        divergence = 'none'
+        # TODO: 可以增加更复杂的背离判断逻辑
+        
+        return MultiPeriodRSI(
+            rsi6=rsi6,
+            rsi12=rsi12,
+            rsi24=rsi24,
+            status=status,
+            divergence=divergence,
+            signal=signal
+        )
+    
+    def calculate_bull_bear_line(self, df: pd.DataFrame, 
+                                  weekly_df: pd.DataFrame = None,
+                                  price_col: str = '收盘') -> BullBearLine:
+        """计算牛熊分界线
+        
+        基于三条均线综合判断：
+        - MA250（年线）：长期趋势
+        - MA60（季线）：中期趋势
+        - 30周均线（约150日）：周线视角
+        
+        Args:
+            df: 日线K线数据
+            weekly_df: 周线K线数据（可选，用于计算30周均线）
+            price_col: 价格列名
+        
+        Returns:
+            BullBearLine: 牛熊分界线结果
+        """
+        close = df[price_col].astype(float)
+        current_price = float(close.iloc[-1])
+        
+        # 计算日线均线
+        ma60 = float(close.tail(60).mean()) if len(close) >= 60 else current_price
+        ma250 = float(close.tail(250).mean()) if len(close) >= 250 else ma60
+        
+        # 计算30周均线（约150个交易日）
+        if weekly_df is not None and len(weekly_df) >= 30:
+            weekly_close = weekly_df[price_col].astype(float)
+            ma30w = float(weekly_close.tail(30).mean())
+        else:
+            # 如果没有周线数据，用150日均线近似
+            ma30w = float(close.tail(150).mean()) if len(close) >= 150 else ma60
+        
+        # 判断价格与各均线的关系
+        above_ma60 = current_price > ma60
+        above_ma250 = current_price > ma250
+        above_ma30w = current_price > ma30w
+        
+        # 综合判断牛熊状态
+        above_count = sum([above_ma60, above_ma250, above_ma30w])
+        
+        if above_count == 3:
+            # 站上所有均线
+            if current_price > ma60 * 1.05:  # 超过MA60 5%以上
+                bull_bear_status = 'strong_bull'
+                signal = SignalType.BULL
+            else:
+                bull_bear_status = 'bull'
+                signal = SignalType.BULL
+        elif above_count == 2:
+            bull_bear_status = 'neutral'
+            signal = SignalType.NEUTRAL
+        elif above_count == 1:
+            bull_bear_status = 'bear'
+            signal = SignalType.BEAR
+        else:
+            # 跌破所有均线
+            if current_price < ma60 * 0.95:  # 低于MA60 5%以上
+                bull_bear_status = 'strong_bear'
+                signal = SignalType.BEAR
+            else:
+                bull_bear_status = 'bear'
+                signal = SignalType.BEAR
+        
+        return BullBearLine(
+            ma60=round(ma60, 2),
+            ma250=round(ma250, 2),
+            ma30w=round(ma30w, 2),
+            price=round(current_price, 2),
+            above_ma60=above_ma60,
+            above_ma250=above_ma250,
+            above_ma30w=above_ma30w,
+            bull_bear_status=bull_bear_status,
             signal=signal
         )
     

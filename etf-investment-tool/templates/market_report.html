@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市场综合分析报告 - {{ analysis_time[:10] }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            /* A股习惯：红涨绿跌 */
+            --bull-color: #EF4444;   /* 红色 - 上涨 */
+            --bear-color: #10B981;   /* 绿色 - 下跌 */
+            --neutral-color: #6B7280;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .signal-bull { color: var(--bull-color); }
+        .signal-bear { color: var(--bear-color); }
+        .signal-neutral { color: var(--neutral-color); }
+        .bg-bull { background-color: rgba(16, 185, 129, 0.1); }
+        .bg-bear { background-color: rgba(239, 68, 68, 0.1); }
+        .bg-neutral { background-color: rgba(107, 114, 128, 0.1); }
+        .category-large { border-left: 4px solid #3B82F6; }
+        .category-mid { border-left: 4px solid #8B5CF6; }
+        .category-small { border-left: 4px solid #F59E0B; }
+        .category-growth { border-left: 4px solid #10B981; }
+        .gauge-container {
+            width: 120px;
+            height: 60px;
+            position: relative;
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- 标题 -->
+        <div class="card p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                        <i class="fa-solid fa-chart-line text-blue-600 mr-3"></i>
+                        市场综合分析报告
+                    </h1>
+                    <p class="text-gray-500">
+                        <i class="fa-solid fa-clock mr-2"></i>{{ analysis_time }}
+                    </p>
+                </div>
+                <div class="mt-4 md:mt-0 flex items-center space-x-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold {% if market_score >= 3 %}signal-bull{% elif market_score <= -3 %}signal-bear{% else %}signal-neutral{% endif %}">
+                            {{ market_score }}
+                        </div>
+                        <div class="text-sm text-gray-500">综合评分</div>
+                    </div>
+                    <div class="text-center px-4 py-2 rounded-lg {% if market_score >= 3 %}bg-bull{% elif market_score <= -3 %}bg-bear{% else %}bg-neutral{% endif %}">
+                        <div class="text-xl font-bold">{{ market_signal }}</div>
+                        <div class="text-sm text-gray-600">市场状态</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 轮动信号 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- 市值轮动 -->
+            <div class="card p-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">
+                    <i class="fa-solid fa-arrows-rotate text-purple-600 mr-2"></i>
+                    市值轮动信号
+                </h2>
+                <div class="text-2xl font-bold mb-2 {% if '买小' in rotation.size_signal %}signal-bull{% elif '买大' in rotation.size_signal %}signal-neutral{% else %}signal-neutral{% endif %}">
+                    {{ rotation.size_signal }}
+                </div>
+                <p class="text-gray-600 text-sm mb-4">{{ rotation.size_desc }}</p>
+                {% if rotation.size_buy %}
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <span class="text-sm text-gray-500">买入:</span>
+                    {% for idx in rotation.size_buy %}
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-sm">{{ idx }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if rotation.size_sell %}
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-sm text-gray-500">卖出:</span>
+                    {% for idx in rotation.size_sell %}
+                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-sm">{{ idx }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- 风格轮动 -->
+            <div class="card p-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">
+                    <i class="fa-solid fa-shuffle text-orange-600 mr-2"></i>
+                    风格轮动信号
+                </h2>
+                <div class="text-2xl font-bold mb-2 {% if '成长' in rotation.style_signal %}signal-bull{% elif '价值' in rotation.style_signal %}signal-neutral{% else %}signal-neutral{% endif %}">
+                    {{ rotation.style_signal }}
+                </div>
+                <p class="text-gray-600 text-sm mb-4">{{ rotation.style_desc }}</p>
+                {% if rotation.style_buy %}
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <span class="text-sm text-gray-500">买入:</span>
+                    {% for idx in rotation.style_buy %}
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-sm">{{ idx }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if rotation.style_sell %}
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-sm text-gray-500">卖出:</span>
+                    {% for idx in rotation.style_sell %}
+                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-sm">{{ idx }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 建议配置 -->
+        <div class="card p-6 mb-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">
+                <i class="fa-solid fa-pie-chart text-blue-600 mr-2"></i>
+                建议配置比例
+            </h2>
+            <div class="grid grid-cols-5 gap-4">
+                {% for name, ratio in rotation.allocation.items() %}
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-2 rounded-full flex items-center justify-center
+                        {% if name == '大盘' %}bg-blue-100 text-blue-700
+                        {% elif name == '中盘' %}bg-purple-100 text-purple-700
+                        {% elif name == '小盘' %}bg-yellow-100 text-yellow-700
+                        {% elif name == '成长' %}bg-green-100 text-green-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        <span class="text-xl font-bold">{{ (ratio * 100)|int }}%</span>
+                    </div>
+                    <div class="text-sm font-medium text-gray-700">{{ name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                <i class="fa-solid fa-lightbulb text-blue-600 mr-2"></i>
+                <span class="text-blue-800 font-medium">{{ position_suggestion }}</span>
+            </div>
+        </div>
+
+        <!-- 宏观数据 -->
+        <div class="card p-6 mb-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">
+                <i class="fa-solid fa-globe text-cyan-600 mr-2"></i>
+                宏观数据
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900">{{ macro.bond_yield_10y }}%</div>
+                    <div class="text-sm text-gray-500">10Y国债收益率</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold {% if macro.pmi > 50 %}signal-bull{% else %}signal-bear{% endif %}">{{ macro.pmi }}</div>
+                    <div class="text-sm text-gray-500">制造业PMI</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold {% if macro.north_money_5d > 0 %}signal-bull{% else %}signal-bear{% endif %}">
+                        {{ macro.north_money_5d|round(0)|int }}亿
+                    </div>
+                    <div class="text-sm text-gray-500">北向资金5日</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold {% if macro.north_money_today > 0 %}signal-bull{% else %}signal-bear{% endif %}">
+                        {{ macro.north_money_today|round(0)|int }}亿
+                    </div>
+                    <div class="text-sm text-gray-500">北向资金今日</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8个核心指数 -->
+        <div class="card p-6 mb-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">
+                <i class="fa-solid fa-list-check text-indigo-600 mr-2"></i>
+                8个核心指数分析
+            </h2>
+            
+            <!-- 按分类分组 -->
+            {% set categories = {'大盘': [], '中盘': [], '小盘': [], '成长': []} %}
+            {% for code, idx in indices.items() %}
+                {% if idx.category == '大盘' %}
+                    {% set _ = categories['大盘'].append(idx) %}
+                {% elif idx.category == '中盘' %}
+                    {% set _ = categories['中盘'].append(idx) %}
+                {% elif idx.category == '小盘' %}
+                    {% set _ = categories['小盘'].append(idx) %}
+                {% elif idx.category == '成长' %}
+                    {% set _ = categories['成长'].append(idx) %}
+                {% endif %}
+            {% endfor %}
+
+            <div class="space-y-6">
+                {% for cat_name, cat_indices in [('大盘', indices.values()|selectattr('category', 'equalto', '大盘')|list), 
+                                                   ('中盘', indices.values()|selectattr('category', 'equalto', '中盘')|list),
+                                                   ('小盘', indices.values()|selectattr('category', 'equalto', '小盘')|list),
+                                                   ('成长', indices.values()|selectattr('category', 'equalto', '成长')|list)] %}
+                {% if cat_indices %}
+                <div>
+                    <h3 class="text-md font-semibold text-gray-700 mb-3 flex items-center">
+                        <span class="w-3 h-3 rounded-full mr-2
+                            {% if cat_name == '大盘' %}bg-blue-500
+                            {% elif cat_name == '中盘' %}bg-purple-500
+                            {% elif cat_name == '小盘' %}bg-yellow-500
+                            {% else %}bg-green-500{% endif %}"></span>
+                        {{ cat_name }}板块
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-{% if cat_indices|length == 1 %}1{% elif cat_indices|length == 2 %}2{% else %}3{% endif %} gap-4">
+                        {% for idx in cat_indices %}
+                        <div class="p-4 border rounded-lg 
+                            {% if cat_name == '大盘' %}category-large
+                            {% elif cat_name == '中盘' %}category-mid
+                            {% elif cat_name == '小盘' %}category-small
+                            {% else %}category-growth{% endif %}">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <div class="font-bold text-gray-900">{{ idx.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ idx.code }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold">{{ idx.current_price }}</div>
+                                    <div class="text-sm {% if idx.change_1d >= 0 %}signal-bull{% else %}signal-bear{% endif %}">
+                                        {{ idx.change_1d }}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 涨跌幅 (A股：红涨绿跌) -->
+                            <div class="grid grid-cols-3 gap-2 mb-3 text-center text-sm">
+                                <div class="{% if idx.change_5d >= 0 %}bg-red-50{% else %}bg-green-50{% endif %} rounded p-1">
+                                    <div class="{% if idx.change_5d >= 0 %}text-red-700{% else %}text-green-700{% endif %} font-medium">{{ idx.change_5d }}%</div>
+                                    <div class="text-gray-500 text-xs">5日</div>
+                                </div>
+                                <div class="{% if idx.change_10d >= 0 %}bg-red-50{% else %}bg-green-50{% endif %} rounded p-1">
+                                    <div class="{% if idx.change_10d >= 0 %}text-red-700{% else %}text-green-700{% endif %} font-medium">{{ idx.change_10d }}%</div>
+                                    <div class="text-gray-500 text-xs">10日</div>
+                                </div>
+                                <div class="{% if idx.change_20d >= 0 %}bg-red-50{% else %}bg-green-50{% endif %} rounded p-1">
+                                    <div class="{% if idx.change_20d >= 0 %}text-red-700{% else %}text-green-700{% endif %} font-medium">{{ idx.change_20d }}%</div>
+                                    <div class="text-gray-500 text-xs">20日</div>
+                                </div>
+                            </div>
+                            
+                            <!-- RSI -->
+                            <div class="mb-3">
+                                <div class="text-xs text-gray-500 mb-1">RSI (6/12/24)</div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-0.5 rounded text-sm font-medium
+                                        {% if idx.rsi6 > 70 %}bg-red-100 text-red-700
+                                        {% elif idx.rsi6 < 30 %}bg-green-100 text-green-700
+                                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                        {{ idx.rsi6|round(0)|int }}
+                                    </span>
+                                    <span class="text-sm text-gray-600">{{ idx.rsi12|round(0)|int }}</span>
+                                    <span class="text-sm text-gray-600">{{ idx.rsi24|round(0)|int }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 牛熊分界线 -->
+                            <div class="mb-3">
+                                <div class="text-xs text-gray-500 mb-1">牛熊分界线</div>
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="px-1.5 py-0.5 rounded text-xs
+                                        {% if idx.bull_bear.above_ma60 %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                        MA60
+                                    </span>
+                                    <span class="px-1.5 py-0.5 rounded text-xs
+                                        {% if idx.bull_bear.above_ma250 %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                        MA250
+                                    </span>
+                                    <span class="px-1.5 py-0.5 rounded text-xs
+                                        {% if idx.bull_bear.above_ma30w %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                        30周
+                                    </span>
+                                    <span class="px-1.5 py-0.5 rounded text-xs font-medium
+                                        {% if 'bull' in idx.bull_bear.status %}bg-green-200 text-green-800
+                                        {% elif 'bear' in idx.bull_bear.status %}bg-red-200 text-red-800
+                                        {% else %}bg-gray-200 text-gray-800{% endif %}">
+                                        {{ idx.bull_bear.status }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- 多周期信号 -->
+                            <div class="text-xs">
+                                <div class="mb-1"><span class="text-gray-500">日线:</span> {{ idx.daily_desc }}</div>
+                                <div class="mb-1"><span class="text-gray-500">周线:</span> {{ idx.weekly_desc }}</div>
+                                <div><span class="text-gray-500">年线:</span> {{ idx.yearly_desc }}</div>
+                            </div>
+                            
+                            <!-- 估值 -->
+                            {% if idx.valuation %}
+                            <div class="mt-3 pt-3 border-t">
+                                <div class="text-xs text-gray-500 mb-1">估值</div>
+                                <div class="flex justify-between text-sm">
+                                    <span>PE: {{ idx.valuation.pe }} ({{ idx.valuation.pe_percentile|round(0)|int }}%)</span>
+                                    <span>PB: {{ idx.valuation.pb }} ({{ idx.valuation.pb_percentile|round(0)|int }}%)</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 风险提示 -->
+        {% if risk_warnings %}
+        <div class="card p-6 mb-6 border-l-4 border-red-500">
+            <h2 class="text-lg font-bold text-red-700 mb-4">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                风险提示
+            </h2>
+            <ul class="space-y-2">
+                {% for warning in risk_warnings %}
+                <li class="flex items-start">
+                    <i class="fa-solid fa-circle-exclamation text-red-500 mt-1 mr-2"></i>
+                    <span class="text-gray-700">{{ warning }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- 关注重点 -->
+        {% if focus_points %}
+        <div class="card p-6 mb-6 border-l-4 border-yellow-500">
+            <h2 class="text-lg font-bold text-yellow-700 mb-4">
+                <i class="fa-solid fa-eye mr-2"></i>
+                关注重点
+            </h2>
+            <ul class="space-y-2">
+                {% for point in focus_points %}
+                <li class="flex items-start">
+                    <i class="fa-solid fa-circle-info text-yellow-500 mt-1 mr-2"></i>
+                    <span class="text-gray-700">{{ point }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- 页脚 -->
+        <div class="text-center text-sm text-gray-400 py-4">
+            <p>本报告由多周期共振分析系统自动生成，仅供参考，不构成投资建议</p>
+            <p>数据来源：Baostock、AkShare | 生成时间：{{ analysis_time }}</p>
+        </div>
+    </div>
+</body>
+</html>
+
