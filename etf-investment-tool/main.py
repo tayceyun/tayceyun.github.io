@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import List, Dict, Optional
 from rich.console import Console
 from rich.panel import Panel
+from rich.markup import escape
 
 console = Console()
 
@@ -197,7 +198,7 @@ def main():
     except KeyboardInterrupt:
         console.print("\n[yellow]已取消分析[/yellow]")
     except Exception as e:
-        console.print(f"\n[red]分析出错: {e}[/red]")
+        console.print(f"\n[red]分析出错: {escape(str(e))}[/red]")
         import traceback
         traceback.print_exc()
 

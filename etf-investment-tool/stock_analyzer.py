@@ -298,15 +298,19 @@ class StockAnalyzer:
         tech_table.add_column("MACD", justify="center")
         
         rsi_color = "green" if result.rsi < 30 else "red" if result.rsi > 70 else ""
+        rsi_text = f"[{rsi_color}]{result.rsi:.1f}[/]" if rsi_color else f"{result.rsi:.1f}"
+
+        # 构建 MACD 显示
         macd_color = "green" if "金叉" in result.macd_signal or "多头" in result.macd_signal else "red"
-        
+        macd_text = f"[{macd_color}]{result.macd_signal}[/]"
+
         tech_table.add_row(
             f"{result.ma5:.3f}",
             f"{result.ma10:.3f}",
             f"{result.ma20:.3f}",
             f"{result.ma60:.3f}",
-            f"[{rsi_color}]{result.rsi:.1f}[/]",
-            f"[{macd_color}]{result.macd_signal}[/]"
+            rsi_text,
+            macd_text
         )
         
         console.print(tech_table)
