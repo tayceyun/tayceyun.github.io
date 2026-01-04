@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ index_name }}多周期共振分析报告 - {{ analysis_time[:10] }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #FFFFFF;
+        }
+        .card {
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+            position: relative;
+        }
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        .highlight-gradient-blue {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0), rgba(59, 130, 246, 0.05));
+        }
+        .highlight-gradient-green {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0), rgba(16, 185, 129, 0.05));
+        }
+        .highlight-gradient-purple {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0), rgba(139, 92, 246, 0.05));
+        }
+        .highlight-gradient-orange {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0), rgba(249, 115, 22, 0.05));
+        }
+        .highlight-gradient-red {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0), rgba(239, 68, 68, 0.05));
+        }
+        .signal-bull { color: #10B981; }
+        .signal-bear { color: #EF4444; }
+        .signal-neutral { color: #6B7280; }
+        .bg-signal-bull { background-color: rgba(16, 185, 129, 0.1); }
+        .bg-signal-bear { background-color: rgba(239, 68, 68, 0.1); }
+        .bg-signal-neutral { background-color: rgba(107, 114, 128, 0.1); }
+    </style>
+</head>
+<body class="bg-white">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
+            
+            <!-- 标题卡片 -->
+            <div class="card md:col-span-4 p-8 flex flex-col justify-center relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="text-sm font-semibold text-blue-600 mb-2">MULTI-CYCLE RESONANCE ANALYSIS</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{{ index_name }}多周期共振分析报告</h1>
+                    <div class="flex items-center space-x-4 text-gray-500">
+                        <div class="flex items-center"><i class="fa-solid fa-calendar mr-2"></i>{{ analysis_time }}</div>
+                        <div class="flex items-center"><i class="fa-solid fa-chart-line mr-2"></i>{{ current_price }}点</div>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-arrow-{% if daily_change_pct >= 0 %}up text-green-500{% else %}down text-red-500{% endif %} mr-2"></i>
+                            {{ daily_change_pct }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 综合信号卡片 -->
+            <div class="card md:col-span-2 p-6 flex flex-col justify-center relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-green"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-bullseye text-2xl text-green-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">综合信号</h2>
+                    </div>
+                    <div class="text-5xl font-bold mb-4 {% if overall_score >= 4 %}text-green-600{% elif overall_score <= -4 %}text-red-600{% else %}text-gray-600{% endif %}">
+                        {{ overall_signal }}
+                    </div>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <div class="flex items-center mr-4">
+                            <i class="fa-solid fa-star mr-1"></i>综合评分: {{ overall_score }}
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-wave-square mr-1"></i>{{ multi_cycle.resonance_description }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 压力线状态卡片 -->
+            <div class="card p-6 flex flex-col justify-center items-center text-center relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-purple"></div>
+                <div class="relative">
+                    <div class="text-4xl font-bold {% if pressure_line.is_above %}text-green-600{% else %}text-purple-600{% endif %} mb-2">
+                        {{ pressure_line.position }}
+                    </div>
+                    <div class="text-gray-700 font-semibold">6124-5178压力线</div>
+                    <div class="text-sm text-gray-500 mt-2">
+                        偏离: {% if pressure_line.deviation >= 0 %}+{% endif %}{{ pressure_line.deviation_pct }}%
+                    </div>
+                </div>
+            </div>
+
+            <!-- 共振评分卡片 -->
+            <div class="card p-6 flex flex-col justify-center items-center text-center relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-orange"></div>
+                <div class="relative">
+                    <div class="text-5xl font-bold {% if multi_cycle.resonance_score >= 3 %}text-green-600{% elif multi_cycle.resonance_score <= -3 %}text-red-600{% else %}text-orange-600{% endif %} mb-2">
+                        {{ multi_cycle.resonance_score }}
+                    </div>
+                    <div class="text-gray-700 font-semibold">共振评分</div>
+                    <div class="text-sm text-gray-500 mt-2">
+                        {% if multi_cycle.bullish_cycles %}多头: {{ multi_cycle.bullish_cycles|join(', ') }}{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 压力线分析详情 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-chart-line text-2xl text-blue-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">6124-5178压力线分析</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-3 flex-shrink-0"></div>
+                            <div>
+                                <div class="font-semibold text-gray-900">当前状态</div>
+                                <div class="text-sm text-gray-600">{{ pressure_line.status }}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-3 flex-shrink-0"></div>
+                            <div>
+                                <div class="font-semibold text-gray-900">压力线位置</div>
+                                <div class="text-sm text-gray-600">{{ pressure_line.position }}点 ({{ pressure_line.target_date }})</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full {% if pressure_line.is_breakthrough %}bg-green-500{% else %}bg-blue-500{% endif %} mt-2 mr-3 flex-shrink-0"></div>
+                            <div>
+                                <div class="font-semibold text-gray-900">3%法则验证</div>
+                                <div class="text-sm text-gray-600">
+                                    {% if pressure_line.is_breakthrough %}
+                                    <span class="text-green-600">✓ 已有效突破 ({{ pressure_line.deviation_pct }}%)</span>
+                                    {% elif pressure_line.is_above %}
+                                    <span class="text-yellow-600">○ 站上但未达3% ({{ pressure_line.deviation_pct }}%)</span>
+                                    {% else %}
+                                    <span class="text-gray-600">✗ 未突破</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full {% if pressure_line.days_above >= 3 %}bg-green-500{% else %}bg-blue-500{% endif %} mt-2 mr-3 flex-shrink-0"></div>
+                            <div>
+                                <div class="font-semibold text-gray-900">三日原则验证</div>
+                                <div class="text-sm text-gray-600">
+                                    连续站上 {{ pressure_line.days_above }} 天
+                                    {% if pressure_line.days_above >= 3 %}
+                                    <span class="text-green-600">✓</span>
+                                    {% else %}
+                                    <span class="text-yellow-600">(需≥3天)</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 多周期共振详情 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-purple"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-layer-group text-2xl text-purple-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">多周期共振分析</h2>
+                    </div>
+                    <div class="w-full">
+                        <canvas id="resonanceChart" height="160"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日线分析 -->
+            {% if multi_cycle.daily %}
+            <div class="card p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-green"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-calendar-day text-xl text-green-600 mr-3"></i>
+                        <h3 class="text-lg font-bold text-gray-900">日线级别</h3>
+                    </div>
+                    <div class="text-3xl font-bold mb-2 {% if multi_cycle.daily.signal == 'BULL' %}text-green-600{% elif multi_cycle.daily.signal == 'BEAR' %}text-red-600{% else %}text-gray-600{% endif %}">
+                        {% if multi_cycle.daily.signal == 'BULL' %}多头{% elif multi_cycle.daily.signal == 'BEAR' %}空头{% else %}震荡{% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600 mb-4">{{ multi_cycle.daily.signal_description }}</div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">MACD</span>
+                            <span class="font-semibold {% if multi_cycle.daily.macd.cross == 'golden' %}text-green-600{% elif multi_cycle.daily.macd.cross == 'death' %}text-red-600{% endif %}">
+                                {% if multi_cycle.daily.macd.cross == 'golden' %}金叉{% elif multi_cycle.daily.macd.cross == 'death' %}死叉{% else %}{{ multi_cycle.daily.macd.position }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">RSI</span>
+                            <span class="font-semibold {% if multi_cycle.daily.rsi.status == 'overbought' %}text-yellow-600{% elif multi_cycle.daily.rsi.status == 'oversold' %}text-blue-600{% endif %}">
+                                {{ multi_cycle.daily.rsi.value }}{% if multi_cycle.daily.rsi.status == 'overbought' %}(超买){% elif multi_cycle.daily.rsi.status == 'oversold' %}(超卖){% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">均线</span>
+                            <span class="font-semibold {% if multi_cycle.daily.ma.arrangement == 'bull' %}text-green-600{% elif multi_cycle.daily.ma.arrangement == 'bear' %}text-red-600{% endif %}">
+                                {% if multi_cycle.daily.ma.arrangement == 'bull' %}多头排列{% elif multi_cycle.daily.ma.arrangement == 'bear' %}空头排列{% else %}混合{% endif %}
+                            </span>
+                        </div>
+                        {% if multi_cycle.daily.kline.consecutive_yang >= 3 %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">K线</span>
+                            <span class="font-semibold text-green-600">{{ multi_cycle.daily.kline.consecutive_yang }}连阳</span>
+                        </div>
+                        {% elif multi_cycle.daily.kline.consecutive_yin >= 3 %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">K线</span>
+                            <span class="font-semibold text-red-600">{{ multi_cycle.daily.kline.consecutive_yin }}连阴</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 周线分析 -->
+            {% if multi_cycle.weekly %}
+            <div class="card p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-calendar-week text-xl text-blue-600 mr-3"></i>
+                        <h3 class="text-lg font-bold text-gray-900">周线级别</h3>
+                    </div>
+                    <div class="text-3xl font-bold mb-2 {% if multi_cycle.weekly.signal == 'BULL' %}text-green-600{% elif multi_cycle.weekly.signal == 'BEAR' %}text-red-600{% else %}text-gray-600{% endif %}">
+                        {% if multi_cycle.weekly.signal == 'BULL' %}多头{% elif multi_cycle.weekly.signal == 'BEAR' %}空头{% else %}震荡{% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600 mb-4">{{ multi_cycle.weekly.signal_description }}</div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">MACD</span>
+                            <span class="font-semibold {% if multi_cycle.weekly.macd.cross == 'golden' %}text-green-600{% elif multi_cycle.weekly.macd.cross == 'death' %}text-red-600{% endif %}">
+                                {% if multi_cycle.weekly.macd.cross == 'golden' %}金叉{% elif multi_cycle.weekly.macd.cross == 'death' %}死叉{% else %}{{ multi_cycle.weekly.macd.position }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">RSI</span>
+                            <span class="font-semibold">{{ multi_cycle.weekly.rsi.value }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">均线</span>
+                            <span class="font-semibold {% if multi_cycle.weekly.ma.arrangement == 'bull' %}text-green-600{% elif multi_cycle.weekly.ma.arrangement == 'bear' %}text-red-600{% endif %}">
+                                {% if multi_cycle.weekly.ma.arrangement == 'bull' %}多头排列{% elif multi_cycle.weekly.ma.arrangement == 'bear' %}空头排列{% else %}混合{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 月线分析 -->
+            {% if multi_cycle.monthly %}
+            <div class="card p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-purple"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-calendar-alt text-xl text-purple-600 mr-3"></i>
+                        <h3 class="text-lg font-bold text-gray-900">月线级别</h3>
+                    </div>
+                    <div class="text-3xl font-bold mb-2 {% if multi_cycle.monthly.signal == 'BULL' %}text-green-600{% elif multi_cycle.monthly.signal == 'BEAR' %}text-red-600{% else %}text-gray-600{% endif %}">
+                        {% if multi_cycle.monthly.signal == 'BULL' %}多头{% elif multi_cycle.monthly.signal == 'BEAR' %}空头{% else %}震荡{% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600 mb-4">{{ multi_cycle.monthly.signal_description }}</div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">MACD</span>
+                            <span class="font-semibold {% if multi_cycle.monthly.macd.cross == 'golden' %}text-green-600{% elif multi_cycle.monthly.macd.cross == 'death' %}text-red-600{% endif %}">
+                                {% if multi_cycle.monthly.macd.cross == 'golden' %}金叉{% elif multi_cycle.monthly.macd.cross == 'death' %}死叉{% else %}{{ multi_cycle.monthly.macd.position }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">RSI</span>
+                            <span class="font-semibold">{{ multi_cycle.monthly.rsi.value }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">均线</span>
+                            <span class="font-semibold {% if multi_cycle.monthly.ma.arrangement == 'bull' %}text-green-600{% elif multi_cycle.monthly.ma.arrangement == 'bear' %}text-red-600{% endif %}">
+                                {% if multi_cycle.monthly.ma.arrangement == 'bull' %}多头排列{% elif multi_cycle.monthly.ma.arrangement == 'bear' %}空头排列{% else %}混合{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 信号评分仪表盘 -->
+            <div class="card p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-orange"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-gauge-high text-xl text-orange-600 mr-3"></i>
+                        <h3 class="text-lg font-bold text-gray-900">信号仪表</h3>
+                    </div>
+                    <div class="w-full">
+                        <canvas id="gaugeChart" height="120"></canvas>
+                    </div>
+                    <div class="text-center mt-2">
+                        <div class="text-2xl font-bold">{{ overall_score }}</div>
+                        <div class="text-sm text-gray-500">综合评分</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作建议 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-green"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-lightbulb text-2xl text-green-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">操作建议</h2>
+                    </div>
+                    <div class="space-y-3">
+                        {% for suggestion in operation_suggestion.split('；') %}
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-circle-check text-green-500 mt-1 mr-2"></i>
+                            <div class="text-sm text-gray-700">{{ suggestion }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关注重点 -->
+            <div class="card md:col-span-2 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-blue"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-eye text-2xl text-blue-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">关注重点</h2>
+                    </div>
+                    <div class="space-y-3">
+                        {% for point in focus_points %}
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-circle-info text-blue-500 mt-1 mr-2"></i>
+                            <div class="text-sm text-gray-700">{{ point }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 风险因素 -->
+            {% if risk_factors %}
+            <div class="card md:col-span-4 p-6 relative">
+                <div class="absolute top-0 left-0 w-full h-full highlight-gradient-red"></div>
+                <div class="relative">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-triangle-exclamation text-2xl text-red-600 mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">风险因素</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for risk in risk_factors %}
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-circle-minus text-red-500 mt-1 mr-2"></i>
+                            <div class="text-sm text-gray-700">{{ risk }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 页脚 -->
+            <div class="md:col-span-4 text-center text-sm text-gray-400 py-4">
+                <p>本报告由多周期共振分析系统自动生成，仅供参考，不构成投资建议</p>
+                <p>生成时间：{{ analysis_time }}</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    // 多周期共振柱状图
+    const resonanceCtx = document.getElementById('resonanceChart').getContext('2d');
+    new Chart(resonanceCtx, {
+        type: 'bar',
+        data: {
+            labels: ['日线', '周线', '月线'],
+            datasets: [{
+                label: '信号评分',
+                data: [
+                    {{ multi_cycle.daily.signal_score if multi_cycle.daily else 0 }},
+                    {{ multi_cycle.weekly.signal_score if multi_cycle.weekly else 0 }},
+                    {{ multi_cycle.monthly.signal_score if multi_cycle.monthly else 0 }}
+                ],
+                backgroundColor: [
+                    {% if multi_cycle.daily and multi_cycle.daily.signal == 'BULL' %}'rgba(16, 185, 129, 0.7)'{% elif multi_cycle.daily and multi_cycle.daily.signal == 'BEAR' %}'rgba(239, 68, 68, 0.7)'{% else %}'rgba(107, 114, 128, 0.7)'{% endif %},
+                    {% if multi_cycle.weekly and multi_cycle.weekly.signal == 'BULL' %}'rgba(16, 185, 129, 0.7)'{% elif multi_cycle.weekly and multi_cycle.weekly.signal == 'BEAR' %}'rgba(239, 68, 68, 0.7)'{% else %}'rgba(107, 114, 128, 0.7)'{% endif %},
+                    {% if multi_cycle.monthly and multi_cycle.monthly.signal == 'BULL' %}'rgba(16, 185, 129, 0.7)'{% elif multi_cycle.monthly and multi_cycle.monthly.signal == 'BEAR' %}'rgba(239, 68, 68, 0.7)'{% else %}'rgba(107, 114, 128, 0.7)'{% endif %}
+                ],
+                borderColor: [
+                    {% if multi_cycle.daily and multi_cycle.daily.signal == 'BULL' %}'#10B981'{% elif multi_cycle.daily and multi_cycle.daily.signal == 'BEAR' %}'#EF4444'{% else %}'#6B7280'{% endif %},
+                    {% if multi_cycle.weekly and multi_cycle.weekly.signal == 'BULL' %}'#10B981'{% elif multi_cycle.weekly and multi_cycle.weekly.signal == 'BEAR' %}'#EF4444'{% else %}'#6B7280'{% endif %},
+                    {% if multi_cycle.monthly and multi_cycle.monthly.signal == 'BULL' %}'#10B981'{% elif multi_cycle.monthly and multi_cycle.monthly.signal == 'BEAR' %}'#EF4444'{% else %}'#6B7280'{% endif %}
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    min: -10,
+                    max: 10,
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // 综合评分仪表盘
+    const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+    const score = {{ overall_score }};
+    const normalizedScore = (score + 10) / 20; // 转换为 0-1 范围
+    
+    new Chart(gaugeCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [normalizedScore * 100, (1 - normalizedScore) * 100],
+                backgroundColor: [
+                    score >= 4 ? '#10B981' : score <= -4 ? '#EF4444' : '#F59E0B',
+                    '#E5E7EB'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            circumference: 180,
+            rotation: 270,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+</script>
+</html>
+

@@ -1,0 +1,321 @@
+{
+  "version": "1.0.0",
+  "update_time": "2026-01-04",
+  "description": "多周期共振信号评分规则配置",
+
+  "index_signal": {
+    "description": "指数信号评分规则",
+    
+    "multi_cycle": {
+      "description": "多周期技术信号权重（权重总计60%）",
+      "daily_bull": {
+        "weight": 1,
+        "condition": "daily_signal == 'BULL'",
+        "description": "日线多头信号"
+      },
+      "daily_bear": {
+        "weight": -1,
+        "condition": "daily_signal == 'BEAR'",
+        "description": "日线空头信号"
+      },
+      "weekly_bull": {
+        "weight": 2,
+        "condition": "weekly_signal == 'BULL'",
+        "description": "周线多头信号"
+      },
+      "weekly_bear": {
+        "weight": -2,
+        "condition": "weekly_signal == 'BEAR'",
+        "description": "周线空头信号"
+      },
+      "monthly_bull": {
+        "weight": 3,
+        "condition": "monthly_signal == 'BULL'",
+        "description": "月线多头信号"
+      },
+      "monthly_bear": {
+        "weight": -3,
+        "condition": "monthly_signal == 'BEAR'",
+        "description": "月线空头信号"
+      }
+    },
+
+    "pressure_line": {
+      "description": "6124-5178压力线信号权重（权重30%）",
+      "breakthrough": {
+        "weight": 3,
+        "condition": "deviation_pct >= 3",
+        "description": "有效突破压力线（≥3%）"
+      },
+      "above": {
+        "weight": 1,
+        "condition": "0 < deviation_pct < 3",
+        "description": "站上压力线但未有效突破"
+      },
+      "near": {
+        "weight": 0,
+        "condition": "-3 <= deviation_pct <= 0",
+        "description": "接近压力线"
+      },
+      "below": {
+        "weight": -1,
+        "condition": "deviation_pct < -3",
+        "description": "远离压力线"
+      }
+    },
+
+    "volume": {
+      "description": "成交量信号权重（权重10%）",
+      "amplify": {
+        "weight": 1,
+        "condition": "volume_ratio >= 1.5",
+        "description": "成交量放大50%以上"
+      },
+      "shrink": {
+        "weight": -1,
+        "condition": "volume_ratio < 0.7",
+        "description": "成交量萎缩30%以上"
+      }
+    },
+
+    "capital_flow": {
+      "description": "资金面信号权重（TODO: 需要akshare数据）",
+      "north_inflow": {
+        "weight": 1,
+        "condition": "north_money_inflow_days >= 3",
+        "description": "北向资金连续3日以上流入"
+      },
+      "north_outflow": {
+        "weight": -1,
+        "condition": "north_money_outflow_days >= 3",
+        "description": "北向资金连续3日以上流出"
+      }
+    },
+
+    "signal_strength": {
+      "description": "信号强度判定规则",
+      "strong_bull": {
+        "min_score": 7,
+        "label": "强多头",
+        "operation": "积极做多，仓位70-80%"
+      },
+      "moderate_bull": {
+        "min_score": 4,
+        "max_score": 6,
+        "label": "中多头",
+        "operation": "适度做多，仓位50-60%"
+      },
+      "slight_bull": {
+        "min_score": 1,
+        "max_score": 3,
+        "label": "偏多",
+        "operation": "轻仓参与，仓位30-40%"
+      },
+      "neutral": {
+        "min_score": -1,
+        "max_score": 0,
+        "label": "中性",
+        "operation": "观望为主，仓位20-30%"
+      },
+      "slight_bear": {
+        "min_score": -4,
+        "max_score": -2,
+        "label": "偏空",
+        "operation": "减仓观望，仓位10-20%"
+      },
+      "moderate_bear": {
+        "min_score": -7,
+        "max_score": -5,
+        "label": "中空头",
+        "operation": "防守为主，仓位5-10%"
+      },
+      "strong_bear": {
+        "max_score": -8,
+        "label": "强空头",
+        "operation": "空仓或观望"
+      }
+    }
+  },
+
+  "stock_signal": {
+    "description": "个股信号评分规则（价值投资导向）",
+    
+    "fundamental": {
+      "description": "基本面权重（权重50%）",
+      "weight_ratio": 5,
+      "factors": {
+        "valuation_low": {
+          "weight": 2,
+          "condition": "valuation_quantile < 30",
+          "description": "估值低估（分位<30%）"
+        },
+        "valuation_high": {
+          "weight": -2,
+          "condition": "valuation_quantile > 70",
+          "description": "估值高估（分位>70%）"
+        },
+        "earnings_growth": {
+          "weight": 2,
+          "condition": "net_profit_growth > industry_avg_growth and net_profit_growth > 0",
+          "description": "业绩增速超行业"
+        },
+        "earnings_decline": {
+          "weight": -2,
+          "condition": "net_profit_growth < -20",
+          "description": "业绩大幅下滑"
+        },
+        "roe_stable": {
+          "weight": 1,
+          "condition": "roe > 15 and roe_volatility < 10",
+          "description": "ROE稳定且较高"
+        }
+      }
+    },
+
+    "technical": {
+      "description": "技术面权重（权重20%）",
+      "weight_ratio": 2,
+      "factors": {
+        "multi_cycle_bull": {
+          "weight": 1,
+          "condition": "daily_signal == 'BULL' and weekly_signal == 'BULL'",
+          "description": "日周线多头共振"
+        },
+        "multi_cycle_bear": {
+          "weight": -1,
+          "condition": "daily_signal == 'BEAR' and weekly_signal == 'BEAR'",
+          "description": "日周线空头共振"
+        },
+        "support_break": {
+          "weight": -2,
+          "condition": "price < ma60 and price < ma250",
+          "description": "跌破重要均线支撑"
+        }
+      }
+    },
+
+    "capital": {
+      "description": "资金面权重（权重20%）",
+      "weight_ratio": 2,
+      "factors": {
+        "north_inflow": {
+          "weight": 1,
+          "condition": "north_holding_increase_days >= 3",
+          "description": "北向资金连续增持"
+        },
+        "shareholder_decrease": {
+          "weight": 1,
+          "condition": "shareholder_count_decrease_periods >= 2",
+          "description": "股东人数连续减少"
+        },
+        "shareholder_increase": {
+          "weight": -1,
+          "condition": "shareholder_count_increase_periods >= 2",
+          "description": "股东人数连续增加"
+        }
+      }
+    },
+
+    "event": {
+      "description": "事件驱动权重（权重10%）",
+      "weight_ratio": 1,
+      "factors": {
+        "stock_repurchase": {
+          "weight": 1,
+          "condition": "event_type == 'repurchase'",
+          "description": "公司回购股份"
+        },
+        "major_shareholder_reduction": {
+          "weight": -2,
+          "condition": "event_type == 'reduction' and reduction_ratio > 1",
+          "description": "大股东减持超1%"
+        },
+        "performance_preview_good": {
+          "weight": 1,
+          "condition": "event_type == 'preview' and preview_type == 'increase'",
+          "description": "业绩预增公告"
+        },
+        "performance_preview_bad": {
+          "weight": -2,
+          "condition": "event_type == 'preview' and preview_type == 'decrease'",
+          "description": "业绩预减公告"
+        }
+      }
+    },
+
+    "signal_strength": {
+      "description": "个股信号强度判定",
+      "strong_buy": {
+        "min_score": 7,
+        "label": "强买入",
+        "operation": "定投加仓/手动加仓"
+      },
+      "hold": {
+        "min_score": 3,
+        "max_score": 6,
+        "label": "持有",
+        "operation": "继续定投/持有"
+      },
+      "reduce": {
+        "min_score": -2,
+        "max_score": 2,
+        "label": "观望",
+        "operation": "定投暂停/观望"
+      },
+      "sell": {
+        "max_score": -3,
+        "label": "减仓",
+        "operation": "减仓/规避"
+      }
+    }
+  },
+
+  "risk_rules": {
+    "description": "风险预警规则",
+    
+    "technical_risk": {
+      "rsi_overbought": {
+        "condition": "rsi > 75",
+        "level": "warning",
+        "message": "RSI超买，短期回调压力"
+      },
+      "consecutive_rise": {
+        "condition": "consecutive_yang >= 7",
+        "level": "warning",
+        "message": "连续上涨，获利盘回吐压力"
+      },
+      "macd_divergence": {
+        "condition": "price_new_high and macd_not_new_high",
+        "level": "warning",
+        "message": "顶背离信号"
+      }
+    },
+
+    "fundamental_risk": {
+      "earnings_warning": {
+        "condition": "net_profit_growth < -50",
+        "level": "danger",
+        "message": "业绩暴雷风险"
+      },
+      "cash_flow_negative": {
+        "condition": "operating_cash_flow < 0",
+        "level": "warning",
+        "message": "经营现金流为负"
+      }
+    },
+
+    "market_risk": {
+      "high_valuation": {
+        "condition": "market_pe_quantile > 80",
+        "level": "warning",
+        "message": "市场整体估值偏高"
+      },
+      "capital_outflow": {
+        "condition": "north_money_outflow_days >= 5",
+        "level": "warning",
+        "message": "北向资金持续流出"
+      }
+    }
+  }
+}
+

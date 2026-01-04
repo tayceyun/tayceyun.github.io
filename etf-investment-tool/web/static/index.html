@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多周期共振分析系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+        }
+        .card {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- 头部 -->
+        <header class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        <i class="fa-solid fa-chart-line text-blue-600 mr-3"></i>
+                        多周期共振分析系统
+                    </h1>
+                    <p class="text-gray-500 mt-2">基于多周期技术指标与6124-5178压力线的智能分析</p>
+                </div>
+                <div class="text-sm text-gray-500">
+                    <span id="currentTime"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主内容 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 左侧：分析操作 -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- 指数分析卡片 -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fa-solid fa-chart-bar text-blue-600 mr-2"></i>
+                        指数分析
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">选择指数</label>
+                            <select id="indexCode" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="000001">上证指数 (000001)</option>
+                                <option value="399001">深证成指 (399001)</option>
+                                <option value="000300">沪深300 (000300)</option>
+                                <option value="399006">创业板指 (399006)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="includeCapital" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="includeCapital" class="ml-2 text-sm text-gray-600">包含资金面分析</label>
+                        </div>
+                        
+                        <button id="analyzeBtn" onclick="runAnalysis()" class="btn-primary w-full">
+                            <i class="fa-solid fa-play mr-2"></i>
+                            开始分析
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 快捷操作 -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fa-solid fa-bolt text-yellow-500 mr-2"></i>
+                        快捷查询
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <button onclick="getPressureLine()" class="w-full text-left px-4 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fa-solid fa-chart-line text-purple-600 mr-2"></i>
+                            今日压力线位置
+                        </button>
+                        <button onclick="getCapitalFlow()" class="w-full text-left px-4 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fa-solid fa-money-bill-trend-up text-green-600 mr-2"></i>
+                            资金面数据
+                        </button>
+                        <button onclick="loadReports()" class="w-full text-left px-4 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fa-solid fa-file-lines text-blue-600 mr-2"></i>
+                            刷新报告列表
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 快捷信息 -->
+                <div class="card p-6" id="quickInfo" style="display: none;">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fa-solid fa-circle-info text-blue-600 mr-2"></i>
+                        快捷信息
+                    </h2>
+                    <div id="quickInfoContent" class="text-sm text-gray-600"></div>
+                </div>
+            </div>
+
+            <!-- 右侧：报告列表和结果 -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- 分析结果 -->
+                <div class="card p-6" id="resultCard" style="display: none;">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fa-solid fa-check-circle text-green-600 mr-2"></i>
+                        分析结果
+                    </h2>
+                    <div id="resultContent"></div>
+                </div>
+
+                <!-- 报告列表 -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            <i class="fa-solid fa-folder-open text-orange-500 mr-2"></i>
+                            历史报告
+                        </h2>
+                        <button onclick="loadReports()" class="text-sm text-blue-600 hover:text-blue-800">
+                            <i class="fa-solid fa-sync-alt mr-1"></i>
+                            刷新
+                        </button>
+                    </div>
+                    
+                    <div id="reportList" class="space-y-2">
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>加载中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="mt-8 text-center text-sm text-gray-400">
+            <p>多周期共振分析系统 v1.0 | 数据仅供参考，不构成投资建议</p>
+        </footer>
+    </div>
+
+    <script>
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 页面加载时获取报告列表
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReports();
+        });
+
+        // 加载报告列表
+        async function loadReports() {
+            const listEl = document.getElementById('reportList');
+            listEl.innerHTML = '<div class="text-center text-gray-500 py-4"><i class="fa-solid fa-spinner fa-spin"></i> 加载中...</div>';
+
+            try {
+                const response = await fetch('/api/reports?limit=10');
+                const reports = await response.json();
+
+                if (reports.length === 0) {
+                    listEl.innerHTML = '<div class="text-center text-gray-500 py-8">暂无报告</div>';
+                    return;
+                }
+
+                listEl.innerHTML = reports.map(report => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-file-alt text-blue-500 mr-3"></i>
+                            <div>
+                                <div class="font-medium text-gray-900">${report.filename}</div>
+                                <div class="text-xs text-gray-500">${report.created_time}</div>
+                            </div>
+                        </div>
+                        <a href="/api/reports/${report.filename}" target="_blank" 
+                           class="text-blue-600 hover:text-blue-800">
+                            <i class="fa-solid fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                `).join('');
+            } catch (error) {
+                listEl.innerHTML = `<div class="text-center text-red-500 py-4">加载失败: ${error.message}</div>`;
+            }
+        }
+
+        // 执行分析
+        async function runAnalysis() {
+            const btn = document.getElementById('analyzeBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> 分析中...';
+            btn.disabled = true;
+
+            const indexCode = document.getElementById('indexCode').value;
+            const includeCapital = document.getElementById('includeCapital').checked;
+
+            try {
+                const response = await fetch('/api/analyze/index', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ index_code: indexCode, include_capital: includeCapital })
+                });
+
+                const result = await response.json();
+
+                const resultCard = document.getElementById('resultCard');
+                const resultContent = document.getElementById('resultContent');
+
+                if (result.success) {
+                    resultCard.style.display = 'block';
+                    resultContent.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                                <div>
+                                    <div class="font-semibold text-green-800">${result.data.index_name}</div>
+                                    <div class="text-2xl font-bold text-green-600">${result.data.current_price}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm text-gray-500">综合评分</div>
+                                    <div class="text-3xl font-bold ${result.data.overall_score >= 0 ? 'text-green-600' : 'text-red-600'}">${result.data.overall_score}</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-sm text-gray-500">压力线位置</div>
+                                    <div class="font-semibold">${result.data.pressure_line.position}</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-sm text-gray-500">偏离</div>
+                                    <div class="font-semibold">${result.data.pressure_line.deviation_pct}%</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-sm text-gray-500">共振评分</div>
+                                    <div class="font-semibold">${result.data.multi_cycle.resonance_score}</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-sm text-gray-500">整体信号</div>
+                                    <div class="font-semibold">${result.data.overall_signal}</div>
+                                </div>
+                            </div>
+                            ${result.report_path ? `
+                            <a href="/api/reports/${result.report_path.split('/').pop()}" target="_blank" 
+                               class="block text-center btn-primary">
+                                查看完整报告
+                            </a>
+                            ` : ''}
+                        </div>
+                    `;
+                    loadReports();
+                } else {
+                    resultCard.style.display = 'block';
+                    resultContent.innerHTML = `<div class="text-red-600">${result.message}</div>`;
+                }
+            } catch (error) {
+                alert('分析失败: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // 获取压力线
+        async function getPressureLine() {
+            try {
+                const response = await fetch('/api/pressure-line');
+                const result = await response.json();
+
+                const infoCard = document.getElementById('quickInfo');
+                const infoContent = document.getElementById('quickInfoContent');
+
+                infoCard.style.display = 'block';
+                
+                if (result.success) {
+                    infoContent.innerHTML = `
+                        <div class="p-4 bg-purple-50 rounded-lg">
+                            <div class="text-sm text-purple-600 mb-1">6124-5178 压力线</div>
+                            <div class="text-2xl font-bold text-purple-800">${result.pressure_position.toFixed(2)}</div>
+                            <div class="text-xs text-gray-500 mt-1">${result.date}</div>
+                        </div>
+                    `;
+                } else {
+                    infoContent.innerHTML = `<div class="text-red-600">${result.message}</div>`;
+                }
+            } catch (error) {
+                alert('获取失败: ' + error.message);
+            }
+        }
+
+        // 获取资金面数据
+        async function getCapitalFlow() {
+            try {
+                const response = await fetch('/api/capital-flow');
+                const result = await response.json();
+
+                const infoCard = document.getElementById('quickInfo');
+                const infoContent = document.getElementById('quickInfoContent');
+
+                infoCard.style.display = 'block';
+
+                if (result.success && result.data.data_available) {
+                    const north = result.data.north_money;
+                    infoContent.innerHTML = `
+                        <div class="space-y-3">
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <div class="text-sm text-green-600 mb-1">北向资金</div>
+                                <div class="flex justify-between">
+                                    <span>近5日</span>
+                                    <span class="font-bold ${north.total_5d >= 0 ? 'text-green-600' : 'text-red-600'}">${north.total_5d}亿</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>近10日</span>
+                                    <span class="font-bold ${north.total_10d >= 0 ? 'text-green-600' : 'text-red-600'}">${north.total_10d}亿</span>
+                                </div>
+                                <div class="flex justify-between mt-2">
+                                    <span>趋势</span>
+                                    <span class="font-bold">${north.trend}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    infoContent.innerHTML = `<div class="text-gray-500">资金面数据暂不可用</div>`;
+                }
+            } catch (error) {
+                alert('获取失败: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+

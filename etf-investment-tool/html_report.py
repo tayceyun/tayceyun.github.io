@@ -19,14 +19,12 @@ def ensure_output_dir():
     OUTPUT_DIR.mkdir(exist_ok=True)
 
 
-def generate_html_report(etf_results: List[Dict], stock_results: List[Dict],
-                         grid_result: Optional[Dict] = None) -> str:
+def generate_html_report(etf_results: List[Dict], stock_results: List[Dict]) -> str:
     """生成 HTML 报告
     
     Args:
         etf_results: ETF 分析结果列表
-        stock_results: 个股分析结果列表（紫金矿业等）
-        grid_result: 网格交易分析结果（铜陵有色）
+        stock_results: 个股分析结果列表
     
     Returns:
         生成的 HTML 文件路径
@@ -197,43 +195,6 @@ def generate_html_report(etf_results: List[Dict], stock_results: List[Dict],
             font-weight: 600;
         }}
         
-        .plan-box {{
-            background: rgba(74, 222, 128, 0.1);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 16px;
-        }}
-        
-        .plan-box.sell {{
-            background: rgba(248, 113, 113, 0.1);
-            border-color: rgba(248, 113, 113, 0.3);
-        }}
-        
-        .plan-title {{
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }}
-        
-        .plan-item {{
-            padding: 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }}
-        
-        .plan-arrow {{
-            color: #4ade80;
-            font-weight: bold;
-        }}
-        
-        .plan-box.sell .plan-arrow {{
-            color: #f87171;
-        }}
-        
         .target-levels {{
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -266,6 +227,31 @@ def generate_html_report(etf_results: List[Dict], stock_results: List[Dict],
             margin-top: 4px;
         }}
         
+        .tech-indicators {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }}
+        
+        .tech-item {{
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }}
+        
+        .tech-label {{
+            color: #8b8b9a;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }}
+        
+        .tech-value {{
+            font-size: 14px;
+            font-weight: 500;
+        }}
+        
         .footer {{
             text-align: center;
             padding: 20px;
@@ -294,8 +280,6 @@ def generate_html_report(etf_results: List[Dict], stock_results: List[Dict],
         {_generate_etf_section(etf_results)}
         
         {_generate_stock_section(stock_results)}
-        
-        {_generate_grid_section(grid_result)}
         
         <div class="footer">
             <p>本报告仅供参考，不构成投资建议</p>
@@ -368,7 +352,7 @@ def _generate_etf_section(etf_results: List[Dict]) -> str:
 
 
 def _generate_stock_section(stock_results: List[Dict]) -> str:
-    """生成个股目标价部分（紫金矿业）"""
+    """生成个股分析部分"""
     if not stock_results:
         return ""
     
@@ -376,15 +360,76 @@ def _generate_stock_section(stock_results: List[Dict]) -> str:
     for stock in stock_results:
         profit_class = "positive" if stock.get("profit_pct", 0) >= 0 else "negative"
         
+        # 持仓信息
+        position_html = ""
+        if stock.get("cost", 0) > 0:
+            position_html = f'''
+            <div class="stock-info-item">
+                <div class="stock-info-label">成本</div>
+                <div class="stock-info-value price">{stock.get("cost", 0):.3f}</div>
+            </div>
+            <div class="stock-info-item">
+                <div class="stock-info-label">盈亏</div>
+                <div class="stock-info-value {profit_class}">{stock.get("profit_pct", 0):+.1f}%</div>
+            </div>
+            '''
+        
+        if stock.get("shares", 0) > 0:
+            position_html += f'''
+            <div class="stock-info-item">
+                <div class="stock-info-label">持仓</div>
+                <div class="stock-info-value">{stock.get("shares", 0)}股</div>
+            </div>
+            '''
+        
         # 生成目标价档位
         target_levels = stock.get("target_levels", [])
         levels_html = ""
         for level in target_levels:
+            deviation = level.get("deviation", 0)
+            deviation_class = "negative" if deviation < 0 else "positive"
             levels_html += f'''
             <div class="target-level">
                 <div class="target-level-label">{level.get("label", "")}</div>
-                <div class="target-level-price">{level.get("price", 0):.2f}</div>
-                <div class="target-level-deviation">{level.get("deviation", 0):+.1f}%</div>
+                <div class="target-level-price">{level.get("price", 0):.3f}</div>
+                <div class="target-level-deviation {deviation_class}">{deviation:+.1f}%</div>
+            </div>
+            '''
+        
+        # 技术指标
+        tech_html = ""
+        if stock.get("ma5"):
+            rsi = stock.get("rsi", 50)
+            rsi_class = "positive" if rsi < 30 else "negative" if rsi > 70 else ""
+            macd = stock.get("macd_signal", "")
+            macd_class = "positive" if "金叉" in macd or "多头" in macd else "negative" if macd else ""
+            
+            tech_html = f'''
+            <div class="tech-indicators">
+                <div class="tech-item">
+                    <div class="tech-label">MA5</div>
+                    <div class="tech-value">{stock.get("ma5", 0):.3f}</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">MA10</div>
+                    <div class="tech-value">{stock.get("ma10", 0):.3f}</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">MA20</div>
+                    <div class="tech-value">{stock.get("ma20", 0):.3f}</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">MA60</div>
+                    <div class="tech-value">{stock.get("ma60", 0):.3f}</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">RSI</div>
+                    <div class="tech-value {rsi_class}">{rsi:.1f}</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-label">MACD</div>
+                    <div class="tech-value {macd_class}">{macd}</div>
+                </div>
             </div>
             '''
         
@@ -395,157 +440,20 @@ def _generate_stock_section(stock_results: List[Dict]) -> str:
             <div class="stock-info">
                 <div class="stock-info-item">
                     <div class="stock-info-label">现价</div>
-                    <div class="stock-info-value price">{stock.get("current_price", 0):.2f}</div>
+                    <div class="stock-info-value price">{stock.get("current_price", 0):.3f}</div>
                 </div>
-                <div class="stock-info-item">
-                    <div class="stock-info-label">成本</div>
-                    <div class="stock-info-value price">{stock.get("cost", 0):.2f}</div>
-                </div>
-                <div class="stock-info-item">
-                    <div class="stock-info-label">盈亏</div>
-                    <div class="stock-info-value {profit_class}">{stock.get("profit_pct", 0):+.1f}%</div>
-                </div>
-                <div class="stock-info-item">
-                    <div class="stock-info-label">持仓</div>
-                    <div class="stock-info-value">{stock.get("shares", 0)}股</div>
-                </div>
+                {position_html}
             </div>
             
             <div class="target-levels">
                 {levels_html}
             </div>
+            
+            {tech_html}
         </div>
         '''
     
     return sections
-
-
-def _generate_grid_section(grid_result: Optional[Dict]) -> str:
-    """生成网格交易部分（铜陵有色）"""
-    if not grid_result:
-        return ""
-    
-    deviation_class = "negative" if grid_result.get("deviation_pct", 0) < 0 else "positive"
-    
-    # 买入计划
-    buy_plan_html = ""
-    buy_plan = grid_result.get("buy_plan")
-    if buy_plan:
-        buy_plan_html = f'''
-        <div class="plan-box">
-            <div class="plan-title">📥 买入计划</div>
-            <div class="plan-item">
-                <span class="plan-arrow">→</span>
-                <span>若跌至 <strong class="price">{buy_plan.get("trigger_price", 0):.3f}</strong> 
-                ({buy_plan.get("deviation_pct", 0):+.1f}%)</span>
-            </div>
-            <div class="plan-item">
-                <span class="plan-arrow">→</span>
-                <span>买入 <strong>{buy_plan.get("shares", 0)}股</strong> 
-                (约 ¥{buy_plan.get("amount", 0):.0f})</span>
-            </div>
-        </div>
-        '''
-    
-    # 卖出计划
-    sell_plan_html = ""
-    sell_plan = grid_result.get("sell_plan")
-    if sell_plan:
-        sell_plan_html = f'''
-        <div class="plan-box sell">
-            <div class="plan-title">📤 卖出计划</div>
-            <div class="plan-item">
-                <span class="plan-arrow">→</span>
-                <span>若涨至 <strong class="price">{sell_plan.get("trigger_price", 0):.3f}</strong> 
-                ({sell_plan.get("deviation_pct", 0):+.1f}%)</span>
-            </div>
-            <div class="plan-item">
-                <span class="plan-arrow">→</span>
-                <span>卖出 <strong>{sell_plan.get("shares", 0)}股</strong> 
-                (预期盈利 ¥{sell_plan.get("expected_profit", 0):.0f})</span>
-            </div>
-        </div>
-        '''
-    
-    # 止盈计划
-    profit_take_html = ""
-    profit_take = grid_result.get("profit_take_plan")
-    if profit_take:
-        profit_take_html = f'''
-        <div class="plan-box sell">
-            <div class="plan-title">💰 止盈计划</div>
-            <div class="plan-item">
-                <span class="plan-arrow">→</span>
-                <span>当前已高于中枢5%，建议卖出 <strong>{profit_take.get("shares", 0)}股</strong></span>
-            </div>
-        </div>
-        '''
-    
-    # 网格档位显示
-    grid_levels = grid_result.get("grid_levels", [])
-    current_price = grid_result.get("current_price", 0)
-    levels_html = ""
-    for i, level in enumerate(grid_levels[:5]):  # 只显示前5格
-        is_current = level <= current_price < (grid_levels[i-1] if i > 0 else float('inf'))
-        style = 'background: rgba(74, 222, 128, 0.2);' if is_current else ''
-        levels_html += f'''
-        <tr style="{style}">
-            <td>格{i}</td>
-            <td class="price">{level:.3f}</td>
-            <td class="negative">{((level - grid_result.get("center_price", level)) / grid_result.get("center_price", level) * 100):+.1f}%</td>
-        </tr>
-        '''
-    
-    return f'''
-    <div class="section">
-        <h2 class="section-title blue">{grid_result.get("name", "")} - 网格交易</h2>
-        
-        <div class="stock-info">
-            <div class="stock-info-item">
-                <div class="stock-info-label">现价</div>
-                <div class="stock-info-value price">{grid_result.get("current_price", 0):.3f}</div>
-            </div>
-            <div class="stock-info-item">
-                <div class="stock-info-label">中枢</div>
-                <div class="stock-info-value price">{grid_result.get("center_price", 0):.3f}</div>
-            </div>
-            <div class="stock-info-item">
-                <div class="stock-info-label">偏离</div>
-                <div class="stock-info-value {deviation_class}">{grid_result.get("deviation_pct", 0):+.1f}%</div>
-            </div>
-            <div class="stock-info-item">
-                <div class="stock-info-label">网格间距</div>
-                <div class="stock-info-value">{grid_result.get("grid_step", 0):.1f}%</div>
-            </div>
-            <div class="stock-info-item">
-                <div class="stock-info-label">可用资金</div>
-                <div class="stock-info-value">¥{grid_result.get("available_cash", 0):,.0f}</div>
-            </div>
-        </div>
-        
-        <h3 style="font-size: 14px; color: #8b8b9a; margin: 20px 0 12px;">📌 次日操作计划</h3>
-        
-        {buy_plan_html}
-        {sell_plan_html}
-        {profit_take_html}
-        
-        {'''<p style="color: #8b8b9a; padding: 20px; text-align: center;">暂无操作计划，持仓观望</p>''' if not buy_plan and not sell_plan and not profit_take else ''}
-        
-        <h3 style="font-size: 14px; color: #8b8b9a; margin: 24px 0 12px;">网格档位</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>档位</th>
-                    <th>价格</th>
-                    <th>偏离中枢</th>
-                </tr>
-            </thead>
-            <tbody>
-                {levels_html}
-            </tbody>
-        </table>
-    </div>
-    '''
 
 
 def generate_backtest_html_report(code: str, strategy: str, metrics: Dict, 
@@ -1107,25 +1015,6 @@ def generate_backtest_html_report(code: str, strategy: str, metrics: Dict,
 # 测试
 if __name__ == "__main__":
     # 模拟数据测试
-    etf_results = [
-        {
-            "name": "纳指100ETF",
-            "current_price": 2.85,
-            "target_price": 2.72,
-            "premium_rate": 3.2,
-            "advice": "减半买入",
-            "amount": 500
-        },
-        {
-            "name": "标普500ETF",
-            "current_price": 1.92,
-            "target_price": 1.85,
-            "premium_rate": 2.1,
-            "advice": "正常买入",
-            "amount": 500
-        }
-    ]
-    
     stock_results = [
         {
             "name": "紫金矿业",
@@ -1134,6 +1023,12 @@ if __name__ == "__main__":
             "cost": 28.32,
             "profit_pct": -34.6,
             "shares": 600,
+            "ma5": 18.45,
+            "ma10": 18.32,
+            "ma20": 18.15,
+            "ma60": 17.88,
+            "rsi": 45.2,
+            "macd_signal": "金叉",
             "target_levels": [
                 {"label": "保守", "price": 17.80, "deviation": -3.9},
                 {"label": "正常", "price": 17.20, "deviation": -7.1},
@@ -1142,26 +1037,5 @@ if __name__ == "__main__":
         }
     ]
     
-    grid_result = {
-        "name": "铜陵有色",
-        "code": "000630",
-        "current_price": 3.95,
-        "center_price": 4.10,
-        "grid_step": 3.5,
-        "deviation_pct": -3.7,
-        "available_cash": 15000,
-        "grid_levels": [4.10, 3.96, 3.82, 3.69, 3.56, 3.43],
-        "buy_plan": {
-            "trigger_price": 3.82,
-            "deviation_pct": -3.3,
-            "shares": 500,
-            "amount": 1910
-        },
-        "sell_plan": None,
-        "profit_take_plan": None
-    }
-    
-    filepath = generate_html_report(etf_results, stock_results, grid_result)
+    filepath = generate_html_report([], stock_results)
     print(f"报告已生成: {filepath}")
-
-
