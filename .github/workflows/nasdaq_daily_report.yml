@@ -4,6 +4,23 @@ on:
   schedule:
     - cron: '35 0 * * 2-6'
   workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force rerun for the latest common market date'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      dry_run:
+        description: 'Skip WxPusher send'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 permissions:
   contents: write
@@ -29,10 +46,16 @@ jobs:
         env:
           WXPUSHER_APP_TOKEN: ${{ secrets.WXPUSHER_APP_TOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
+          FORCE_RUN: ${{ github.event.inputs.force || 'false' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: |
+          args=""
+          if [ "$FORCE_RUN" = "true" ]; then args="$args --force"; fi
+          if [ "$DRY_RUN" = "true" ]; then args="$args --dry-run"; fi
           PYTHONPATH=nasdaq-strategy-bot/src \
           python -m nasdaq_strategy_bot.cli daily-report \
-          --project-root nasdaq-strategy-bot
+          --project-root nasdaq-strategy-bot \
+          $args
 
       - name: Commit state updates
         run: |
