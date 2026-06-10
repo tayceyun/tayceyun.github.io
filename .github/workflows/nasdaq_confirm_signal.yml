@@ -1,0 +1,74 @@
+name: Nasdaq Strategy Confirm Signal
+
+on:
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: '回撤档位，例如 20 表示 -20%'
+        required: true
+        type: string
+      status:
+        description: '新状态'
+        required: true
+        type: choice
+        options:
+          - executed
+          - skipped
+          - expired
+      action_date:
+        description: '状态日期 YYYY-MM-DD'
+        required: false
+        type: string
+      executed_amount:
+        description: '已执行金额'
+        required: false
+        type: string
+      executed_price:
+        description: '已执行价格'
+        required: false
+        type: string
+      note:
+        description: '备注'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  confirm-signal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r nasdaq-strategy-bot/requirements.txt
+
+      - name: Confirm trigger
+        run: |
+          CMD="PYTHONPATH=nasdaq-strategy-bot/src python -m nasdaq_strategy_bot.cli confirm-trigger --project-root nasdaq-strategy-bot --threshold ${{ inputs.threshold }} --status ${{ inputs.status }}"
+          if [ -n "${{ inputs.action_date }}" ]; then CMD="$CMD --action-date ${{ inputs.action_date }}"; fi
+          if [ -n "${{ inputs.executed_amount }}" ]; then CMD="$CMD --executed-amount ${{ inputs.executed_amount }}"; fi
+          if [ -n "${{ inputs.executed_price }}" ]; then CMD="$CMD --executed-price ${{ inputs.executed_price }}"; fi
+          if [ -n "${{ inputs.note }}" ]; then CMD="$CMD --note '${{ inputs.note }}'"; fi
+          eval "$CMD"
+
+      - name: Commit updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nasdaq-strategy-bot/state/strategy_state.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update signal confirmation"
+            git push
+          fi

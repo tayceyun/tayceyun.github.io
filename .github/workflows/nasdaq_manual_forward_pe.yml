@@ -1,0 +1,69 @@
+name: Nasdaq Strategy Manual Forward PE
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Forward PE 日期 (YYYY-MM-DD)'
+        required: true
+        type: string
+      forward_pe:
+        description: 'Forward PE 数值'
+        required: true
+        type: string
+      source:
+        description: '来源标记'
+        required: false
+        default: 'manual'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  manual-forward-pe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r nasdaq-strategy-bot/requirements.txt
+
+      - name: Add forward PE entry
+        run: |
+          PYTHONPATH=nasdaq-strategy-bot/src \
+          python -m nasdaq_strategy_bot.cli add-forward-pe \
+          --project-root nasdaq-strategy-bot \
+          --date "${{ inputs.date }}" \
+          --value "${{ inputs.forward_pe }}" \
+          --source "${{ inputs.source }}"
+
+      - name: Regenerate report
+        env:
+          WXPUSHER_APP_TOKEN: ${{ secrets.WXPUSHER_APP_TOKEN }}
+          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
+        run: |
+          PYTHONPATH=nasdaq-strategy-bot/src \
+          python -m nasdaq_strategy_bot.cli daily-report \
+          --project-root nasdaq-strategy-bot \
+          --force
+
+      - name: Commit updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nasdaq-strategy-bot/data/forward_pe_history.csv nasdaq-strategy-bot/state/strategy_state.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update forward pe history"
+            git push
+          fi

@@ -1,0 +1,55 @@
+{
+  "project_timezone": "Asia/Shanghai",
+  "symbols": {
+    "qqq": "QQQ",
+    "qqqm": "QQQM",
+    "vix": "^VIX"
+  },
+  "fixed_dca": {
+    "TUESDAY": 2000,
+    "THURSDAY": 2000
+  },
+  "drawdown_base_amounts": {
+    "10": 5000,
+    "15": 5000,
+    "20": 10000,
+    "25": 15000,
+    "30": 20000,
+    "35": 20000,
+    "40": 30000,
+    "45": 40000,
+    "50": 50000
+  },
+  "valuation": {
+    "frequency": "monthly",
+    "mode": "percentile",
+    "rolling_window_days": 60,
+    "exact_date_required": false,
+    "percentile_adjustments": [
+      {"lte": 0.20, "adjustment": 0.30},
+      {"lte": 0.50, "adjustment": 0.15},
+      {"lte": 0.80, "adjustment": 0.0},
+      {"lte": 1.00, "adjustment": -0.15}
+    ],
+    "raw_forward_pe_adjustments": [
+      {"lte": 20.0, "adjustment": 0.30},
+      {"lte": 25.0, "adjustment": 0.15},
+      {"lte": 30.0, "adjustment": 0.0},
+      {"lte": 999.0, "adjustment": -0.15}
+    ]
+  },
+  "vix_adjustments": [
+    {"lt": 30.0, "adjustment": 0.0},
+    {"lt": 40.0, "adjustment": 0.05},
+    {"lt": 60.0, "adjustment": 0.10},
+    {"lt": 999.0, "adjustment": 0.15}
+  ],
+  "execution": {
+    "max_price_deviation_pct": 0.02,
+    "pending_market_days": 3,
+    "retrigger_cooldown_market_days": 5
+  },
+  "notification": {
+    "wxpusher_api": "https://wxpusher.zjiecode.com/api/send/message"
+  }
+}

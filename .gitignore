@@ -1,4 +1,7 @@
 venv/
+.venv/
+__pycache__/
+*.pyc
 node_modules
 dist
 
@@ -6,3 +9,8 @@ dist
 .docusaurus
 build
 .DS_Store
+
+# Local Python outputs
+nasdaq-strategy-bot/output/
+nasdaq-strategy-bot/.pytest_cache/
+nasdaq-strategy-bot/.ruff_cache/
