@@ -125,16 +125,16 @@ class DailyReport:
     def render_text(self) -> str:
         lines = [
             "纳指策略日报",
-            f"市场日期: {self.market_date}",
+            f"美股市场日期: {self.market_date}",
             f"生成日期: {self.report_date}",
             f"QQQ 收盘: {self.qqq_close:.2f}",
-            f"历史最高收盘: {self.qqq_high_close:.2f} ({self.qqq_high_close_date or '-'})",
+            f"QQQ 历史最高收盘: {self.qqq_high_close:.2f} ({self.qqq_high_close_date or '-'})",
             f"当前回撤: -{self.drawdown_pct:.2f}%",
             f"VIX: {self.vix_close:.2f}",
         ]
 
         if self.is_new_high:
-            lines.append("状态: QQQ 收盘创新高，整轮回撤状态已重置")
+            lines.append("状态: QQQ 创全历史收盘新高，整轮回撤状态已重置")
 
         if self.valuation_available:
             lines.append(
@@ -143,7 +143,7 @@ class DailyReport:
             if self.forward_pe_date and self.forward_pe_date != self.market_date:
                 lines.append("估值口径: 月频，当前沿用最近一期 Forward PE")
             if self.forward_pe_percentile is not None:
-                lines.append(f"5年滚动（月频）Forward PE 百分位: {self.forward_pe_percentile * 100:.2f}%")
+                lines.append(f"5年滚动（月频基线 + 日频增量）Forward PE 百分位: {self.forward_pe_percentile * 100:.2f}%")
             if self.adjustment_factor is not None:
                 lines.append(f"调整系数 A: {self.adjustment_factor:.2f}")
         else:

@@ -83,8 +83,9 @@ def _build_valuation_context(history: pd.DataFrame, market_date: str, config: di
     context["forward_pe_date"] = row["date"].strftime("%Y-%m-%d")
     context["source"] = row.get("source", "unknown")
 
-    window_size = int(config["valuation"]["rolling_window_days"])
-    window = historical.tail(window_size)
+    rolling_years = int(config["valuation"].get("rolling_window_years", 5))
+    window_start = target_date - pd.DateOffset(years=rolling_years)
+    window = historical.loc[historical["date"] >= window_start]
     if not window.empty:
         percentile = float((window["forward_pe"] <= context["forward_pe"]).sum() / len(window))
         context["percentile"] = percentile
@@ -163,12 +164,21 @@ def evaluate_daily_strategy(
     is_new_market_date = state.last_market_date != snapshot.market_date
     expired_triggers: list[int] = []
 
-    is_new_high = False
-    if state.high_close is None or snapshot.qqq_close > float(state.high_close):
-        state.high_close = snapshot.qqq_close
-        state.high_close_date = snapshot.market_date
+    previous_high_close = state.high_close
+    previous_high_date = state.high_close_date
+    state.high_close = snapshot.qqq_all_time_high_close
+    state.high_close_date = snapshot.qqq_all_time_high_date
+
+    is_new_high = (
+        snapshot.market_date == snapshot.qqq_all_time_high_date
+        and (
+            previous_high_close is None
+            or float(previous_high_close) != snapshot.qqq_all_time_high_close
+            or previous_high_date != snapshot.qqq_all_time_high_date
+        )
+    )
+    if is_new_high:
         _reset_all_triggers(state)
-        is_new_high = True
 
     drawdown_pct = 0.0
     if state.high_close:

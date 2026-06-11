@@ -1,20 +1,23 @@
-name: Nasdaq Strategy Manual Forward PE
+name: Nasdaq Strategy Manual Market Data
 
 on:
   workflow_dispatch:
     inputs:
-      date:
-        description: 'Forward PE 日期 (YYYY-MM-DD)'
+      market_date:
+        description: '美股市场日期 YYYY-MM-DD'
         required: true
         type: string
-      forward_pe:
-        description: 'Forward PE 数值'
+      qqq_close:
+        description: 'QQQ 收盘价'
         required: true
         type: string
-      source:
-        description: '来源标记'
-        required: false
-        default: 'manual'
+      qqqm_close:
+        description: 'QQQM 收盘价'
+        required: true
+        type: string
+      vix_close:
+        description: 'VIX 收盘价'
+        required: true
         type: string
       dry_run:
         description: 'Skip WxPusher send'
@@ -29,7 +32,7 @@ permissions:
   contents: write
 
 jobs:
-  manual-forward-pe:
+  manual-market-data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,16 +48,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r nasdaq-strategy-bot/requirements.txt
 
-      - name: Add forward PE entry
-        run: |
-          PYTHONPATH=nasdaq-strategy-bot/src \
-          python -m nasdaq_strategy_bot.cli add-forward-pe \
-          --project-root nasdaq-strategy-bot \
-          --date "${{ inputs.date }}" \
-          --value "${{ inputs.forward_pe }}" \
-          --source "${{ inputs.source }}"
-
-      - name: Regenerate report
+      - name: Generate report with manual market data
         env:
           WXPUSHER_APP_TOKEN: ${{ secrets.WXPUSHER_APP_TOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
@@ -65,16 +59,20 @@ jobs:
           PYTHONPATH=nasdaq-strategy-bot/src \
           python -m nasdaq_strategy_bot.cli daily-report \
           --project-root nasdaq-strategy-bot \
+          --market-date "${{ inputs.market_date }}" \
+          --qqq-close "${{ inputs.qqq_close }}" \
+          --qqqm-close "${{ inputs.qqqm_close }}" \
+          --vix-close "${{ inputs.vix_close }}" \
           $args
 
-      - name: Commit updates
+      - name: Commit state updates
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add nasdaq-strategy-bot/data/forward_pe_history.csv nasdaq-strategy-bot/state/strategy_state.json
+          git add nasdaq-strategy-bot/state/strategy_state.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update forward pe history"
+            git commit -m "chore: update nasdaq market snapshot"
             git push
           fi

@@ -10,6 +10,7 @@
 4. `Forward PE` 使用本地历史文件，支持后续导入你整理的 5 年历史数据。
 5. 支持手动补录 `Forward PE` 和手动确认信号状态。
 6. 当前默认按月频 `Forward PE` 运行，日报沿用最近一期月度值。
+7. 自动行情抓取失败时，可手动输入 `QQQ / QQQM / VIX` 收盘价重算日报。
 
 ## 目录结构
 
@@ -100,6 +101,8 @@ PYTHONPATH=src python -m nasdaq_strategy_bot.cli daily-report \
   --vix-close 19.80
 ```
 
+这套手工参数也可以用于“自动抓不到最新收盘价”时的人工补录。
+
 ### 5. 确认信号状态
 
 ```bash
@@ -119,6 +122,7 @@ PYTHONPATH=src python -m nasdaq_strategy_bot.cli confirm-trigger \
 1. `nasdaq_daily_report.yml`: 定时跑日报。
 2. `nasdaq_manual_forward_pe.yml`: 手动补录 `Forward PE` 并重跑日报。
 3. `nasdaq_confirm_signal.yml`: 手动确认信号状态。
+4. `nasdaq_manual_market_data.yml`: 自动抓不到最新美股收盘价时，手动输入 `QQQ / QQQM / VIX` 收盘价并重跑日报。
 
 ## Secrets
 
@@ -129,6 +133,13 @@ PYTHONPATH=src python -m nasdaq_strategy_bot.cli confirm-trigger \
 
 ## 当前估值模式
 
-默认使用 `5 年滚动（月频）Forward PE 百分位` 作为主估值因子，同时在日报里保留原始 `Forward PE` 值。
+默认使用 `5 年滚动（月频基线 + 日频增量）Forward PE 百分位` 作为主估值因子，同时在日报里保留原始 `Forward PE` 值。
 
 当前按月频运行：如果当天不是月度更新时间，日报会沿用最近一期已知月频 `Forward PE`。
+
+## 当前行情口径
+
+1. `QQQ`、`QQQM`、`VIX` 自动抓取时，以 `QQQ` 最新正式收盘日为锚点。
+2. 如果 `QQQM` 或 `VIX` 在该日没有数据，则自动流程直接报错，不再偷偷回退到更早日期。
+3. 这时可使用手动行情 workflow 补录当日 `QQQ / QQQM / VIX` 收盘价。
+4. 回撤基于 `QQQ` 全历史最高收盘价计算，而不是基于最近 20 天或首次运行当天的价格。

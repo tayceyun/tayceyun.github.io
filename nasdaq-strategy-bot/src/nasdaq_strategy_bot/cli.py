@@ -6,7 +6,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from .config import load_config, project_paths
-from .market_data import MarketSnapshot, fetch_market_snapshot
+from .market_data import MarketSnapshot, fetch_all_time_high, fetch_market_snapshot
 from .notifier import send_wxpusher
 from .storage import (
     append_forward_pe_entry,
@@ -61,16 +61,25 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _resolve_snapshot(args: argparse.Namespace, config: dict) -> MarketSnapshot:
+def _resolve_snapshot(args: argparse.Namespace, config: dict, state) -> MarketSnapshot:
     manual_values = [args.market_date, args.qqq_close, args.qqqm_close, args.vix_close]
     if any(value is not None for value in manual_values):
         if not all(value is not None for value in manual_values):
             raise ValueError("手工指定市场快照时，market-date、qqq-close、qqqm-close、vix-close 必须同时提供")
+        try:
+            qqq_all_time_high_close, qqq_all_time_high_date = fetch_all_time_high(config["symbols"]["qqq"])
+        except Exception:
+            if state.high_close is None or state.high_close_date is None:
+                raise
+            qqq_all_time_high_close = float(state.high_close)
+            qqq_all_time_high_date = state.high_close_date
         return MarketSnapshot(
             market_date=args.market_date,
             qqq_close=float(args.qqq_close),
             qqqm_close=float(args.qqqm_close),
             vix_close=float(args.vix_close),
+            qqq_all_time_high_close=qqq_all_time_high_close,
+            qqq_all_time_high_date=qqq_all_time_high_date,
         )
     return fetch_market_snapshot(config["symbols"])
 
@@ -81,7 +90,7 @@ def _run_daily_report(args: argparse.Namespace) -> int:
     config = load_config(paths["config"])
     state = load_state(paths["state"], config["drawdown_base_amounts"])
     history = load_forward_pe_history(paths["history"])
-    snapshot = _resolve_snapshot(args, config)
+    snapshot = _resolve_snapshot(args, config, state)
 
     if state.last_report_market_date == snapshot.market_date and not args.force:
         print(f"market date {snapshot.market_date} 已处理，若要重跑请加 --force")
