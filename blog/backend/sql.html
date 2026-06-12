@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-Hans" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-backend/sql" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">sql | tayce&#x27;s library</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://tayceyun.github.io/img/orange.jpg"><meta data-rh="true" name="twitter:image" content="https://tayceyun.github.io/img/orange.jpg"><meta data-rh="true" property="og:url" content="https://tayceyun.github.io/blog/backend/sql"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="sql | tayce&#x27;s library"><meta data-rh="true" name="description" content="SQL"><meta data-rh="true" property="og:description" content="SQL"><link data-rh="true" rel="icon" href="/img/logo.jpg"><link data-rh="true" rel="canonical" href="https://tayceyun.github.io/blog/backend/sql"><link data-rh="true" rel="alternate" href="https://tayceyun.github.io/blog/backend/sql" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://tayceyun.github.io/blog/backend/sql" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"sql","item":"https://tayceyun.github.io/blog/backend/sql"}]}</script><link rel="stylesheet" href="/assets/css/styles.6859b9a8.css">
+<script src="/assets/js/runtime~main.5450db74.js" defer="defer"></script>
+<script src="/assets/js/main.87cc83e0.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/img/logo.jpg"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/"><div class="navbar__logo"><img src="/img/logo.jpg" alt="Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/img/logo.jpg" alt="Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">tayce&#x27;s library</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/">💬 技术文章</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/blog/basis/js"><span title="前端基础" class="categoryLinkLabel_W154">前端基础</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/blog/framework/vue"><span title="前端框架" class="categoryLinkLabel_W154">前端框架</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/blog/others/git"><span title="工具合集" class="categoryLinkLabel_W154">工具合集</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/blog/backend/linux"><span title="后端" class="categoryLinkLabel_W154">后端</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/linux"><span title="linux" class="linkLabel_WmDU">linux</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/node"><span title="node" class="linkLabel_WmDU">node</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/blog/backend/sql"><span title="sql" class="linkLabel_WmDU">sql</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/python"><span title="python" class="linkLabel_WmDU">python</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/docker"><span title="docker" class="linkLabel_WmDU">docker</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/aws"><span title="aws" class="linkLabel_WmDU">aws</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/blog/linklist"><span title="其他" class="categoryLinkLabel_W154">其他</span></a></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">后端</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">sql</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>sql</h1></header><h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sql">SQL<a href="#sql" class="hash-link" aria-label="SQL的直接链接" title="SQL的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="按功能划分-sql-语言">按功能划分 SQL 语言<a href="#按功能划分-sql-语言" class="hash-link" aria-label="按功能划分 SQL 语言的直接链接" title="按功能划分 SQL 语言的直接链接" translate="no">​</a></h3>
+<ol>
+<li class="">DDL，英文叫做 Data Definition Language，也就是数据定义语言，它用来定义我们的数据库对象，包括数据库、数据表和列。通过使用 DDL，我们可以创建，删除和修改数据库和表结构。</li>
+<li class="">DML，英文叫做 Data Manipulation Language，数据操作语言，我们用它操作和数据库相关的记录，比如增加、删除、修改数据表中的记录。</li>
+<li class="">DCL，英文叫做 Data Control Language，数据控制语言，我们用它来定义访问权限和安全级别。</li>
+<li class="">DQL，英文叫做 Data Query Language，数据查询语言，我们用它查询想要的记录，它是 SQL 语言的重中之重。在实际的业务中，我们绝大多数情况下都是在和查询打交道。因此学会编写正确且高效的查询语句，是学习的重点。</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="了解-sql">了解 SQL<a href="#了解-sql" class="hash-link" aria-label="了解 SQL的直接链接" title="了解 SQL的直接链接" translate="no">​</a></h3>
+<p>SQL 是我们与 DBMS 交流的语言，我们在创建 DBMS(Database Management System:数据库管理系统) 之前，还需要对它进行设计，对于 RDBMS（Relational Database Management System:关系数据库管理系统） 来说采用的是 ER 图（Entity Relationship Diagram），即实体 - 关系图的方式进行设计。</p>
+<p>ER 图评审通过后，我们再用 SQL 语句或者可视化管理工具（如 Navicat）创建数据表。</p>
+<p>实体 - 关系图有什么用呢？它是我们用来描述现实世界的概念模型，在这个模型中有 3 个
+要素：实体、属性、关系。实体就是我们要管理的对象，属性是标识每个实体的属性，关系则是对象之间的关系。</p>
+<p>创建完数据表之后，我们就可以用 SQL 操作了。</p>
+<p>SQL 推荐采用统一的书写规范：</p>
+<ol>
+<li class="">表名、表别名、字段名、字段别名等小写；</li>
+<li class="">SQL 保留字、函数名、绑定变量等大写。</li>
+<li class="">数据表的字段名推荐采用下划线命名，如 role_main。</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="sql-是如何被执行的">SQL 是如何被执行的<a href="#sql-是如何被执行的" class="hash-link" aria-label="SQL 是如何被执行的的直接链接" title="SQL 是如何被执行的的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="oracle-中的-sql-是如何执行的什么是硬解析和软解析">Oracle 中的 SQL 是如何执行的，什么是硬解析和软解析？<a href="#oracle-中的-sql-是如何执行的什么是硬解析和软解析" class="hash-link" aria-label="Oracle 中的 SQL 是如何执行的，什么是硬解析和软解析？的直接链接" title="Oracle 中的 SQL 是如何执行的，什么是硬解析和软解析？的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" src="/assets/images/sql执行过程-46560ab125d1021d2789225cb3d914e0.png" width="1380" height="516" class="img_ev3q"></p>
+<ol>
+<li class="">语法检查：检查 SQL 拼写是否正确，如果不正确，Oracle 会报语法错误。</li>
+<li class="">语义检查：检查 SQL 中的访问对象是否存在。比如我们在写 SELECT 语句的时候，列名写错了，系统就会提示错误。语法检查和语义检查的作用是保证 SQL 语句没有错误。</li>
+<li class="">权限检查：看用户是否具备访问该数据的权限。</li>
+<li class="">共享池检查：共享池（Shared Pool）是一块内存池，最主要的作用是<strong>缓存 SQL 语句和该语句的执行计划</strong>。Oracle 通过检查共享池是否存在 SQL 语句的执行计划，来判断进行软解析，还是硬解析。那软解析和硬解析又该怎么理解呢？在共享池中，Oracle 首先对 SQL 语句进行 Hash 运算，然后根据 Hash 值在库缓存（Library Cache）中查找，如果存在 SQL 语句的执行计划，就直接拿来执行，直接进入“执行器”的环节，这就是软解析。如果没有找到 SQL 语句和执行计划，Oracle 就需要创建解析树进行解析，生成执行计划，进入“优化器”这个步骤，这就是硬解析。</li>
+<li class="">优化器：优化器中就是要进行硬解析，也就是决定怎么做，比如创建解析树，生成执行计划。</li>
+<li class="">执行器：当有了解析树和执行计划之后，就知道了 SQL 该怎么被执行，这样就可以在执行器中执行语句了。共享池是 Oracle 中的术语，包括了库缓存，数据字典缓冲区等。我们上面已经讲到了库缓存区，它主要缓存 SQL 语句和执行计划。而数据字典缓冲区存储的是 Oracle 中的对象定义，比如表、视图、索引等对象。当对 SQL 语句进行解析的时候，如果需要相关的数据，会从数据字典缓冲区中提取。</li>
+</ol>
+<p>库缓存这一个步骤，决定了 SQL 语句是否需要进行硬解析。为了提升 SQL 的执行效率，我们应该尽量避免硬解析，因为在 SQL 的执行过程中，创建解析树，生成执行计划是很消耗资源的。在 Oracle 中，绑定变量是它的一大特色。绑定变量就是在 SQL 语句中使用变量，通过不同的变量取值来改变 SQL 的执行结果。这样做的好处是能提升软解析的可能性，不足之处在于可能会导致生成的执行计划不够优化，因此是否需要绑定变量还需要视情况而定。</p>
+<p>查询 ID：<code>SQL&gt; select * from player where player_id = 10001;</code></p>
+<p>绑定变量：<code>SQL&gt; select * from player where player_id = :player_id;</code></p>
+<p>这两个查询语句的效率在 Oracle 中是完全不同的。如果在查询 player_id = 10001 之后，还会查询 10002、10003 之类的数据，那么每一次查询都会创建一个新的查询解析。而第二种方式使用了绑定变量，那么在第一次查询之后，在共享池中就会存在这类查询的执行划,也就是软解析。</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="mysql-中的-sql-是如何执行的mysql-的体系结构又是怎样的">MySQL 中的 SQL 是如何执行的，MySQL 的体系结构又是怎样的？<a href="#mysql-中的-sql-是如何执行的mysql-的体系结构又是怎样的" class="hash-link" aria-label="MySQL 中的 SQL 是如何执行的，MySQL 的体系结构又是怎样的？的直接链接" title="MySQL 中的 SQL 是如何执行的，MySQL 的体系结构又是怎样的？的直接链接" translate="no">​</a></h4>
+<p>MySQL 是典型的 C/S 架构，即 Client/Server 架构，服务器端程序使用的 mysqld。整体的 MySQL 流程如下图所示：</p>
+<p><img decoding="async" loading="lazy" src="/assets/images/mySql-e91e93ce5489ed4cef8a75e6bf0eefae.png" width="506" height="287" class="img_ev3q"></p>
+<p>MySQL 由三层组成：</p>
+<ol>
+<li class="">连接层：客户端和服务器端建立连接，客户端发送 SQL 至服务器端；</li>
+<li class="">SQL 层：对 SQL 语句进行查询处理；</li>
+<li class="">存储引擎层：与数据库文件打交道，负责数据的存储和读取。</li>
+</ol>
+<p>❓ 在 MySQL 中对一条 SQL 语句的执行时间进行分析</p>
+<ol>
+<li class="">
+<p>开启 profiling,0 代表关闭，1 为开启：<code>mysql&gt; select @@profiling;</code>;<code>mysql&gt; set profiling=1;</code></p>
+</li>
+<li class="">
+<p>执行 SQL 查询：<code>mysql&gt; select * from wucai.heros;</code></p>
+</li>
+<li class="">
+<p>查看会话产生的所有 profiles：<code>show profiles;</code>
+或查询指定的 Query ID：<code>mysql&gt; show profile for query 2;</code></p>
+</li>
+</ol>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="什么是存储引擎mysql-的存储引擎都有哪些">什么是存储引擎，MySQL 的存储引擎都有哪些？<a href="#什么是存储引擎mysql-的存储引擎都有哪些" class="hash-link" aria-label="什么是存储引擎，MySQL 的存储引擎都有哪些？的直接链接" title="什么是存储引擎，MySQL 的存储引擎都有哪些？的直接链接" translate="no">​</a></h4>
+<p>与 Oracle 不同的是，MySQL 的存储引擎采用了插件的形式，每个存储引擎都面向一种特定的数据库应用环境。同时开源的 MySQL 还允许开发人员设置自己的存储引擎，下面是一些常见的存储引擎：</p>
+<ol>
+<li class="">InnoDB 存储引擎：它是 MySQL 5.5 版本之后默认的存储引擎，最大的特点是支持事务、行级锁定、外键约束等。</li>
+<li class="">MyISAM 存储引擎：在 MySQL 5.5 版本之前是默认的存储引擎，不支持事务，也不支持外键，最大的特点是速度快，占用资源少。</li>
+<li class="">Memory 存储引擎：使用系统内存作为存储介质，以便得到更快的响应速度。不过如果 mysqld 进程崩溃，则会导致所有的数据丢失，因此我们只有当数据是临时的情况下才使用 Memory 存储引擎。</li>
+<li class="">NDB 存储引擎：也叫做 NDB Cluster 存储引擎，主要用于 MySQL Cluster 分布式集群环境，类似于 Oracle 的 RAC 集群。</li>
+<li class="">Archive 存储引擎：它有很好的压缩机制，用于文件归档，在请求写入时会进行压缩，所以也经常用来做仓库。</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ddl">DDL<a href="#ddl" class="hash-link" aria-label="DDL的直接链接" title="DDL的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ddl-定义了数据库的结构和数据表的结构">DDL 定义了数据库的结构和数据表的结构<a href="#ddl-定义了数据库的结构和数据表的结构" class="hash-link" aria-label="DDL 定义了数据库的结构和数据表的结构的直接链接" title="DDL 定义了数据库的结构和数据表的结构的直接链接" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="了解-ddl-的基础语法">了解 DDL 的基础语法<a href="#了解-ddl-的基础语法" class="hash-link" aria-label="了解 DDL 的基础语法的直接链接" title="了解 DDL 的基础语法的直接链接" translate="no">​</a></h5>
+<p>在执行 DDL 的时候，不需要 COMMIT，就可以完成执行任务。</p>
+<p>增删改:<code>CREATE</code>,<code>DROP</code>,<code>ALTER</code></p>
+<p>1️⃣ 定义数据库</p>
+<p>创建一个名为 nba 的数据库：<code>CREATE DATABASE nba;</code></p>
+<p>删除一个名为 nba 的数据库：<code>DROP DATABASE nba;</code></p>
+<p>2️⃣ 定义数据表</p>
+<p>创建表结构：<code>CREATE TABLE table_name</code></p>
+<p>创建示例：</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain">CREATE TABLE player (</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">player_id int(11) NOT NULL AUTO_INCREMENT,</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">player_name varchar(255) NOT NULL</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">);</span><br></span></code></pre></div></div>
+<p>解释：创建一个表名为 player 的表，，里面有两个字段，一个是 player_id，它是 int 类型，另一个 player_name 字段是 varchar(255)类型。这两个字段都不为空，且 player_id 是递增的。</p>
+<p><code>int(11)</code>：整数类型，显示长度为 11 位，括号中的参数 11 代表的是最大有效显示长度</p>
+<p><code>varchar(255)</code>：最大长度为 255 的可变字符串类型</p>
+<p><code>NOT NULL</code>：整个字段不能是空值，是一种数据约束</p>
+<p><code>AUTO_INCREMENT</code>：主键自动增长</p>
+<p>实际上，我们通常很少自己写 DDL 语句，可以使用一些可视化工具**（Navicat）**来创建和操作数据库和数据表。</p>
+<p>3️⃣ 修改表结构</p>
+<p>在创建表结构之后，我们还可以对表结构进行修改，虽然直接使用 Navicat 可以保证重新导出的数据表就是最新的，但也有必要了解如何使用 DDL 命令来完成表结构的修改。</p>
+<p>添加字段(age 字段)：<code>ALTER TABLE player ADD (age int(11));</code></p>
+<p>【❓ 存疑】修改字段名(player--&gt; player_age)：<code>ALTER TABLE player RENAME COLUMN age to player_age</code></p>
+<p>修改字段数据类型(player_age 数据类型--&gt;float(3,1))：<code>ALTER TABLE player MODIFY (player_age float(3,1));</code></p>
+<p>删除字段(player_age)：<code>ALTER TABLE player DROP COLUMN player_age;</code></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="使用-ddl-定义数据表时都有哪些约束性">使用 DDL 定义数据表时，都有哪些约束性<a href="#使用-ddl-定义数据表时都有哪些约束性" class="hash-link" aria-label="使用 DDL 定义数据表时，都有哪些约束性的直接链接" title="使用 DDL 定义数据表时，都有哪些约束性的直接链接" translate="no">​</a></h4>
+<p>1️⃣ 主键约束</p>
+<p>主键起的作用是唯一标识一条记录，不能重复，不能为空，即 UNIQUE+NOT NULL。一个数据表的主键只能有一个。主键可以是一个字段，也可以由多个字段复合组成。</p>
+<p>2️⃣ 外键约束</p>
+<p>外键确保了表与表之间引用的完整性。一个表中的外键对应另一张表的主键。外键可以是重复的，也可以为空。</p>
+<p>【示例】：player_id 在 player 表中是主键，如果想设置一个球员比分表即 player_score，就可以在 player_score 中设 player_id 为外键，关联到 player 表中。</p>
+<p>3️⃣ 字段约束</p>
+<ul>
+<li class="">唯一性约束：唯一性约束表明字段在表中的数值是唯一的。唯一性约束和普通索引（NORMAL INDEX）之间是有区别的。唯一性约束相当于创建了一个约束和普通索引，目的是保证字段的正确性，而普通索引只是提升数据检索的速度，并不对字段的唯一性进行约束。</li>
+<li class="">NOT NULL 约束：表明该字段不应为空，必须有取值。</li>
+<li class="">DEFAULT：表明了字段的默认值。如果在插入数据的时候，这个字段没有取值，就设置为默认值。</li>
+<li class="">CHECK 约束：检查特定字段取值范围的有效性，CHECK 约束的结果不能为 FALSE。</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="使用-ddl-设计数据库时都有哪些重要原则">使用 DDL 设计数据库时，都有哪些重要原则<a href="#使用-ddl-设计数据库时都有哪些重要原则" class="hash-link" aria-label="使用 DDL 设计数据库时，都有哪些重要原则的直接链接" title="使用 DDL 设计数据库时，都有哪些重要原则的直接链接" translate="no">​</a></h4>
+<ul>
+<li class="">数据表的个数越少越好。RDBMS 的核心在于对实体和联系的定义，也就是 E-R 图（Entity Relationship Diagram），数据表越少，证明实体和联系设计得越简洁，既方便理解又方便操作。</li>
+<li class="">数据表中的字段个数越少越好。字段个数越多，数据冗余的可能性越大。设置字段个数少的前提是各个字段相互独立，而不是某个字段的取值可以由其他字段计算出来。当然字段个数少是相对的，我们通常会在数据冗余和检索效率中进行平衡。</li>
+<li class="">数据表中联合主键的字段个数越少越好。设置主键是为了确定唯一性，当一个字段无法确定唯一性的时候，就需要采用联合主键的方式（也就是用多个字段来定义一个主键）。联合主键中的字段越多，占用的索引空间越大，不仅会加大理解难度，还会增加运行时间和索引空间，因此联合主键的字段个数越少越好。</li>
+<li class=""></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="sql-检索数据">SQL 检索数据<a href="#sql-检索数据" class="hash-link" aria-label="SQL 检索数据的直接链接" title="SQL 检索数据的直接链接" translate="no">​</a></h3></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/blog/backend/node"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">node</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/blog/backend/python"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">python</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#sql" class="table-of-contents__link toc-highlight">SQL</a><ul><li><a href="#按功能划分-sql-语言" class="table-of-contents__link toc-highlight">按功能划分 SQL 语言</a></li><li><a href="#了解-sql" class="table-of-contents__link toc-highlight">了解 SQL</a></li><li><a href="#sql-是如何被执行的" class="table-of-contents__link toc-highlight">SQL 是如何被执行的</a></li><li><a href="#ddl" class="table-of-contents__link toc-highlight">DDL</a></li><li><a href="#sql-检索数据" class="table-of-contents__link toc-highlight">SQL 检索数据</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 tayce's library. Built with Docusaurus.</div></div></div></footer></div>
+</body>
+</html>

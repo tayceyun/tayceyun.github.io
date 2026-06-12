@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="zh-Hans" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-backend/aws" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">aws | tayce&#x27;s library</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://tayceyun.github.io/img/orange.jpg"><meta data-rh="true" name="twitter:image" content="https://tayceyun.github.io/img/orange.jpg"><meta data-rh="true" property="og:url" content="https://tayceyun.github.io/blog/backend/aws"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="aws | tayce&#x27;s library"><meta data-rh="true" name="description" content="AWS"><meta data-rh="true" property="og:description" content="AWS"><link data-rh="true" rel="icon" href="/img/logo.jpg"><link data-rh="true" rel="canonical" href="https://tayceyun.github.io/blog/backend/aws"><link data-rh="true" rel="alternate" href="https://tayceyun.github.io/blog/backend/aws" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://tayceyun.github.io/blog/backend/aws" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"aws","item":"https://tayceyun.github.io/blog/backend/aws"}]}</script><link rel="stylesheet" href="/assets/css/styles.6859b9a8.css">
+<script src="/assets/js/runtime~main.5450db74.js" defer="defer"></script>
+<script src="/assets/js/main.87cc83e0.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/img/logo.jpg"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/"><div class="navbar__logo"><img src="/img/logo.jpg" alt="Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/img/logo.jpg" alt="Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">tayce&#x27;s library</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/">💬 技术文章</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/blog/basis/js"><span title="前端基础" class="categoryLinkLabel_W154">前端基础</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/blog/framework/vue"><span title="前端框架" class="categoryLinkLabel_W154">前端框架</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/blog/others/git"><span title="工具合集" class="categoryLinkLabel_W154">工具合集</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/blog/backend/linux"><span title="后端" class="categoryLinkLabel_W154">后端</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/linux"><span title="linux" class="linkLabel_WmDU">linux</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/node"><span title="node" class="linkLabel_WmDU">node</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/sql"><span title="sql" class="linkLabel_WmDU">sql</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/python"><span title="python" class="linkLabel_WmDU">python</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/blog/backend/docker"><span title="docker" class="linkLabel_WmDU">docker</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/blog/backend/aws"><span title="aws" class="linkLabel_WmDU">aws</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/blog/linklist"><span title="其他" class="categoryLinkLabel_W154">其他</span></a></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">后端</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">aws</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>aws</h1></header><h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="aws">AWS<a href="#aws" class="hash-link" aria-label="AWS的直接链接" title="AWS的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="lam-security-tools">lAM Security Tools<a href="#lam-security-tools" class="hash-link" aria-label="lAM Security Tools的直接链接" title="lAM Security Tools的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="lam-credentials-report-account-level">lAM Credentials Report (account-level)<a href="#lam-credentials-report-account-level" class="hash-link" aria-label="lAM Credentials Report (account-level)的直接链接" title="lAM Credentials Report (account-level)的直接链接" translate="no">​</a></h4>
+<ul>
+<li class="">a report that lists all your account&#x27;s users and the status of their various credentials</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="lam-access-advisor-user-level">lAM Access Advisor (user-level)<a href="#lam-access-advisor-user-level" class="hash-link" aria-label="lAM Access Advisor (user-level)的直接链接" title="lAM Access Advisor (user-level)的直接链接" translate="no">​</a></h4>
+<ul>
+<li class="">Access advisor shows the service permissions granted to a user and when those services were last accessed.</li>
+<li class="">You can use this information to revise your policies.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="iam-guidelines--best-practices">IAM Guidelines &amp; Best Practices<a href="#iam-guidelines--best-practices" class="hash-link" aria-label="IAM Guidelines &amp; Best Practices的直接链接" title="IAM Guidelines &amp; Best Practices的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">Don&#x27;t use the root account except for AWS account setup</li>
+<li class="">One physical user = One AWS user</li>
+<li class="">Assign users to groups and assign permissions to groups</li>
+<li class="">Create a strong password policy</li>
+<li class="">Use and enforce the use of Multi Factor Authentication (MFA)</li>
+<li class="">Create and use Roles for giving permissions to AWS services</li>
+<li class="">Use Access Keys for Programmatic Access (CLl / SDK)</li>
+<li class="">Audit permissions of your account using lAM Credentials Report &amp; lAMAccess Advisor</li>
+<li class="">Never share lAM users &amp; Access Keys</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="lam-section-summary">lAM Section-Summary<a href="#lam-section-summary" class="hash-link" aria-label="lAM Section-Summary的直接链接" title="lAM Section-Summary的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">
+<p>Users: mapped to a physical user, has a password for AWS Console</p>
+</li>
+<li class="">
+<p>Groups: contains users only</p>
+</li>
+<li class="">
+<p>Policies: JSON document that outlines permissions for users or groups</p>
+</li>
+<li class="">
+<p>Roles: for EC2 instances or AWS services</p>
+</li>
+<li class="">
+<p>Security: MFA + Password Policy</p>
+</li>
+<li class="">
+<p>AWS CLl: manage your AWS services using the command-line</p>
+</li>
+<li class="">
+<p>AWS SDK: manage your AWS services using a programming language</p>
+</li>
+<li class="">
+<p>Access Keys: access AWS using the CLl or SDK</p>
+</li>
+<li class="">
+<p>Audit: lAM Credential Reports &amp; lAM Access Advisor</p>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2">EC2<a href="#ec2" class="hash-link" aria-label="EC2的直接链接" title="EC2的直接链接" translate="no">​</a></h2>
+<p>基础设施即服务</p>
+<p>EC2 is one of the most popular of AWS&#x27; offering
+EC2 = Elastic Compute Cloud = Infrastructure as a Service</p>
+<p>It mainly consists in the capability of:
+Renting virtual machines (EC2)
+Storing data on virtual drives (EBS)
+Distributing load across machines (ELB)
+Scaling the services using an auto-scaling group (ASG)</p>
+<p>Knowing EC2 is fundamental to understand how the Cloud works</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-sizing--configuration-options">EC2 sizing &amp; configuration options<a href="#ec2-sizing--configuration-options" class="hash-link" aria-label="EC2 sizing &amp; configuration options的直接链接" title="EC2 sizing &amp; configuration options的直接链接" translate="no">​</a></h3>
+<p>Operating System (OS): Linux,Windows or Mac OS
+How much compute power &amp; cores (CPU)
+How much random-access memory (RAM)</p>
+<p>How much storage space:
+Network-attached (EBS &amp; EFS)
+hardware (EC2 Instance Store)</p>
+<p>Network card: speed of the card, Public IP address.
+Firewall rules: security group
+Bootstrap script (configure at first launch): EC2 User Data</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-user-data">EC2 User Data<a href="#ec2-user-data" class="hash-link" aria-label="EC2 User Data的直接链接" title="EC2 User Data的直接链接" translate="no">​</a></h3>
+<p>lt is possible to bootstrap our instances using an EC2 User data script,
+bootstrapping means launching commands when a machine starts
+That script is only run once at the instance first start</p>
+<p>EC2 user data is used to automate boot tasks such as:
+Installing updates
+Installing software
+Downloading common files from the internet
+Anything you can think of</p>
+<p>The EC2 User Data Script runs with the root user</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-instancetypes--overview">EC2 InstanceTypes -Overview<a href="#ec2-instancetypes--overview" class="hash-link" aria-label="EC2 InstanceTypes -Overview的直接链接" title="EC2 InstanceTypes -Overview的直接链接" translate="no">​</a></h3>
+<p>You can use different types of EC2 instances that are optimised fordifferent use cases (<a href="https://aws.amazon.com/ec2/instance-types/" target="_blank" rel="noopener noreferrer" class="">https://aws.amazon.com/ec2/instance-types/</a>)</p>
+<p>AWS has the following naming convention:
+m5.2xlarge:
+m: instance class
+5:generation (AWS improves them over time)
+2xlarge: size within the instance class</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="use-ssh-access-ec2-with-key-pair">use ssh access Ec2 with key pair<a href="#use-ssh-access-ec2-with-key-pair" class="hash-link" aria-label="use ssh access Ec2 with key pair的直接链接" title="use ssh access Ec2 with key pair的直接链接" translate="no">​</a></h3>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token function" style="color:#d73a49">ssh</span><span class="token plain"> </span><span class="token parameter variable" style="color:#36acaa">-i</span><span class="token plain"> ~/Downloads/ec2test.pem ec2-user@13.61.33.230</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token function" style="color:#d73a49">chmod</span><span class="token plain"> </span><span class="token number" style="color:#36acaa">400</span><span class="token plain"> ~/Downloads/ec2test.pem</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token function" style="color:#d73a49">ssh</span><span class="token plain"> </span><span class="token parameter variable" style="color:#36acaa">-i</span><span class="token plain"> ~/Downloads/ec2test.pem ec2-user@13.61.33.230</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token comment" style="color:#999988;font-style:italic"># 退出instance</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token builtin class-name">exit</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="security-groups-安全组">Security Groups (安全组)<a href="#security-groups-安全组" class="hash-link" aria-label="Security Groups (安全组)的直接链接" title="Security Groups (安全组)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="安全组简介" src="/assets/images/security-groups-intro-24bb9018b80be86d8308e3bf9ff4feeb.png" width="650" height="346" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="安全组流量图解" src="/assets/images/security-groups-diagram-044fde592f3392cb44d58fe8f49d13ed.png" width="1045" height="540" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="安全组深入了解" src="/assets/images/security-groups-deeper-dive-bed70162e86086b6f699422ddefe1fbd.png" width="1128" height="561" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="安全组须知" src="/assets/images/security-groups-good-to-know-180ffbc978339d3ed43ce03e27e70f04.png" width="968" height="518" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="引用其他安全组" src="/assets/images/other-security-group-diagram-a80df629b1839829ae1b534f1c9f57f2.png" width="1012" height="569" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="classic-ports-常用端口">Classic Ports (常用端口)<a href="#classic-ports-常用端口" class="hash-link" aria-label="Classic Ports (常用端口)的直接链接" title="Classic Ports (常用端口)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="常用端口" src="/assets/images/classic-ports-2faa8ba17418828a2f1bf8607d5dc472.png" width="1001" height="400" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ssh-连接方式">SSH 连接方式<a href="#ssh-连接方式" class="hash-link" aria-label="SSH 连接方式的直接链接" title="SSH 连接方式的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="SSH 连接方式汇总" src="/assets/images/SSH-summary-table-d648a9b0f2e1a42817b1b72238ec8fb9.png" width="948" height="528" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-instances-purchasing-options-ec2-购买选项">EC2 Instances Purchasing Options (EC2 购买选项)<a href="#ec2-instances-purchasing-options-ec2-购买选项" class="hash-link" aria-label="EC2 Instances Purchasing Options (EC2 购买选项)的直接链接" title="EC2 Instances Purchasing Options (EC2 购买选项)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="EC2 购买选项概览" src="/assets/images/ec2-purchase-options-d0f247398ca033b8798f3e0b8084d7ef.png" width="1028" height="494" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-reserved-instances-预留实例">EC2 Reserved Instances (预留实例)<a href="#ec2-reserved-instances-预留实例" class="hash-link" aria-label="EC2 Reserved Instances (预留实例)的直接链接" title="EC2 Reserved Instances (预留实例)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EC2 预留实例" src="/assets/images/ec2-reserved-23d8ac2ea18de0be168c63709f2f774c.png" width="1059" height="577" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-savings-plans-节省计划">EC2 Savings Plans (节省计划)<a href="#ec2-savings-plans-节省计划" class="hash-link" aria-label="EC2 Savings Plans (节省计划)的直接链接" title="EC2 Savings Plans (节省计划)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EC2 节省计划" src="/assets/images/ec2-saving-plan-c615adca5cc4501968b62997ddbe9a00.png" width="987" height="462" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-spot-instances-竞价实例">EC2 Spot Instances (竞价实例)<a href="#ec2-spot-instances-竞价实例" class="hash-link" aria-label="EC2 Spot Instances (竞价实例)的直接链接" title="EC2 Spot Instances (竞价实例)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EC2 竞价实例" src="/assets/images/ec2-spot-335c8eeed658b3cffece66962359be13.png" width="1006" height="496" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-dedicated-hosts-专用主机">EC2 Dedicated Hosts (专用主机)<a href="#ec2-dedicated-hosts-专用主机" class="hash-link" aria-label="EC2 Dedicated Hosts (专用主机)的直接链接" title="EC2 Dedicated Hosts (专用主机)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EC2 专用主机" src="/assets/images/ec2-dedicated-hosts-511e0f1fe0d35456bb9ff03b05fb5cce.png" width="996" height="460" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-dedicated-instances-专用实例">EC2 Dedicated Instances (专用实例)<a href="#ec2-dedicated-instances-专用实例" class="hash-link" aria-label="EC2 Dedicated Instances (专用实例)的直接链接" title="EC2 Dedicated Instances (专用实例)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EC2 专用实例" src="/assets/images/ec2-dedicated-instances-5252d897d37c667112b53154a93c6412.png" width="1038" height="564" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-capacity-reservations-容量预留">EC2 Capacity Reservations (容量预留)<a href="#ec2-capacity-reservations-容量预留" class="hash-link" aria-label="EC2 Capacity Reservations (容量预留)的直接链接" title="EC2 Capacity Reservations (容量预留)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EC2 容量预留" src="/assets/images/ec2-capacity-reservations-df65117449c892cf4acc2c2d0d449c66.png" width="970" height="511" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="aws-ipv4-地址收费">AWS IPv4 地址收费<a href="#aws-ipv4-地址收费" class="hash-link" aria-label="AWS IPv4 地址收费的直接链接" title="AWS IPv4 地址收费的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="IPv4 地址收费" src="/assets/images/charge-for-ipv4-342774371c8e34f318276f4fda6b4ce3.png" width="1029" height="544" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ebs-volume-弹性块存储">EBS Volume (弹性块存储)<a href="#ebs-volume-弹性块存储" class="hash-link" aria-label="EBS Volume (弹性块存储)的直接链接" title="EBS Volume (弹性块存储)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="EBS 卷概述" src="/assets/images/EBS-Volume-08eac440bb1f1073075c9e0c605fecba.png" width="1009" height="510" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="EBS 卷示例" src="/assets/images/ebs-volume-example-93a6ebf811b1a79dc67101a68db277f1.png" width="967" height="523" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ebs-delete-on-termination-终止时删除">EBS Delete on Termination (终止时删除)<a href="#ebs-delete-on-termination-终止时删除" class="hash-link" aria-label="EBS Delete on Termination (终止时删除)的直接链接" title="EBS Delete on Termination (终止时删除)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EBS 终止时删除" src="/assets/images/EBS-delete-on-termination-955d24ff674970c5c5d6535fcdf58490.png" width="1039" height="503" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ebs-snapshots-快照">EBS Snapshots (快照)<a href="#ebs-snapshots-快照" class="hash-link" aria-label="EBS Snapshots (快照)的直接链接" title="EBS Snapshots (快照)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EBS 快照" src="/assets/images/EBS-Snapshots-1aeabdb497b39cde2a0e5d0e418acd9d.png" width="937" height="524" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="EBS 快照功能" src="/assets/images/EBS-Snapshots-Features-798bd4cc4b93812b641f75b78bb19954.png" width="1001" height="510" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ebs-volume-types">EBS volume types<a href="#ebs-volume-types" class="hash-link" aria-label="EBS volume types的直接链接" title="EBS volume types的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="EBS 卷类型" src="/assets/images/EBS-volume-types-7c53c1c320d9f23a2744685e8b46e947.png" width="2012" height="990" class="img_ev3q"></p>
+<p><a href="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html" target="_blank" rel="noopener noreferrer" class="">https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html</a></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="general-purpose-ssd-gp2gp3">General Purpose SSD (gp2/gp3)<a href="#general-purpose-ssd-gp2gp3" class="hash-link" aria-label="General Purpose SSD (gp2/gp3)的直接链接" title="General Purpose SSD (gp2/gp3)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="通用型 SSD" src="/assets/images/gp2-gp3-1df8c5a50999412ebb75d817a8a8903f.png" width="1982" height="1060" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="provisioned-iops-ssd-io1io2">Provisioned IOPS SSD (io1/io2)<a href="#provisioned-iops-ssd-io1io2" class="hash-link" aria-label="Provisioned IOPS SSD (io1/io2)的直接链接" title="Provisioned IOPS SSD (io1/io2)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="预配置 IOPS SSD" src="/assets/images/PIOPS SSD-ce2c6bd93df7cc065bb3d252096d9b10.png" width="2036" height="1014" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="hard-disk-drives-hdd">Hard Disk Drives (HDD)<a href="#hard-disk-drives-hdd" class="hash-link" aria-label="Hard Disk Drives (HDD)的直接链接" title="Hard Disk Drives (HDD)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="HDD 硬盘" src="/assets/images/HDD-2432001651f309a56f05909bfc9de1ea.png" width="1532" height="982" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ec2-instance-store-实例存储">EC2 Instance Store (实例存储)<a href="#ec2-instance-store-实例存储" class="hash-link" aria-label="EC2 Instance Store (实例存储)的直接链接" title="EC2 Instance Store (实例存储)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="EC2 实例存储" src="/assets/images/EC2-instance-store-0d2d41a2f5b6f6414339a3015e2ac0d3.png" width="1940" height="976" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ebs-multi-attach-多重挂载">EBS Multi-Attach (多重挂载)<a href="#ebs-multi-attach-多重挂载" class="hash-link" aria-label="EBS Multi-Attach (多重挂载)的直接链接" title="EBS Multi-Attach (多重挂载)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="EBS 多重挂载" src="/assets/images/EBS-Multi-Attach-462f94e9f1e1b743ddf6a2c8ac0a1d8d.png" width="2076" height="1034" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ami-amazon-machine-image">AMI (Amazon Machine Image)<a href="#ami-amazon-machine-image" class="hash-link" aria-label="AMI (Amazon Machine Image)的直接链接" title="AMI (Amazon Machine Image)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="AMI 概述" src="/assets/images/AMI-overview-396bb24de77c11fb8b8734b964c6320f.png" width="969" height="478" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="AMI 创建流程" src="/assets/images/ami-process-d0442494d336123897a841c60237ce75.png" width="903" height="494" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="amazon-efs-弹性文件系统">Amazon EFS (弹性文件系统)<a href="#amazon-efs-弹性文件系统" class="hash-link" aria-label="Amazon EFS (弹性文件系统)的直接链接" title="Amazon EFS (弹性文件系统)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="EFS 概述" src="/assets/images/EFS-overview-feb22576c0c8882a37a5240b5299aea5.png" width="2006" height="1080" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="EFS 特性" src="/assets/images/EFS-overview2-fb91339a22deab84ad0206dc96e8a9a1.png" width="1964" height="964" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="efs-performance--storage-classes">EFS Performance &amp; Storage Classes<a href="#efs-performance--storage-classes" class="hash-link" aria-label="EFS Performance &amp; Storage Classes的直接链接" title="EFS Performance &amp; Storage Classes的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="EFS 性能与存储类别" src="/assets/images/EFS-performance-741947d3d94045bef516de3ff777789c.png" width="1834" height="1012" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="EFS 存储类别" src="/assets/images/EFS-storage-class-0d001254a3b9e8dfba459f06318dd00e.png" width="2100" height="1118" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ebs-vs-efs-对比">EBS vs EFS 对比<a href="#ebs-vs-efs-对比" class="hash-link" aria-label="EBS vs EFS 对比的直接链接" title="EBS vs EFS 对比的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="EBS 与 EFS 对比" src="/assets/images/diff between EBS and EFS-50e04196839af9c9747ac8c342d23f42.png" width="1004" height="1071" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="high-availability--scalability-高可用性与可扩展性">High Availability &amp; Scalability (高可用性与可扩展性)<a href="#high-availability--scalability-高可用性与可扩展性" class="hash-link" aria-label="High Availability &amp; Scalability (高可用性与可扩展性)的直接链接" title="High Availability &amp; Scalability (高可用性与可扩展性)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="高可用性与可扩展性" src="/assets/images/availability&amp;Scalability-02801183a4d808dcd31ac68083400117.png" width="974" height="501" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="elastic-load-balancing-弹性负载均衡">Elastic Load Balancing (弹性负载均衡)<a href="#elastic-load-balancing-弹性负载均衡" class="hash-link" aria-label="Elastic Load Balancing (弹性负载均衡)的直接链接" title="Elastic Load Balancing (弹性负载均衡)的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="什么是负载均衡">什么是负载均衡<a href="#什么是负载均衡" class="hash-link" aria-label="什么是负载均衡的直接链接" title="什么是负载均衡的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="什么是负载均衡" src="/assets/images/concept of load balancing-a24d74cd860bbd03e16f6efc79d34276.png" width="909" height="545" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="为什么使用负载均衡">为什么使用负载均衡<a href="#为什么使用负载均衡" class="hash-link" aria-label="为什么使用负载均衡的直接链接" title="为什么使用负载均衡的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="为什么使用负载均衡" src="/assets/images/load-balancer-95def3993e50c17c4dcfc0d067123dd1.png" width="806" height="479" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="why-use-an-elastic-load-balancer">Why use an Elastic Load Balancer<a href="#why-use-an-elastic-load-balancer" class="hash-link" aria-label="Why use an Elastic Load Balancer的直接链接" title="Why use an Elastic Load Balancer的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="弹性负载均衡器" src="/assets/images/elastic-load-balancer-e58673653a527f003367965d4f790927.png" width="963" height="471" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="health-checks-健康检查">Health Checks (健康检查)<a href="#health-checks-健康检查" class="hash-link" aria-label="Health Checks (健康检查)的直接链接" title="Health Checks (健康检查)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="健康检查" src="/assets/images/health-check-edc2cf705e9837eb51c08042703d5bf8.png" width="978" height="527" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="load-balancer-security-groups">Load Balancer Security Groups<a href="#load-balancer-security-groups" class="hash-link" aria-label="Load Balancer Security Groups的直接链接" title="Load Balancer Security Groups的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="负载均衡器安全组" src="/assets/images/load-balancer-security-groups-ba4c4ef6068840499ac25cac8fafd549.png" width="1079" height="529" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="application-load-balancer-alb">Application Load Balancer (ALB)<a href="#application-load-balancer-alb" class="hash-link" aria-label="Application Load Balancer (ALB)的直接链接" title="Application Load Balancer (ALB)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="应用负载均衡器" src="/assets/images/load-balancer-v2-a08d12670a1570982fc55503f25d41e9.png" width="874" height="455" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="alb-target-groups-目标组">ALB Target Groups (目标组)<a href="#alb-target-groups-目标组" class="hash-link" aria-label="ALB Target Groups (目标组)的直接链接" title="ALB Target Groups (目标组)的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="ALB 目标组" src="/assets/images/v2-target-groups-6bd7c93b317e95bf66dedf5c86df4916.png" width="764" height="400" class="img_ev3q"></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="alb-good-to-know">ALB Good to Know<a href="#alb-good-to-know" class="hash-link" aria-label="ALB Good to Know的直接链接" title="ALB Good to Know的直接链接" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="ALB 须知" src="/assets/images/v2-good-to-know-a7690d08705e69544da4bea3167ac548.png" width="939" height="529" class="img_ev3q"></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="network-load-balancer-nlb">Network Load Balancer (NLB)<a href="#network-load-balancer-nlb" class="hash-link" aria-label="Network Load Balancer (NLB)的直接链接" title="Network Load Balancer (NLB)的直接链接" translate="no">​</a></h3>
+<p><img decoding="async" loading="lazy" alt="网络负载均衡器" src="/assets/images/network-load-balancer-eee0ef251b5820fee7595d9f728e9e32.png" width="682" height="1156" class="img_ev3q"></p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="-学习路线图-aws-developer-associate-dva-c02">📚 学习路线图 AWS Developer Associate (DVA-C02)<a href="#-学习路线图-aws-developer-associate-dva-c02" class="hash-link" aria-label="📚 学习路线图 AWS Developer Associate (DVA-C02)的直接链接" title="📚 学习路线图 AWS Developer Associate (DVA-C02)的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第一阶段基础知识建立2-3周">第一阶段：基础知识建立（2-3周）<a href="#第一阶段基础知识建立2-3周" class="hash-link" aria-label="第一阶段：基础知识建立（2-3周）的直接链接" title="第一阶段：基础知识建立（2-3周）的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-aws-核心概念">1. AWS 核心概念<a href="#1-aws-核心概念" class="hash-link" aria-label="1. AWS 核心概念的直接链接" title="1. AWS 核心概念的直接链接" translate="no">​</a></h4>
+<ul>
+<li class=""><strong>AWS 全球基础设施</strong>
+<ul>
+<li class="">区域（Regions）和可用区（Availability Zones）</li>
+<li class="">边缘站点（Edge Locations）</li>
+</ul>
+</li>
+</ul>
+<p><strong>如何选择AWS区域？</strong></p>
+<p><img decoding="async" loading="lazy" alt="How to choose an AWS Region" src="/assets/images/aws-region-choice-fa04ca3145f2c6a01a4d1e902fb89883.png" width="734" height="316" class="img_ev3q"></p>
+<p>选择AWS区域时需要考虑的关键因素：</p>
+<ul>
+<li class="">
+<p><strong>合规性（Compliance）</strong>：数据治理和法律要求 - 未经明确许可，数据不会离开区域</p>
+</li>
+<li class="">
+<p><strong>接近性（Proximity）</strong>：客户的地理位置 - 降低延迟</p>
+</li>
+<li class="">
+<p><strong>可用服务（Available services）</strong>：区域内的服务 - 新服务和新功能并非在每个区域都可用</p>
+</li>
+<li class="">
+<p><strong>定价（Pricing）</strong>：不同区域的定价有所差异，具体可查看服务定价页面</p>
+</li>
+<li class="">
+<p><strong>AWS 共享责任模型</strong></p>
+</li>
+<li class="">
+<p><strong>AWS 服务概览</strong></p>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-身份和访问管理-iam">2. 身份和访问管理 (IAM)<a href="#2-身份和访问管理-iam" class="hash-link" aria-label="2. 身份和访问管理 (IAM)的直接链接" title="2. 身份和访问管理 (IAM)的直接链接" translate="no">​</a></h4>
+<ul>
+<li class="">用户、组、角色和策略</li>
+<li class="">权限边界和服务控制策略</li>
+<li class="">多因素认证 (MFA)</li>
+<li class="">AWS STS (Security Token Service)</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-aws-cli-和-sdk">3. AWS CLI 和 SDK<a href="#3-aws-cli-和-sdk" class="hash-link" aria-label="3. AWS CLI 和 SDK的直接链接" title="3. AWS CLI 和 SDK的直接链接" translate="no">​</a></h4>
+<ul>
+<li class="">AWS CLI 配置和使用</li>
+<li class="">AWS SDK 基础（Python boto3, JavaScript, Java等）</li>
+<li class="">凭证配置和管理</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第二阶段核心开发服务3-4周">第二阶段：核心开发服务（3-4周）<a href="#第二阶段核心开发服务3-4周" class="hash-link" aria-label="第二阶段：核心开发服务（3-4周）的直接链接" title="第二阶段：核心开发服务（3-4周）的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-计算服务">1. 计算服务<a href="#1-计算服务" class="hash-link" aria-label="1. 计算服务的直接链接" title="1. 计算服务的直接链接" translate="no">​</a></h4>
+<p><strong>Amazon EC2</strong></p>
+<ul>
+<li class="">实例类型和定价模型</li>
+<li class="">用户数据和元数据</li>
+<li class="">安全组和网络ACL</li>
+<li class="">弹性IP和弹性网络接口</li>
+</ul>
+<p><strong>AWS Lambda</strong></p>
+<ul>
+<li class="">函数创建和配置</li>
+<li class="">触发器和事件源</li>
+<li class="">环境变量和层（Layers）</li>
+<li class="">冷启动和性能优化</li>
+<li class="">错误处理和重试机制</li>
+</ul>
+<p><strong>Amazon ECS &amp; Fargate</strong></p>
+<ul>
+<li class="">容器化应用部署</li>
+<li class="">任务定义和服务</li>
+<li class="">负载均衡集成</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-存储服务">2. 存储服务<a href="#2-存储服务" class="hash-link" aria-label="2. 存储服务的直接链接" title="2. 存储服务的直接链接" translate="no">​</a></h4>
+<p><strong>Amazon S3</strong></p>
+<ul>
+<li class="">存储桶策略和ACL</li>
+<li class="">版本控制和生命周期管理</li>
+<li class="">跨区域复制</li>
+<li class="">事件通知</li>
+<li class="">预签名URL</li>
+<li class="">S3 Transfer Acceleration</li>
+</ul>
+<p><strong>Amazon EBS</strong></p>
+<ul>
+<li class="">卷类型和性能特征</li>
+<li class="">快照和加密</li>
+</ul>
+<p><strong>Amazon EFS</strong></p>
+<ul>
+<li class="">网络文件系统配置</li>
+<li class="">性能模式</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-数据库服务">3. 数据库服务<a href="#3-数据库服务" class="hash-link" aria-label="3. 数据库服务的直接链接" title="3. 数据库服务的直接链接" translate="no">​</a></h4>
+<p><strong>Amazon RDS</strong></p>
+<ul>
+<li class="">数据库引擎选择</li>
+<li class="">多可用区部署</li>
+<li class="">读取副本</li>
+<li class="">备份和恢复</li>
+<li class="">参数组和选项组</li>
+</ul>
+<p><strong>Amazon DynamoDB</strong></p>
+<ul>
+<li class="">表设计和分区键</li>
+<li class="">全局二级索引 (GSI) 和本地二级索引 (LSI)</li>
+<li class="">DynamoDB Streams</li>
+<li class="">条件写入和原子计数器</li>
+<li class="">批量操作</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第三阶段应用集成和消息传递2-3周">第三阶段：应用集成和消息传递（2-3周）<a href="#第三阶段应用集成和消息传递2-3周" class="hash-link" aria-label="第三阶段：应用集成和消息传递（2-3周）的直接链接" title="第三阶段：应用集成和消息传递（2-3周）的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-消息队列服务">1. 消息队列服务<a href="#1-消息队列服务" class="hash-link" aria-label="1. 消息队列服务的直接链接" title="1. 消息队列服务的直接链接" translate="no">​</a></h4>
+<p><strong>Amazon SQS</strong></p>
+<ul>
+<li class="">标准队列 vs FIFO队列</li>
+<li class="">死信队列 (DLQ)</li>
+<li class="">长轮询 vs 短轮询</li>
+<li class="">消息可见性超时</li>
+</ul>
+<p><strong>Amazon SNS</strong></p>
+<ul>
+<li class="">主题和订阅</li>
+<li class="">消息过滤</li>
+<li class="">扇出模式</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-api-管理">2. API 管理<a href="#2-api-管理" class="hash-link" aria-label="2. API 管理的直接链接" title="2. API 管理的直接链接" translate="no">​</a></h4>
+<p><strong>Amazon API Gateway</strong></p>
+<ul>
+<li class="">REST API vs HTTP API</li>
+<li class="">授权和认证</li>
+<li class="">请求/响应转换</li>
+<li class="">缓存和限流</li>
+<li class="">CORS配置</li>
+<li class="">API密钥和使用计划</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-工作流编排">3. 工作流编排<a href="#3-工作流编排" class="hash-link" aria-label="3. 工作流编排的直接链接" title="3. 工作流编排的直接链接" translate="no">​</a></h4>
+<p><strong>AWS Step Functions</strong></p>
+<ul>
+<li class="">状态机设计</li>
+<li class="">错误处理和重试</li>
+<li class="">并行和选择状态</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第四阶段监控日志和调试2周">第四阶段：监控、日志和调试（2周）<a href="#第四阶段监控日志和调试2周" class="hash-link" aria-label="第四阶段：监控、日志和调试（2周）的直接链接" title="第四阶段：监控、日志和调试（2周）的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-监控服务">1. 监控服务<a href="#1-监控服务" class="hash-link" aria-label="1. 监控服务的直接链接" title="1. 监控服务的直接链接" translate="no">​</a></h4>
+<p><strong>Amazon CloudWatch</strong></p>
+<ul>
+<li class="">指标和警报</li>
+<li class="">日志组和日志流</li>
+<li class="">CloudWatch Insights</li>
+<li class="">自定义指标</li>
+</ul>
+<p><strong>AWS X-Ray</strong></p>
+<ul>
+<li class="">分布式追踪</li>
+<li class="">服务映射</li>
+<li class="">性能分析</li>
+<li class="">注释和元数据</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-调试和故障排除">2. 调试和故障排除<a href="#2-调试和故障排除" class="hash-link" aria-label="2. 调试和故障排除的直接链接" title="2. 调试和故障排除的直接链接" translate="no">​</a></h4>
+<ul>
+<li class="">应用程序日志分析</li>
+<li class="">性能瓶颈识别</li>
+<li class="">错误处理最佳实践</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第五阶段安全和部署2-3周">第五阶段：安全和部署（2-3周）<a href="#第五阶段安全和部署2-3周" class="hash-link" aria-label="第五阶段：安全和部署（2-3周）的直接链接" title="第五阶段：安全和部署（2-3周）的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-安全服务">1. 安全服务<a href="#1-安全服务" class="hash-link" aria-label="1. 安全服务的直接链接" title="1. 安全服务的直接链接" translate="no">​</a></h4>
+<p><strong>AWS KMS</strong></p>
+<ul>
+<li class="">密钥管理</li>
+<li class="">信封加密</li>
+<li class="">密钥策略</li>
+</ul>
+<p><strong>AWS Secrets Manager</strong></p>
+<ul>
+<li class="">密钥轮换</li>
+<li class="">跨服务集成</li>
+</ul>
+<p><strong>AWS Systems Manager Parameter Store</strong></p>
+<ul>
+<li class="">参数层次结构</li>
+<li class="">安全字符串参数</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-部署和cicd">2. 部署和CI/CD<a href="#2-部署和cicd" class="hash-link" aria-label="2. 部署和CI/CD的直接链接" title="2. 部署和CI/CD的直接链接" translate="no">​</a></h4>
+<p><strong>AWS CodeCommit</strong></p>
+<ul>
+<li class="">Git仓库管理</li>
+</ul>
+<p><strong>AWS CodeBuild</strong></p>
+<ul>
+<li class="">构建项目配置</li>
+<li class="">buildspec.yml</li>
+</ul>
+<p><strong>AWS CodeDeploy</strong></p>
+<ul>
+<li class="">部署配置</li>
+<li class="">蓝绿部署和滚动部署</li>
+</ul>
+<p><strong>AWS CodePipeline</strong></p>
+<ul>
+<li class="">管道创建和管理</li>
+<li class="">阶段和操作</li>
+</ul>
+<p><strong>AWS CloudFormation</strong></p>
+<ul>
+<li class="">模板语法</li>
+<li class="">堆栈管理</li>
+<li class="">嵌套堆栈</li>
+<li class="">自定义资源</li>
+</ul>
+<p><strong>AWS SAM (Serverless Application Model)</strong></p>
+<ul>
+<li class="">无服务器应用部署</li>
+<li class="">本地测试和调试</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="️-实践项目建议">🛠️ 实践项目建议<a href="#️-实践项目建议" class="hash-link" aria-label="🛠️ 实践项目建议的直接链接" title="🛠️ 实践项目建议的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="项目1无服务器web应用">项目1：无服务器Web应用<a href="#项目1无服务器web应用" class="hash-link" aria-label="项目1：无服务器Web应用的直接链接" title="项目1：无服务器Web应用的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>技术栈</strong>：Lambda, API Gateway, DynamoDB, S3, CloudFront</li>
+<li class=""><strong>功能</strong>：用户注册、登录、数据CRUD操作</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="项目2微服务架构">项目2：微服务架构<a href="#项目2微服务架构" class="hash-link" aria-label="项目2：微服务架构的直接链接" title="项目2：微服务架构的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>技术栈</strong>：ECS, RDS, SQS, SNS, CloudWatch</li>
+<li class=""><strong>功能</strong>：订单处理系统</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="项目3cicd管道">项目3：CI/CD管道<a href="#项目3cicd管道" class="hash-link" aria-label="项目3：CI/CD管道的直接链接" title="项目3：CI/CD管道的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>技术栈</strong>：CodeCommit, CodeBuild, CodeDeploy, CodePipeline</li>
+<li class=""><strong>功能</strong>：自动化部署流程</li>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-tags-row"><div class="col"><b>标签：</b><ul class="tags_jXut padding--none margin-left--sm"><li class="tag_QGVx"><a rel="tag" class="tag_zVej tagRegular_sFm0" href="/blog/tags/aws">aws</a></li><li class="tag_QGVx"><a rel="tag" class="tag_zVej tagRegular_sFm0" href="/blog/tags/cloud">cloud</a></li></ul></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/blog/backend/docker"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">docker</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/blog/linklist"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">技术文章汇总</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#aws" class="table-of-contents__link toc-highlight">AWS</a><ul><li><a href="#lam-security-tools" class="table-of-contents__link toc-highlight">lAM Security Tools</a></li><li><a href="#iam-guidelines--best-practices" class="table-of-contents__link toc-highlight">IAM Guidelines &amp; Best Practices</a></li><li><a href="#lam-section-summary" class="table-of-contents__link toc-highlight">lAM Section-Summary</a></li></ul></li><li><a href="#ec2" class="table-of-contents__link toc-highlight">EC2</a><ul><li><a href="#ec2-sizing--configuration-options" class="table-of-contents__link toc-highlight">EC2 sizing &amp; configuration options</a></li><li><a href="#ec2-user-data" class="table-of-contents__link toc-highlight">EC2 User Data</a></li><li><a href="#ec2-instancetypes--overview" class="table-of-contents__link toc-highlight">EC2 InstanceTypes -Overview</a></li><li><a href="#use-ssh-access-ec2-with-key-pair" class="table-of-contents__link toc-highlight">use ssh access Ec2 with key pair</a></li><li><a href="#security-groups-安全组" class="table-of-contents__link toc-highlight">Security Groups (安全组)</a></li><li><a href="#classic-ports-常用端口" class="table-of-contents__link toc-highlight">Classic Ports (常用端口)</a></li><li><a href="#ssh-连接方式" class="table-of-contents__link toc-highlight">SSH 连接方式</a></li><li><a href="#ec2-instances-purchasing-options-ec2-购买选项" class="table-of-contents__link toc-highlight">EC2 Instances Purchasing Options (EC2 购买选项)</a></li><li><a href="#ebs-volume-弹性块存储" class="table-of-contents__link toc-highlight">EBS Volume (弹性块存储)</a></li><li><a href="#ebs-volume-types" class="table-of-contents__link toc-highlight">EBS volume types</a></li><li><a href="#ec2-instance-store-实例存储" class="table-of-contents__link toc-highlight">EC2 Instance Store (实例存储)</a></li><li><a href="#ebs-multi-attach-多重挂载" class="table-of-contents__link toc-highlight">EBS Multi-Attach (多重挂载)</a></li><li><a href="#ami-amazon-machine-image" class="table-of-contents__link toc-highlight">AMI (Amazon Machine Image)</a></li><li><a href="#amazon-efs-弹性文件系统" class="table-of-contents__link toc-highlight">Amazon EFS (弹性文件系统)</a></li><li><a href="#ebs-vs-efs-对比" class="table-of-contents__link toc-highlight">EBS vs EFS 对比</a></li><li><a href="#high-availability--scalability-高可用性与可扩展性" class="table-of-contents__link toc-highlight">High Availability &amp; Scalability (高可用性与可扩展性)</a></li><li><a href="#elastic-load-balancing-弹性负载均衡" class="table-of-contents__link toc-highlight">Elastic Load Balancing (弹性负载均衡)</a></li><li><a href="#application-load-balancer-alb" class="table-of-contents__link toc-highlight">Application Load Balancer (ALB)</a></li><li><a href="#network-load-balancer-nlb" class="table-of-contents__link toc-highlight">Network Load Balancer (NLB)</a></li></ul></li><li><a href="#-学习路线图-aws-developer-associate-dva-c02" class="table-of-contents__link toc-highlight">📚 学习路线图 AWS Developer Associate (DVA-C02)</a><ul><li><a href="#第一阶段基础知识建立2-3周" class="table-of-contents__link toc-highlight">第一阶段：基础知识建立（2-3周）</a></li><li><a href="#第二阶段核心开发服务3-4周" class="table-of-contents__link toc-highlight">第二阶段：核心开发服务（3-4周）</a></li><li><a href="#第三阶段应用集成和消息传递2-3周" class="table-of-contents__link toc-highlight">第三阶段：应用集成和消息传递（2-3周）</a></li><li><a href="#第四阶段监控日志和调试2周" class="table-of-contents__link toc-highlight">第四阶段：监控、日志和调试（2周）</a></li><li><a href="#第五阶段安全和部署2-3周" class="table-of-contents__link toc-highlight">第五阶段：安全和部署（2-3周）</a></li></ul></li><li><a href="#️-实践项目建议" class="table-of-contents__link toc-highlight">🛠️ 实践项目建议</a><ul><li><a href="#项目1无服务器web应用" class="table-of-contents__link toc-highlight">项目1：无服务器Web应用</a></li><li><a href="#项目2微服务架构" class="table-of-contents__link toc-highlight">项目2：微服务架构</a></li><li><a href="#项目3cicd管道" class="table-of-contents__link toc-highlight">项目3：CI/CD管道</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 tayce's library. Built with Docusaurus.</div></div></div></footer></div>
+</body>
+</html>
