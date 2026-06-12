@@ -24,6 +24,7 @@
     "frequency": "monthly",
     "mode": "percentile",
     "rolling_window_years": 5,
+    "rolling_window_years_short": 1,
     "exact_date_required": false,
     "percentile_adjustments": [
       {"lte": 0.20, "adjustment": 0.30},

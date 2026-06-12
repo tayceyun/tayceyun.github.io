@@ -55,6 +55,7 @@ def _build_valuation_context(history: pd.DataFrame, market_date: str, config: di
         "forward_pe_date": None,
         "source": None,
         "percentile": None,
+        "percentile_short": None,
         "latest_known_forward_pe": None,
         "latest_known_forward_pe_date": None,
     }
@@ -89,6 +90,13 @@ def _build_valuation_context(history: pd.DataFrame, market_date: str, config: di
     if not window.empty:
         percentile = float((window["forward_pe"] <= context["forward_pe"]).sum() / len(window))
         context["percentile"] = percentile
+
+    rolling_years_short = int(config["valuation"].get("rolling_window_years_short", 1))
+    window_start_short = target_date - pd.DateOffset(years=rolling_years_short)
+    window_short = historical.loc[historical["date"] >= window_start_short]
+    if not window_short.empty:
+        percentile_short = float((window_short["forward_pe"] <= context["forward_pe"]).sum() / len(window_short))
+        context["percentile_short"] = percentile_short
 
     return context
 
@@ -275,6 +283,7 @@ def evaluate_daily_strategy(
         forward_pe_date=valuation_context["forward_pe_date"],
         forward_pe_source=valuation_context["source"],
         forward_pe_percentile=valuation_context["percentile"],
+        forward_pe_percentile_short=valuation_context["percentile_short"],
         latest_known_forward_pe=valuation_context["latest_known_forward_pe"],
         latest_known_forward_pe_date=valuation_context["latest_known_forward_pe_date"],
         adjustment_factor=adjustment_factor,

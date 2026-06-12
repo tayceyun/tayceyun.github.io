@@ -105,6 +105,7 @@ class DailyReport:
     forward_pe_date: str | None
     forward_pe_source: str | None
     forward_pe_percentile: float | None
+    forward_pe_percentile_short: float | None
     latest_known_forward_pe: float | None
     latest_known_forward_pe_date: str | None
     adjustment_factor: float | None
@@ -143,7 +144,9 @@ class DailyReport:
             if self.forward_pe_date and self.forward_pe_date != self.market_date:
                 lines.append("估值口径: 月频，当前沿用最近一期 Forward PE")
             if self.forward_pe_percentile is not None:
-                lines.append(f"5年滚动（月频基线 + 日频增量）Forward PE 百分位: {self.forward_pe_percentile * 100:.2f}%")
+                lines.append(f"5年滚动 Forward PE 百分位: {self.forward_pe_percentile * 100:.2f}%")
+            if self.forward_pe_percentile_short is not None:
+                lines.append(f"1年滚动 Forward PE 百分位(仅供参考): {self.forward_pe_percentile_short * 100:.2f}%")
             if self.adjustment_factor is not None:
                 lines.append(f"调整系数 A: {self.adjustment_factor:.2f}")
         else:
