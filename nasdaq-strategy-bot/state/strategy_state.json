@@ -2,8 +2,8 @@
   "version": 1,
   "high_close": 746.1599731445312,
   "high_close_date": "2026-06-02",
-  "last_market_date": "2026-06-25",
-  "last_report_market_date": "2026-06-25",
+  "last_market_date": "2026-06-26",
+  "last_report_market_date": "2026-06-26",
   "triggers": {
     "10": {
       "threshold": 10,
