@@ -2,8 +2,8 @@
   "version": 1,
   "high_close": 746.1599731445312,
   "high_close_date": "2026-06-02",
-  "last_market_date": "2026-07-30",
-  "last_report_market_date": "2026-07-30",
+  "last_market_date": "2026-07-31",
+  "last_report_market_date": "2026-07-31",
   "triggers": {
     "10": {
       "threshold": 10,
@@ -11,7 +11,7 @@
       "status": "pending",
       "activated_on": "2026-07-29",
       "status_updated_on": "2026-07-29",
-      "pending_days_open": 2,
+      "pending_days_open": 3,
       "cooldown_remaining": 0,
       "current_suggested_amount": 6500.0,
       "current_adjustment_factor": 1.3,
